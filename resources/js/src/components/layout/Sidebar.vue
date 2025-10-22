@@ -1,0 +1,299 @@
+<template>
+  <div :class="{ 'dark text-white-dark': store.semidark }">
+    <nav
+      class="sidebar fixed min-h-screen h-full top-0 bottom-0 w-[260px] shadow-[5px_0_25px_0_rgba(94,92,154,0.1)] z-50 transition-all duration-300">
+      <div class="bg-white dark:bg-[#0e1726] h-full">
+        <div class="flex justify-between items-center px-4 py-3">
+          <router-link to="/" class="main-logo flex items-center shrink-0">
+            <img class="w-40 ml-[5px] flex-none" src="/assets/images/logo-vertical.png" alt="" />
+          </router-link>
+          <a href="javascript:;"
+            class="collapse-icon w-8 h-8 rounded-full flex items-center hover:bg-gray-500/10 dark:hover:bg-dark-light/10 dark:text-white-light transition duration-300 rtl:rotate-180 hover:text-primary"
+            @click="store.toggleSidebar()">
+            <svg class="w-5 h-5 m-auto" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M13 19L7 12L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+              <path opacity="0.5" d="M16.9998 19L10.9998 12L16.9998 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </a>
+        </div>
+        <perfect-scrollbar :options="{
+          swipeEasing: true,
+          wheelPropagation: false,
+        }" class="h-[calc(100vh-80px)] relative">
+            <div class="cursor-pointer flex items-center gap-2 border-solid border-gray-200 p-2 px-5 rounded bg-gray-100 dark:hover:bg-dark-light/10" @click="openCreateModal">
+              <svg width="40" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="25" cy="25" r="25" fill="#FBBD0A" />
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                  d="M25 15C25.3789 15 25.7422 15.1505 26.0102 15.4184C26.2781 15.6863 26.4286 16.0497 26.4286 16.4286V23.5714H33.5714C33.9503 23.5714 34.3137 23.7219 34.5816 23.9898C34.8495 24.2578 35 24.6211 35 25C35 25.3789 34.8495 25.7422 34.5816 26.0102C34.3137 26.2781 33.9503 26.4286 33.5714 26.4286H26.4286V33.5714C26.4286 33.9503 26.2781 34.3137 26.0102 34.5816C25.7422 34.8495 25.3789 35 25 35C24.6211 35 24.2578 34.8495 23.9898 34.5816C23.7219 34.3137 23.5714 33.9503 23.5714 33.5714V26.4286H16.4286C16.0497 26.4286 15.6863 26.2781 15.4184 26.0102C15.1505 25.7422 15 25.3789 15 25C15 24.6211 15.1505 24.2578 15.4184 23.9898C15.6863 23.7219 16.0497 23.5714 16.4286 23.5714H23.5714V16.4286C23.5714 16.0497 23.7219 15.6863 23.9898 15.4184C24.2578 15.1505 24.6211 15 25 15Z"
+                  fill="white" />
+              </svg>
+              <strong class="text-black dark:text-white-light hover:text-primary">{{ $t('Create New') }}</strong>
+            </div>
+          <ul class="relative font-semibold space-y-0.5 p-4 py-0">
+            <li class='mb-4' >
+            </li>
+
+
+            <li class="nav-item">
+              <router-link to="/apps/contacts" class="group" @click="toggleMobileMenu">
+                <div class="flex items-center">
+                  <svg class="group-hover:!text-primary shrink-0" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path opacity="0.5"
+                      d="M19.7165 20.3624C21.143 19.5846 22 18.5873 22 17.5C22 16.3475 21.0372 15.2961 19.4537 14.5C17.6226 13.5794 14.9617 13 12 13C9.03833 13 6.37738 13.5794 4.54631 14.5C2.96285 15.2961 2 16.3475 2 17.5C2 18.6525 2.96285 19.7039 4.54631 20.5C6.37738 21.4206 9.03833 22 12 22C15.1066 22 17.8823 21.3625 19.7165 20.3624Z"
+                      fill="currentColor" />
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                      d="M5 8.51464C5 4.9167 8.13401 2 12 2C15.866 2 19 4.9167 19 8.51464C19 12.0844 16.7658 16.2499 13.2801 17.7396C12.4675 18.0868 11.5325 18.0868 10.7199 17.7396C7.23416 16.2499 5 12.0844 5 8.51464ZM12 11C13.1046 11 14 10.1046 14 9C14 7.89543 13.1046 7 12 7C10.8954 7 10 7.89543 10 9C10 10.1046 10.8954 11 12 11Z"
+                      fill="currentColor" />
+                  </svg>
+
+                  <span class="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{{
+                    $t('Submission')
+                    }}</span>
+                </div>
+              </router-link>
+            </li>
+            <li class="menu nav-item">
+              <button type="button" class="nav-link group w-full" :class="{ active: activeDropdown === 'approval' }"
+                @click="activeDropdown === 'approval' ? (activeDropdown = null) : (activeDropdown = 'approval')">
+                <div class="flex items-center">
+                  <svg class="group-hover:!text-primary shrink-0" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path opacity="0.5" fill-rule="evenodd" clip-rule="evenodd"
+                      d="M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z"
+                      fill="currentColor" />
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                      d="M12 5.25C12.4142 5.25 12.75 5.58579 12.75 6V6.31673C14.3804 6.60867 15.75 7.83361 15.75 9.5C15.75 9.91421 15.4142 10.25 15 10.25C14.5858 10.25 14.25 9.91421 14.25 9.5C14.25 8.82154 13.6859 8.10339 12.75 7.84748V11.3167C14.3804 11.6087 15.75 12.8336 15.75 14.5C15.75 16.1664 14.3804 17.3913 12.75 17.6833V18C12.75 18.4142 12.4142 18.75 12 18.75C11.5858 18.75 11.25 18.4142 11.25 18V17.6833C9.61957 17.3913 8.25 16.1664 8.25 14.5C8.25 14.0858 8.58579 13.75 9 13.75C9.41421 13.75 9.75 14.0858 9.75 14.5C9.75 15.1785 10.3141 15.8966 11.25 16.1525V12.6833C9.61957 12.3913 8.25 11.1664 8.25 9.5C8.25 7.83361 9.61957 6.60867 11.25 6.31673V6C11.25 5.58579 11.5858 5.25 12 5.25ZM11.25 7.84748C10.3141 8.10339 9.75 8.82154 9.75 9.5C9.75 10.1785 10.3141 10.8966 11.25 11.1525V7.84748ZM14.25 14.5C14.25 13.8215 13.6859 13.1034 12.75 12.8475V16.1525C13.6859 15.8966 14.25 15.1785 14.25 14.5Z"
+                      fill="currentColor" />
+                  </svg>
+
+                  <span class="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{{
+                    $t('Approval')
+                    }}</span>
+                </div>
+                <div class="rtl:rotate-180" :class="{ '!rotate-90': activeDropdown === 'invoice' }">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 5L15 12L9 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                      stroke-linejoin="round" />
+                  </svg>
+                </div>
+              </button>
+              <vue-collapsible :isOpen="activeDropdown === 'approval'">
+                <div class="">
+                  <ul class="sub-menu text-gray-500">
+                    <li>
+                      <router-link to="/approval/approval-all" @click="toggleMobileMenu">{{ $t('Approval All') }}</router-link>
+                    </li>
+                    <li>
+                      <router-link to="/approval/pr-approval" @click="toggleMobileMenu">{{ $t('PR Approval') }}</router-link>
+                    </li>
+                    <li>
+                      <router-link to="/approval/po-approval" @click="toggleMobileMenu">{{ $t('PO Approval') }}</router-link>
+                    </li>
+                    <li>
+                      <router-link to="/approval/ar-approval" @click="toggleMobileMenu">{{ $t('AR Approval') }}</router-link>
+                    </li>
+                  </ul>
+                </div>
+              </vue-collapsible>
+            </li>
+
+            <li class="menu nav-item">
+              <button type="button" class="nav-link group w-full" :class="{ active: activeDropdown === 'report' }"
+                @click="activeDropdown === 'report' ? (activeDropdown = null) : (activeDropdown = 'report')">
+                <div class="flex items-center">
+                  <svg class="group-hover:!text-primary shrink-0" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M4.97883 9.68508C2.99294 8.89073 2 8.49355 2 8C2 7.50645 2.99294 7.10927 4.97883 6.31492L7.7873 5.19153C9.77318 4.39718 10.7661 4 12 4C13.2339 4 14.2268 4.39718 16.2127 5.19153L19.0212 6.31492C21.0071 7.10927 22 7.50645 22 8C22 8.49355 21.0071 8.89073 19.0212 9.68508L16.2127 10.8085C14.2268 11.6028 13.2339 12 12 12C10.7661 12 9.77318 11.6028 7.7873 10.8085L4.97883 9.68508Z"
+                      fill="currentColor" />
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                      d="M2 8C2 8.49355 2.99294 8.89073 4.97883 9.68508L7.7873 10.8085C9.77318 11.6028 10.7661 12 12 12C13.2339 12 14.2268 11.6028 16.2127 10.8085L19.0212 9.68508C21.0071 8.89073 22 8.49355 22 8C22 7.50645 21.0071 7.10927 19.0212 6.31492L16.2127 5.19153C14.2268 4.39718 13.2339 4 12 4C10.7661 4 9.77318 4.39718 7.7873 5.19153L4.97883 6.31492C2.99294 7.10927 2 7.50645 2 8Z"
+                      fill="currentColor" />
+                    <path opacity="0.7"
+                      d="M5.76613 10L4.97883 10.3149C2.99294 11.1093 2 11.5065 2 12C2 12.4935 2.99294 12.8907 4.97883 13.6851L7.7873 14.8085C9.77318 15.6028 10.7661 16 12 16C13.2339 16 14.2268 15.6028 16.2127 14.8085L19.0212 13.6851C21.0071 12.8907 22 12.4935 22 12C22 11.5065 21.0071 11.1093 19.0212 10.3149L18.2339 10L16.2127 10.8085C14.2268 11.6028 13.2339 12 12 12C10.7661 12 9.77318 11.6028 7.7873 10.8085L5.76613 10Z"
+                      fill="currentColor" />
+                    <path opacity="0.4"
+                      d="M5.76613 14L4.97883 14.3149C2.99294 15.1093 2 15.5065 2 16C2 16.4935 2.99294 16.8907 4.97883 17.6851L7.7873 18.8085C9.77318 19.6028 10.7661 20 12 20C13.2339 20 14.2268 19.6028 16.2127 18.8085L19.0212 17.6851C21.0071 16.8907 22 16.4935 22 16C22 15.5065 21.0071 15.1093 19.0212 14.3149L18.2339 14L16.2127 14.8085C14.2268 15.6028 13.2339 16 12 16C10.7661 16 9.77318 15.6028 7.7873 14.8085L5.76613 14Z"
+                      fill="currentColor" />
+                  </svg>
+
+                  <span class="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{{
+                    $t('Report')
+                    }}</span>
+                </div>
+                <div class="rtl:rotate-180" :class="{ '!rotate-90': activeDropdown === 'datatables' }">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 5L15 12L9 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                      stroke-linejoin="round" />
+                  </svg>
+                </div>
+              </button>
+              <vue-collapsible :isOpen="activeDropdown === 'report'">
+                <div class="">
+                  <ul class="sub-menu text-gray-500">
+                    <li>
+                      <router-link to="/report/assets" @click="toggleMobileMenu">{{ $t('Asset') }}</router-link>
+                    </li>
+                    <li>
+                      <router-link to="/report/barcodes" @click="toggleMobileMenu">{{ $t('Barcode') }}</router-link>
+                    </li>
+                  </ul>
+                </div>
+              </vue-collapsible>
+            </li>
+
+            <li class="menu nav-item">
+              <router-link to="/migrasi" class="nav-link group" @click="toggleMobileMenu">
+                <div class="flex items-center">
+                  <svg class="group-hover:!text-primary shrink-0" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path opacity="0.5"
+                      d="M6.22209 4.60105C6.66665 4.304 7.13344 4.04636 7.6171 3.82976C8.98898 3.21539 9.67491 2.9082 10.5875 3.4994C11.5 4.09061 11.5 5.06041 11.5 7.00001V8.50001C11.5 10.3856 11.5 11.3284 12.0858 11.9142C12.6716 12.5 13.6144 12.5 15.5 12.5H17C18.9396 12.5 19.9094 12.5 20.5006 13.4125C21.0918 14.3251 20.7846 15.011 20.1702 16.3829C19.9536 16.8666 19.696 17.3334 19.399 17.7779C18.3551 19.3402 16.8714 20.5578 15.1355 21.2769C13.3996 21.9959 11.4895 22.184 9.64665 21.8175C7.80383 21.4509 6.11109 20.5461 4.78249 19.2175C3.45389 17.8889 2.5491 16.1962 2.18254 14.3534C1.81598 12.5105 2.00412 10.6004 2.72315 8.86451C3.44218 7.12861 4.65982 5.64492 6.22209 4.60105Z"
+                      fill="currentColor" />
+                    <path
+                      d="M21.446 7.06901C20.6342 5.00831 18.9917 3.36579 16.931 2.55398C15.3895 1.94669 14 3.34316 14 5.00002V9.00002C14 9.5523 14.4477 10 15 10H19C20.6569 10 22.0533 8.61055 21.446 7.06901Z"
+                      fill="currentColor" />
+                  </svg>
+
+                  <span class="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{{ $t('Migrasi')
+                    }}</span>
+                </div>
+              </router-link>
+            </li>
+
+            <h2
+              class="py-3 px-7 flex items-center uppercase font-extrabold bg-white-light/30 dark:bg-dark dark:bg-opacity-[0.08] -mx-4 mb-1">
+              <svg class="w-4 h-5 flex-none hidden" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              <span>{{ $t('MASTER') }}</span>
+            </h2>
+
+            <li class="menu nav-item">
+              <router-link to="/master/barang" class="nav-link group" @click="toggleMobileMenu">
+                <div class="flex items-center">
+                  <svg class="group-hover:!text-primary shrink-0" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path opacity="0.5"
+                      d="M13 15.4C13 13.3258 13 12.2887 13.659 11.6444C14.318 11 15.3787 11 17.5 11C19.6213 11 20.682 11 21.341 11.6444C22 12.2887 22 13.3258 22 15.4V17.6C22 19.6742 22 20.7113 21.341 21.3556C20.682 22 19.6213 22 17.5 22C15.3787 22 14.318 22 13.659 21.3556C13 20.7113 13 19.6742 13 17.6V15.4Z"
+                      fill="currentColor" />
+                    <path
+                      d="M2 8.6C2 10.6742 2 11.7113 2.65901 12.3556C3.31802 13 4.37868 13 6.5 13C8.62132 13 9.68198 13 10.341 12.3556C11 11.7113 11 10.6742 11 8.6V6.4C11 4.32582 11 3.28873 10.341 2.64437C9.68198 2 8.62132 2 6.5 2C4.37868 2 3.31802 2 2.65901 2.64437C2 3.28873 2 4.32582 2 6.4V8.6Z"
+                      fill="currentColor" />
+                    <path
+                      d="M13 5.5C13 4.4128 13 3.8692 13.1713 3.44041C13.3996 2.86867 13.8376 2.41443 14.389 2.17761C14.8024 2 15.3266 2 16.375 2H18.625C19.6734 2 20.1976 2 20.611 2.17761C21.1624 2.41443 21.6004 2.86867 21.8287 3.44041C22 3.8692 22 4.4128 22 5.5C22 6.5872 22 7.1308 21.8287 7.55959C21.6004 8.13133 21.1624 8.58557 20.611 8.82239C20.1976 9 19.6734 9 18.625 9H16.375C15.3266 9 14.8024 9 14.389 8.82239C13.8376 8.58557 13.3996 8.13133 13.1713 7.55959C13 7.1308 13 6.5872 13 5.5Z"
+                      fill="currentColor" />
+                    <path opacity="0.5"
+                      d="M2 18.5C2 19.5872 2 20.1308 2.17127 20.5596C2.39963 21.1313 2.83765 21.5856 3.38896 21.8224C3.80245 22 4.32663 22 5.375 22H7.625C8.67337 22 9.19755 22 9.61104 21.8224C10.1624 21.5856 10.6004 21.1313 10.8287 20.5596C11 20.1308 11 19.5872 11 18.5C11 17.4128 11 16.8692 10.8287 16.4404C10.6004 15.8687 10.1624 15.4144 9.61104 15.1776C9.19755 15 8.67337 15 7.625 15H5.375C4.32663 15 3.80245 15 3.38896 15.1776C2.83765 15.4144 2.39963 15.8687 2.17127 16.4404C2 16.8692 2 17.4128 2 18.5Z"
+                      fill="currentColor" />
+                  </svg>
+
+                  <span class="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{{ $t('Barang')
+                    }}</span>
+                </div>
+              </router-link>
+            </li>
+
+
+            <li class="menu nav-item">
+              <router-link to="/users" class="nav-link group" @click="toggleMobileMenu">
+                <div class="flex items-center">
+                  <svg class="group-hover:!text-primary shrink-0" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path opacity="0.5"
+                      d="M2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12Z"
+                      fill="currentColor" />
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                      d="M12 6.75C9.1005 6.75 6.75 9.1005 6.75 12C6.75 14.8995 9.1005 17.25 12 17.25C12.4142 17.25 12.75 17.5858 12.75 18C12.75 18.4142 12.4142 18.75 12 18.75C8.27208 18.75 5.25 15.7279 5.25 12C5.25 8.27208 8.27208 5.25 12 5.25C15.7279 5.25 18.75 8.27208 18.75 12C18.75 12.8103 18.6069 13.5889 18.3439 14.3108C18.211 14.6756 17.9855 14.9732 17.7354 15.204L17.6548 15.2783C16.8451 16.0252 15.6294 16.121 14.7127 15.5099C14.3431 15.2635 14.0557 14.9233 13.8735 14.5325C13.3499 14.9205 12.7017 15.15 12 15.15C10.2603 15.15 8.85 13.7397 8.85 12C8.85 10.2603 10.2603 8.85 12 8.85C13.7397 8.85 15.15 10.2603 15.15 12V13.5241C15.15 13.8206 15.2981 14.0974 15.5448 14.2618C15.8853 14.4888 16.3369 14.4533 16.6377 14.1758L16.7183 14.1015C16.8295 13.9989 16.8991 13.8944 16.9345 13.7973C17.1384 13.2376 17.25 12.6327 17.25 12C17.25 9.1005 14.8995 6.75 12 6.75ZM12 10.35C12.9113 10.35 13.65 11.0887 13.65 12C13.65 12.9113 12.9113 13.65 12 13.65C11.0887 13.65 10.35 12.9113 10.35 12C10.35 11.0887 11.0887 10.35 12 10.35Z"
+                      fill="currentColor" />
+                  </svg>
+
+                  <span class="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{{
+                    $t('Users')
+                    }}</span>
+                </div>
+              </router-link>
+            </li>
+          </ul>
+        </perfect-scrollbar>
+      </div>
+    </nav>
+    
+    <!-- Modal for Create New -->
+    <div v-if="showCreateModal" class="fixed inset-0 z-50 flex items-start pt-20 justify-center bg-black bg-opacity-40">
+      <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-bold">Create New</h2>
+          <button @click="closeCreateModal" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+        </div>
+        <div class="mb-4">
+          <label class="block mb-2 font-medium">Select Form</label>
+          <select v-model="selectedForm" class="w-full border rounded px-3 py-2">
+            <option value="" disabled>Select Form</option>
+            <option value="purchaseRequest">Purchase Request</option>
+            <option value="purchaseOrder">Purchase Order</option>
+            <option value="assetRegistration">Asset Registration</option>
+          </select>
+        </div>
+        <button @click="proceedCreate" :disabled="!selectedForm"
+          class="bg-blue-500 text-white px-4 py-2 rounded w-full font-semibold disabled:opacity-50">Proceed</button>
+      </div>
+    </div>
+  </div>
+
+</template>
+
+<script lang="ts" setup>
+import { ref, onMounted } from 'vue';
+import { useAppStore } from '@/stores/index';
+// import VueCollapsible from 'vue-height-collapsible/vue3';
+const store = useAppStore();
+const activeDropdown: any = ref('');
+const subActive: any = ref('');
+
+// Modal state and logic
+const showCreateModal = ref(false);
+const selectedForm = ref('');
+
+const openCreateModal = () => {
+  console.log('Opening Create Modal');
+  showCreateModal.value = true;
+  selectedForm.value = '';
+};
+const closeCreateModal = () => {
+  showCreateModal.value = false;
+};
+const proceedCreate = () => {
+  // Navigate to the dynamic form page with the selected form type
+  if (selectedForm.value) {
+    window.location.href = `/apps/form-builder/${selectedForm.value}`;
+  }
+  closeCreateModal();
+};
+
+onMounted(() => {
+  const selector = document.querySelector('.sidebar ul a[href="' + window.location.pathname + '"]');
+  if (selector) {
+    selector.classList.add('active');
+    const ul: any = selector.closest('ul.sub-menu');
+    if (ul) {
+      let ele: any = ul.closest('li.menu').querySelectorAll('.nav-link') || [];
+      if (ele.length) {
+        ele = ele[0];
+        setTimeout(() => {
+          ele.click();
+        });
+      }
+    }
+  }
+});
+
+const toggleMobileMenu = () => {
+  if (window.innerWidth < 1024) {
+    store.toggleSidebar();
+  }
+};
+</script>
