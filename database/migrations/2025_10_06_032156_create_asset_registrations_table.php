@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('asset_registrations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('purchase_order_item_id')->constrained('purchase_order_items')->onDelete('cascade');
+            $table->string('purchase_order_number')->nullable();
+            $table->foreign('purchase_order_number')->references('po_number')->on('purchase_orders')->onDelete('cascade');
             $table->string('ar_number')->unique();
             $table->string('registered_by');
             $table->date('registration_date');

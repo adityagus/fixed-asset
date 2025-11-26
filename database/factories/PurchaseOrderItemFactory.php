@@ -21,7 +21,7 @@ class PurchaseOrderItemFactory extends Factory
         $unitPrice = fake()->randomFloat(2, 100, 10000);
         
         return [
-            'purchase_order_id' => PurchaseOrder::factory(),
+            'purchase_order_number' => PurchaseOrder::factory()->create()->po_number,
             'item_name' => fake()->randomElement([
                 'Laptop Dell Inspiron 15',
                 'HP Printer LaserJet',

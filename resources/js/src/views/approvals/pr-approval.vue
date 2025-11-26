@@ -1,44 +1,84 @@
 <template>
-    <ApprovalTabs
-      :items="prApprovals"
-      :columns="approvalColumns"
-      :tabs="tabs"
-      initialTab="Waiting List"
-    >
-      <template #status="{ item }">
-        <span :class="{
-          'badge bg-warning': (item as any).status === 'Waiting List',
-          'badge bg-info': (item as any).status === 'Revised',
-          'badge bg-danger': (item as any).status === 'Rejected',
-          'badge bg-success': (item as any).status === 'Full Approved'
-        }">
-          {{ (item as any).status }}
-        </span>
-      </template>
-    </ApprovalTabs>
-    <!-- End Approval List Tabs & Table -->
+  <ApprovalTabs
+    :items="prApprovals"
+    :columns="approvalColumns"
+    :tabs="tabs"
+    :isSuccess="isSuccess"
+    :isPending="isPending"
+    initialTab="Waiting Approval"
+    @row-click="goToDetail"
+  >
+    <template #status="{ item }">
+      <span
+        :class="{
+          'badge bg-info': normalizeStatus(item.status) === 'Waiting Approval',
+          'badge bg-warning': normalizeStatus(item.status) === 'Revised',
+          'badge bg-danger': normalizeStatus(item.status) === 'Rejected',
+          'badge bg-success': normalizeStatus(item.status) === 'Full Approved'
+        }"
+      >
+        {{ getIndoStatus(item.status) }}
+      </span>
+    </template>
+  </ApprovalTabs>
 </template>
+
 <script lang="ts" setup>
-// ...existing code...
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import ApprovalTabs from '@/components/ApprovalTabs.vue';
 import { useMeta } from '@/composables/use-meta';
-useMeta({ title: 'Invoice Add' });
+import { useGetApprovalList } from '@/services/queries';
+import { useRouter } from 'vue-router';
+useMeta({ title: 'PR Approval' });
 
-const tabs = ['Waiting List', 'Revised', 'Rejected', 'Full Approved'];
-const prApprovals = ref([
-  { id: 1, number: 'PR-2025-001', type: 'Pengadaan Laptop', requester: 'Alan Green', date: '2025-09-20', status: 'Waiting List', cabang: 'Blok M' },
-  { id: 2, number: 'PR-2025-002', type: 'Penambahan Monitor', requester: 'Linda Nelson', date: '2025-09-22', status: 'Revised', cabang: 'Kepri' },
-  { id: 3, number: 'PR-2025-003', type: 'Perangkat Meeting Room', requester: 'Susan', date: '2025-09-25', status: 'Rejected', cabang: 'Bogor' },
-  { id: 4, number: 'PR-2025-004', type: 'Pengadaan Printer', requester: 'Budi', date: '2025-09-28', status: 'Full Approved', cabang: 'Harapan Indah' },
-  { id: 5, number: 'PR-2025-005', type: 'Pengadaan Scanner', requester: 'Rina', date: '2025-09-29', status: 'Waiting List', cabang: 'Ciluar' },
-]);
+const tabs = [
+  { label: 'Waiting Approval', value: 'Waiting Approval', indo: 'Menunggu Persetujuan' },
+  { label: 'Revised', value: 'Revised', indo: 'Direvisi' },
+  { label: 'Rejected', value: 'Rejected', indo: 'Ditolak' },
+  { label: 'Full Approved', value: 'Approved', indo: 'Disetujui' },
+  { label: 'Other', value: 'Other', indo: 'Lainnya' },
+];
+
+// Data fetching
+const {data: PrApprovalRef, isPending: isPending, isSucces:isSuccess} = useGetApprovalList('pr');
+
+console.log("PrApprovalRef", PrApprovalRef);
+
+// Ambil data dari API approvalsList (berbentuk object status)
+// Gabungkan semua array status menjadi satu array
+const prApprovals = computed(() => {
+  const data = PrApprovalRef.value?.data;
+  return data || {};
+});
+
 const approvalColumns = [
-  { key: 'date', title: 'Date' },
-  { key: 'type', title: 'Type' },
-  { key: 'number', title: 'PR Number' },
-  { key: 'requester', title: 'Requester' },
+  { key: 'pr_date', title: 'Tanggal' },
+  { key: 'pr_number', title: 'Nomor PR' },
+  { key: 'created_by', title: 'Pemohon' },
   { key: 'cabang', title: 'Cabang' },
   { key: 'status', title: 'Status' },
 ];
+
+const router = useRouter();
+function goToDetail(item: any) {
+  router.push(`/apps/form/purchase-request/${item.pr_number}`);
+}
+
+// UTIL fungsi supaya badge/label selalu normal
+function normalizeStatus(status: string): string {
+  if (!status) return '';
+  status = status.trim().toLowerCase();
+  // Support variasi penulisan
+  if (['waiting approval', 'waiting list', 'menunggu persetujuan'].includes(status)) return 'Waiting Approval';
+  if (['revised', 'direvisi'].includes(status)) return 'Revised';
+  if (['rejected', 'ditolak'].includes(status)) return 'Rejected';
+  if (['full approved', 'disetujui'].includes(status)) return 'Full Approved';
+  if (['other', 'lainnya'].includes(status)) return 'Other';
+  return status.charAt(0).toUpperCase() + status.slice(1);
+}
+function getIndoStatus(status: string): string {
+  const norm = normalizeStatus(status);
+  const tab = tabs.find(t => t.label === norm);
+  return tab?.indo ?? norm;
+}
 </script>

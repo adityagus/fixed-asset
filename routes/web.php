@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\AppController;
+use App\Http\Controllers\ImportMasterController;
+use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,4 +16,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get('/import-master', [ImportMasterController::class, 'showForm'])->name('import.master.form');
+Route::post('/import-master', [ImportMasterController::class, 'import'])->name('import.master');
 Route::get('/{any}', [AppController::class, 'index'])->where('any', '.*');

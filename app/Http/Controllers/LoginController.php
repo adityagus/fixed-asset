@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use auth;
 use App\Models\Login;
+use App\Models\JWTUser;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Facades\Auth;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Firebase\JWT\JWT; // pastikan sudah install via composer require firebase/php-jwt
 
@@ -19,6 +20,7 @@ class LoginController extends Controller
         $username = $request->input('user');
         $password = $request->input('pass');
         
+        // dd($username, $password);
         // Validasi input
         if (!$username || !$password) {
             return response()->json([
@@ -42,9 +44,9 @@ class LoginController extends Controller
             // Cek password
             $isPasswordValid = false;
             if (isset($user->password)) {
-                // $isPasswordValid = crypt($password, $user->password) == $user->password;
+              $isPasswordValid = crypt($password, $user->password) == $user->password;
                 // dd($password, $user->password);
-                $isPasswordValid = $password === $user->password;
+                // $isPasswordValid = $password === $user->password;
             }
 
             if ($isPasswordValid) {
@@ -54,13 +56,16 @@ class LoginController extends Controller
                 }
 
                 $userData = [
-                    'id' => $user->id ?? $user->username,
+                    'id' => $user->id ?? null,
                     'username' => $user->username,
                     'nama' => Str::title($nama),
                     'cabang' => $user->fk_cabang_user ?? null,
                     'jabatan' => $user->nm_jabatan ?? null,
                     'idgrup' => $user->kd_jabatan ?? ($user->id_jabatan ?? null),
                 ];
+
+                $userModel = new JWTUser($userData);
+                Auth::setUser($userModel);
 
                 // Buat JWT token manual jika bukan model User Laravel
                 $token = null;
@@ -158,20 +163,31 @@ class LoginController extends Controller
         }
     }
 
-    public function me()
-    {
-        try {
-            $user = JWTAuth::parseToken()->authenticate();
-            
-            return response()->json([
-                'success' => true,
-                'user' => $user
-            ]);
-        } catch (JWTException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Token is invalid'
-            ], 401);
-        }
+  public function getUser()
+  {
+    if (!JWTAuth::parseToken()->check()) {
+      return response()->json(['success' => false, 'message' => 'Token not provided'], 401);
     }
+    
+    $payload = JWTAuth::parseToken()->getPayload();
+
+    try {
+      $user = $payload->get('user');
+      if (!$user) {
+        return response()->json([
+          'success' => false,
+          'message' => 'User not authenticated'
+        ], 401);
+      }
+      return response()->json([
+        'success' => true,
+        'data' => $user
+      ]);
+    } catch (\Throwable $th) {
+      return response()->json([
+        'success' => false,
+        'message' => 'User not authenticated'
+      ], 401);
+    }
+  }
 }

@@ -12,11 +12,15 @@ class Vendor extends Model
     protected $table = 'mst_vendor';
     
     protected $fillable = [
-        'vendor_name',
-        'contact_person',
-        'phone',
-        'email',
-        'address',
+        'nama',
+        'alamat',
+        'kota',
+        'telp1',
+        'telp2',
+        'pic',
+        'nm_bank',
+        'no_rek',
+        'status',
     ];
     
     public function purchaseOrders()

@@ -13,13 +13,17 @@ return new class extends Migration
     {
         Schema::create('purchase_request_approvals', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
-            $table->foreignId('purchase_request_id')->constrained('purchase_requests')->onDelete('cascade');
+            $table->integer('layer');
+            $table->string('request_number');
+            $table->foreign('request_number')->references('pr_number')->on('purchase_requests')->onDelete('cascade');
             $table->string('approver_by');
+            $table->string('email');
+            $table->string('jabatan');
+            $table->string('type');
             $table->date('approval_date');
-            $table->enum('approval_status', ['approved', 'rejected']);
-            $table->text('remarks')->nullable();
-        });
+            $table->enum('approval_status', ['In Progress', 'Revised', 'Approved', 'Rejected']);
+            $table->timestamps();
+          });
     }
 
     /**

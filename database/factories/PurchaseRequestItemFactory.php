@@ -21,7 +21,7 @@ class PurchaseRequestItemFactory extends Factory
         $unitPrice = fake()->randomFloat(2, 100, 10000);
         
         return [
-            'purchase_request_id' => PurchaseRequest::factory(),
+            'purchase_request_number' => PurchaseRequest::factory(),
             'item_name' => fake()->randomElement([
                 'Laptop Dell Inspiron 15',
                 'HP Printer LaserJet',
@@ -37,7 +37,7 @@ class PurchaseRequestItemFactory extends Factory
                 'Antivirus License'
             ]),
             'quantity' => $quantity,
-            'estimate_unit_price' => $unitPrice,
+            'unit_price' => $unitPrice,
             'total_price' => $quantity * $unitPrice,
         ];
     }

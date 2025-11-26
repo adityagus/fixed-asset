@@ -17,11 +17,15 @@ class VendorFactory extends Factory
     public function definition(): array
     {
         return [
-            'vendor_name' => fake()->company(),
-            'contact_person' => fake()->name(),
-            'phone' => fake()->phoneNumber(),
-            'email' => fake()->companyEmail(),
-            'address' => fake()->address(),
+            'nama' => fake()->company(),
+            'alamat' => fake()->address(),
+            'kota' => fake()->city(),
+            'telp1' => fake()->phoneNumber(),
+            'telp2' => fake()->phoneNumber(),
+            'pic' => fake()->name(),
+            'nm_bank' => fake()->company(),
+            'no_rek' => fake()->bankAccountNumber(),  
+            'status' => fake()->boolean(80), // 80% chance of being true
         ];
     }
 }

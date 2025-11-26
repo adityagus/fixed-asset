@@ -2,12 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\LogRequestNumber;
+use App\Models\Attachment;
+use App\Models\PurchaseRequestApproval;
+use Log;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Models\PurchaseRequest;
+use App\Models\LogRequestNumber;
 use Illuminate\Http\JsonResponse;
+use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Models\PurchaseRequestItem;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\ValidationException;
 
@@ -19,19 +24,40 @@ class PurchaseRequestController extends Controller
     public function detail($pr_number)
     {
 
-        $purchaseRequest = PurchaseRequest::with('purchaseRequestItems', 'approvals')->where('pr_number', $pr_number)->first();
-
+        $purchaseRequest = PurchaseRequest::with('purchaseRequestItems.itemMaster.category', 'purchaseRequestItems.itemMaster.brand', 'purchaseRequestItems.itemMaster.type', 'approvals')->where('pr_number', $pr_number)->first();
+        
         return response()->json([
             'success' => true,
-            'data' => $purchaseRequest
+            'data' => $purchaseRequest,
         ]);
     }
+    
+    public function fileListDetail () {
+      
+      $form_number = request()->query('form_number');
+      Attachment::where('form_number', $form_number)->get();
+      
+      
+        return response()->json([
+            'success' => true,
+            'data' => 'file list detail'
+         ]);
+    }
+    
+    
 
     /**
      * Show the form for creating a new resource.
      */
     public function create(): JsonResponse
     {
+      // get name by jwt token
+      $payload = JWTAuth::parseToken()->getPayload();
+
+      // Ambil semua data dalam bentuk array
+      $user = (object) $payload->get('user');
+      // $created_by = ;
+
         // 1. generate pr_number
         $latestPr = LogRequestNumber::createRequest('PR');
         $pr_number = $latestPr->request_number;
@@ -40,22 +66,26 @@ class PurchaseRequestController extends Controller
         $status = 'draft';
 
         // 3. siapa yang request by (user yang sedang login)
-        $requested_by = auth()->user()->name ?? 'Unknown';
+        $created_by = $user->username ?? 'Unknown';
+        $idgrup = $user->idgrup ?? 'Unknown';
+        $cabang = $user->cabang ? $user->cabang : 'HO';
 
         $res = PurchaseRequest::create([
           'pr_number' => $pr_number,
           'status' => $status,
-          'requested_by' => $requested_by,
-          'department' => 'IT',
+          'created_by' => $created_by,
+          'department' => $idgrup,
+          'cabang' => $cabang,
         ]);
-        // 4. return jsnon response
+        // 4. return json response
         return response()->json([
             'success' => true,
             'data' => [
                 'pr_number' => $pr_number,
                 'status' => $status,
-                'requested_by' => $requested_by,
-            ]
+                'created_by' => $created_by,
+            ],
+            'type' => 'purchase-request',
         ]);
     }
 
@@ -63,39 +93,45 @@ class PurchaseRequestController extends Controller
     /** 
     * save as draft For Purchase Request Item
     */
-   public function saveDraftItem(Request $request, $pr_number){
+   public function saveDraft(Request $request){
     // Validasi array items
-    try{
-      $validated = $request->validate([
-          'items' => 'required|array|min:1',
-          'items.*.item_name' => 'required|string|max:255',
-          'items.*.quantity' => 'required|integer|min:1',
-          'items.*.estimate_unit_price' => 'nullable|numeric|min:0', // opsional
-          'items.*.total_price' => 'required|numeric|min:0',
-          // Tambahkan field lain sesuai kebutuhan
-      ]);
-    $prId = PurchaseRequest::where('pr_number', $pr_number)->first()->id;
-      
-    $savedItems = [];
-    
-    // purchase request item sudah ada maka dihapus dulu
+          try {
+        
+         $request->validate([
+            'pr_number' => 'required|exists:purchase_requests,pr_number',
+            'justification' => 'nullable|string|max:1000',
+            'items' => 'required|array|min:1',
+            'items.*.item_name' => 'required|string|max:255',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.unit_price' => 'nullable|numeric|min:0', // opsional
+            'items.*.total_price' => 'required|numeric|min:0',
+        ]);
+        
+        /**
+         *  Get purchase request by pr_number
+         * Update justification
+         * Set status to 'submitted'
+         * Save items (reuse saveDraftItem method)
+         * */
 
-    if(PurchaseRequestItem::where('purchase_request_id', $prId)->exists()) {
-        PurchaseRequestItem::where('purchase_request_id', $prId)->delete();
-    }
-
-
-    foreach ($validated['items'] as $itemData) {
-        $itemData['purchase_request_id'] = $prId; // Set the purchase_request_id
-        $savedItems[] = PurchaseRequestItem::create($itemData);
-    }
-
-    return response()->json([
-        'success' => true,
-        'items' => $savedItems
-    ]);
-      
-    }catch(\Illuminate\Validation\ValidationException $e){
+        $requestModel = PurchaseRequest::where('pr_number', $request->pr_number)->first();
+        $requestModel->justification = $request->justification;
+        // Handle file upload
+        $requestModel->save();
+        // Save items
+        if(PurchaseRequestItem::where('purchase_request_number', $requestModel->pr_number)->exists()) {
+            PurchaseRequestItem::where('purchase_request_number', $requestModel->pr_number)->delete();
+        }
+        foreach ($request->items as $itemData) {
+            $itemData['purchase_request_number'] = $requestModel->pr_number; // Set the purchase_request_number
+            PurchaseRequestItem::create($itemData);
+        }
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Purchase request saved successfully.'
+        ]);
+    }catch(ValidationException $e){
       return response()->json([
         'success' => false,
         'errors' => $e->errors()
@@ -113,14 +149,14 @@ class PurchaseRequestController extends Controller
     public function submit(Request $request): JsonResponse
     {
       try {
-         $request->validate([
+        // dd($request->all());
+        $request->validate([
             'pr_number' => 'required|exists:purchase_requests,pr_number',
             'justification' => 'required|string|max:1000',
-            'url_file' => 'required|file|mimes:pdf|max:10240', // max 10MB | pdf only
             'items' => 'required|array|min:1',
-            'items.*.item_name' => 'required|string|max:255',
+            'items.*.item_id' => 'required|numeric|min:1',
             'items.*.quantity' => 'required|integer|min:1',
-            'items.*.estimate_unit_price' => 'nullable|numeric|min:0', // opsional
+            'items.*.unit_price' => 'nullable|numeric|min:0', // opsional
             'items.*.total_price' => 'required|numeric|min:0',
         ]);
         
@@ -130,26 +166,33 @@ class PurchaseRequestController extends Controller
          * Set status to 'submitted'
          * Save items (reuse saveDraftItem method)
          * */
-        
+
         $requestModel = PurchaseRequest::where('pr_number', $request->pr_number)->first();
         $requestModel->justification = $request->justification;
-        $requestModel->status = 'waiting_approval';
+        // $requestModel->status = 'waiting approval';
+
         // Handle file upload
-        if ($request->hasFile('url_file')) {
-            $file = $request->file('url_file');
-            $filePath = $file->store('purchase_requests', 'public'); // Simpan di storage/app/public/purchase_requests
-            $requestModel->url_file = $filePath;
-        }
         $requestModel->save();
         // Save items
-        if(PurchaseRequestItem::where('purchase_request_id', $requestModel->id)->exists()) {
-            PurchaseRequestItem::where('purchase_request_id', $requestModel->id)->delete();
+        if(PurchaseRequestItem::where('purchase_request_number', $requestModel->pr_number)->exists()) {
+            PurchaseRequestItem::where('purchase_request_number', $requestModel->pr_number)->delete();
         }
         foreach ($request->items as $itemData) {
-            $itemData['purchase_request_id'] = $requestModel->id; // Set the purchase_request_id
+            $itemData['purchase_request_number'] = $requestModel->pr_number; // Set the purchase_request_number
             PurchaseRequestItem::create($itemData);
         }
+        
+        // create approval layers
+        SubmissionController::CreateLayerApproval(new Request([
+            'type' => 'purchase-request',
+            'request_number' => $requestModel->pr_number,
+            'need_it_approval' => 'true', // sesuaikan dengan kebutuhan
+        ]));
+        
 
+        self::updateStatusPR(new Request(['status' => 'waiting approval']), $requestModel->pr_number);
+                // update status
+        
         return response()->json([
             'success' => true,
             'message' => 'Purchase request submitted successfully.'
@@ -161,11 +204,12 @@ class PurchaseRequestController extends Controller
       ], 422);
     }
   }
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id): Response
-    {
+
+  /**
+   * Display the specified resource.
+   */
+  public function show(string $id): Response
+  {
         //
     }
 
@@ -183,6 +227,37 @@ class PurchaseRequestController extends Controller
     public function update(Request $request, string $id): RedirectResponse
     {
         //
+    }
+
+    /**
+     * Update status of a purchase request.
+     */
+    public static function updateStatusPR(Request $request, $pr_number): JsonResponse
+    {
+        $request->validate([
+            'status' => 'required|string|max:50'
+        ]);
+
+        $purchaseRequest = PurchaseRequest::where('pr_number', $pr_number)->first();
+
+        if (!$purchaseRequest) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Purchase request not found.'
+            ], 404);
+        }
+
+        $purchaseRequest->status = $request->status; // status sudah divalidasi string Inggris
+        $purchaseRequest->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Status updated successfully.',
+            'data' => [
+                'pr_number' => $pr_number,
+                'status' => $purchaseRequest->status
+            ]
+        ]);
     }
 
     /**

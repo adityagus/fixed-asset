@@ -13,11 +13,16 @@ return new class extends Migration
     {
         Schema::create('mst_vendor', function (Blueprint $table) {
             $table->id();
-            $table->string('vendor_name');
-            $table->string('contact_person')->nullable();
-            $table->string('phone')->nullable();
-            $table->string('email')->nullable();
-            $table->string('address')->nullable();
+            $table->string('nama');
+            $table->string('alamat');
+            $table->string('kota');
+            $table->string('telp1')->nullable();
+            $table->string('telp2')->nullable();
+            $table->string('pic')->nullable();
+            $table->string('nm_bank')->nullable();
+            $table->string('no_rek')->nullable();
+            $table->string('atas_nm')->nullable();
+            $table->boolean('status')->default(true);
             $table->timestamps();
         });
     }

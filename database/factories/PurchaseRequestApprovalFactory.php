@@ -18,7 +18,7 @@ class PurchaseRequestApprovalFactory extends Factory
     public function definition(): array
     {
         return [
-            'purchase_request_id' => PurchaseRequest::factory(),
+            'purchase_request_number' => PurchaseRequest::factory(),
             'approver_by' => fake()->name(),
             'approval_date' => fake()->dateTimeBetween('-3 months', 'now')->format('Y-m-d'),
             'approval_status' => fake()->randomElement(['approved', 'rejected']),

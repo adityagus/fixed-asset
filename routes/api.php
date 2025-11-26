@@ -1,9 +1,13 @@
 <?php
 
+use App\Http\Controllers\AttachmentController;
+use App\Http\Controllers\RegistrationAssetController;
+use App\Http\Controllers\ReportController;
 use Illuminate\Http\Request;
 use App\Models\PurchaseRequest;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\MasterController;
 use App\Http\Controllers\SubmissionController;
 use App\Http\Controllers\PurchaseOrderController;
 use App\Http\Controllers\PurchaseRequestController;
@@ -25,36 +29,69 @@ Route::post('/login', [LoginController::class, 'login']);
 
 Route::middleware('jwt')->group(function () {
 
-  // purchase request
-  Route::prefix('purchase-request/')->group(function () {
-    Route::get('/index', [PurchaseRequestController::class, 'index']);
-    Route::get('/detail/{pr_number}', [PurchaseRequestController::class, 'detail']);
-    Route::get('/create', [PurchaseRequestController::class, 'create']);
-    Route::post('/saveDraftItem/{pr_number}', [PurchaseRequestController::class, 'saveDraftItem']);
-    Route::post('/submit', [PurchaseRequestController::class, 'submit']);
-  });
+    Route::get('/user', [LoginController::class, 'getUser']);
+    // purchase request
+    Route::prefix('purchase-request/')->group(function () {
+        Route::get('/index', [PurchaseRequestController::class, 'index']);
+        Route::get('/detail/{pr_number}', [PurchaseRequestController::class, 'detail']);
+        Route::post('/create', [PurchaseRequestController::class, 'create']);
+        Route::post('/saveDraft', [PurchaseRequestController::class, 'saveDraft']);
+        Route::post('/submit', [PurchaseRequestController::class, 'submit']);
+        // upload attachment
+    });
+
+    // Upload File
+    Route::get('/file-list', [AttachmentController::class, 'getFileList']);
+    Route::post('/uploadFile', [AttachmentController::class, 'uploadFile']);
+    Route::delete('/deleteFile', [AttachmentController::class, 'deleteFile']);
+    
+    // Notes
+    Route::get('/notes', [SubmissionController::class, 'getNotes']);
+    Route::post('/send-note', [SubmissionController::class, 'sendNote']);
 
 
-  // purchase order
-  Route::prefix('purchase-order/')->group(function () {
-    Route::get('/detail/{po_number}', [PurchaseOrderController::class, 'detail']);
-    Route::get('/create', [PurchaseOrderController::class, 'create']);
-    Route::post('/saveDraftItem/{po_number}', [PurchaseOrderController::class, 'saveDraftItem']);
-    Route::post('/submit', [PurchaseOrderController::class, 'submit']);
-  });
-  
-  // asset registration
-  Route::prefix('asset-registration/')->group(function () {
-    Route::get('/detail/{asset_tag}', [AssetRegistrationController::class, 'detail']);
-    Route::get('/create', [AssetRegistrationController::class, 'create']);
-    Route::post('/saveDraftItem/{asset_tag}', [AssetRegistrationController::class, 'saveDraftItem']);
-    Route::post('/submit', [AssetRegistrationController::class, 'submit']);
-  });
+    // approvals
+    Route::post('/approvals/{type}', [SubmissionController::class, 'approvalsList']);
+    Route::post('/set-approval', [SubmissionController::class, 'SetApprovalStatus']);
+    Route::get('{formType}/list-approved', [SubmissionController::class, 'listApproved']);
+    Route::post('/createApproval', [SubmissionController::class, 'CreateLayerApproval']);
 
-  // submission
-  Route::prefix('submission/')->group(function () {
-    Route::get('{type}', [SubmissionController::class, 'index'])->middleware('jwt');
-    Route::delete('delete/{type}/{id}', [SubmissionController::class, 'delete']);
-  });
+    // purchase order
+    Route::prefix('purchase-order/')->group(function () {
+        Route::get('/list-approved-pr', [PurchaseOrderController::class, 'listApprovedPR']);
+        Route::get('/detail/{po_number}', [PurchaseOrderController::class, 'detail']);
+        Route::post('/create', [PurchaseOrderController::class, 'create']);
+        Route::post('/saveDraftItem/{po_number}', [PurchaseOrderController::class, 'saveDraftItem']);
+        Route::post('/submit', [PurchaseOrderController::class, 'submit']);
+    });
+
+    // registration asset
+    Route::prefix('registration-asset/')->group(function () {
+        // Route::get('/list-approved-po', [RegistrationAssetController::class, 'listApprovedRA']);
+        Route::get('/detail/{ra_number}', [RegistrationAssetController::class, 'detail']);
+        Route::post('/create', [RegistrationAssetController::class, 'create']);
+        Route::post('/saveDraftItem/{ra_number}', [RegistrationAssetController::class, 'saveDraftItem']);
+        Route::post('/submit', [RegistrationAssetController::class, 'submit']);
+    });
+
+    // submission
+    Route::prefix('submission/')->group(function () {
+        Route::get('{type}', [SubmissionController::class, 'index'])->middleware('jwt');
+        Route::delete('delete/{type}/{id}', [SubmissionController::class, 'delete']);
+    });
+
+    // prefix master
+    Route::prefix('master/')->group(function () {
+        Route::get('barang', [MasterController::class, 'getMasterBarang']);
+        Route::get('vendor', [MasterController::class, 'getVendorList']);
+    });
+
+
+    // prefix report
+    Route::prefix('report/')->group(function () {
+        Route::get('/asset', [ReportController::class, 'assetReport']);
+        Route::get('/asset-depreciation', [ReportController::class, 'assetDepreciationReport']);
+        Route::get('/barcode', action: [ReportController::class, 'reportBarcode']);
+    });
 
 });

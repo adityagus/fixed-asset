@@ -36,8 +36,9 @@
 
 
             <li class="nav-item">
-              <router-link to="/apps/contacts" class="group" @click="toggleMobileMenu">
+              <router-link to="/submission" class="group" @click="toggleMobileMenu">
                 <div class="flex items-center">
+                
                   <svg class="group-hover:!text-primary shrink-0" width="20" height="20" viewBox="0 0 24 24" fill="none"
                     xmlns="http://www.w3.org/2000/svg">
                     <path opacity="0.5"
@@ -54,6 +55,7 @@
                 </div>
               </router-link>
             </li>
+            
             <li class="menu nav-item">
               <button type="button" class="nav-link group w-full" :class="{ active: activeDropdown === 'approval' }"
                 @click="activeDropdown === 'approval' ? (activeDropdown = null) : (activeDropdown = 'approval')">
@@ -72,15 +74,17 @@
                     $t('Approval')
                     }}</span>
                 </div>
-                <div class="rtl:rotate-180" :class="{ '!rotate-90': activeDropdown === 'invoice' }">
+                <div class="rtl:rotate-180" :class="{ '!rotate-90': activeDropdown === 'approval' }">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M9 5L15 12L9 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
                       stroke-linejoin="round" />
                   </svg>
                 </div>
               </button>
-              <vue-collapsible :isOpen="activeDropdown === 'approval'">
-                <div class="">
+              
+              <transition
+              >
+                <div v-show="activeDropdown === 'approval'" class="overflow-hidden">
                   <ul class="sub-menu text-gray-500">
                     <li>
                       <router-link to="/approval/approval-all" @click="toggleMobileMenu">{{ $t('Approval All') }}</router-link>
@@ -92,11 +96,11 @@
                       <router-link to="/approval/po-approval" @click="toggleMobileMenu">{{ $t('PO Approval') }}</router-link>
                     </li>
                     <li>
-                      <router-link to="/approval/ar-approval" @click="toggleMobileMenu">{{ $t('AR Approval') }}</router-link>
+                      <router-link to="/approval/ra-approval" @click="toggleMobileMenu">{{ $t('RA Approval') }}</router-link>
                     </li>
                   </ul>
                 </div>
-              </vue-collapsible>
+              </transition>
             </li>
 
             <li class="menu nav-item">
@@ -123,15 +127,17 @@
                     $t('Report')
                     }}</span>
                 </div>
-                <div class="rtl:rotate-180" :class="{ '!rotate-90': activeDropdown === 'datatables' }">
+                <div class="rtl:rotate-180" :class="{ '!rotate-90': activeDropdown === 'report' }">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M9 5L15 12L9 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
                       stroke-linejoin="round" />
                   </svg>
                 </div>
               </button>
-              <vue-collapsible :isOpen="activeDropdown === 'report'">
-                <div class="">
+              
+              <transition
+              >
+              <div v-show="activeDropdown === 'report'" class="overflow-hidden">
                   <ul class="sub-menu text-gray-500">
                     <li>
                       <router-link to="/report/assets" @click="toggleMobileMenu">{{ $t('Asset') }}</router-link>
@@ -141,7 +147,7 @@
                     </li>
                   </ul>
                 </div>
-              </vue-collapsible>
+              </transition>
             </li>
 
             <li class="menu nav-item">
@@ -233,9 +239,9 @@
           <label class="block mb-2 font-medium">Select Form</label>
           <select v-model="selectedForm" class="w-full border rounded px-3 py-2">
             <option value="" disabled>Select Form</option>
-            <option value="purchaseRequest">Purchase Request</option>
-            <option value="purchaseOrder">Purchase Order</option>
-            <option value="assetRegistration">Asset Registration</option>
+            <option value="purchase-request">Purchase Request</option>
+            <option value="purchase-order">Purchase Order</option>
+            <option value="registration-asset">Asset Registration</option>
           </select>
         </div>
         <button @click="proceedCreate" :disabled="!selectedForm"
@@ -249,7 +255,8 @@
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue';
 import { useAppStore } from '@/stores/index';
-// import VueCollapsible from 'vue-height-collapsible/vue3';
+import { useCreateFormSubmission } from '@/services/mutations';
+
 const store = useAppStore();
 const activeDropdown: any = ref('');
 const subActive: any = ref('');
@@ -263,15 +270,48 @@ const openCreateModal = () => {
   showCreateModal.value = true;
   selectedForm.value = '';
 };
+
 const closeCreateModal = () => {
   showCreateModal.value = false;
 };
+
+const createFormSubmission = useCreateFormSubmission();
+
+const handleCreateFormSubmission = (formType) => {
+  createFormSubmission.mutate(formType);
+};
+
+
 const proceedCreate = () => {
   // Navigate to the dynamic form page with the selected form type
+  // purchaseRequest
+  const formType = selectedForm.value;
   if (selectedForm.value) {
-    window.location.href = `/apps/form-builder/${selectedForm.value}`;
+    handleCreateFormSubmission(formType)
+    // window.location.href = `/apps/form-builder/${selectedForm.value}`;
   }
   closeCreateModal();
+};
+
+// Transition handlers untuk smooth height animation
+const onEnter = (el: HTMLElement) => {
+  el.style.height = '0';
+  el.offsetHeight; // Force reflow
+  el.style.height = el.scrollHeight + 'px';
+};
+
+const onAfterEnter = (el: HTMLElement) => {
+  el.style.height = 'auto';
+};
+
+const onLeave = (el: HTMLElement) => {
+  el.style.height = el.scrollHeight + 'px';
+  el.offsetHeight; // Force reflow
+  el.style.height = '0';
+};
+
+const onAfterLeave = (el: HTMLElement) => {
+  el.style.height = 'auto';
 };
 
 onMounted(() => {
@@ -297,3 +337,10 @@ const toggleMobileMenu = () => {
   }
 };
 </script>
+
+<style scoped>
+/* Smooth transition untuk collapse */
+.overflow-hidden {
+  transition: height 0.3s ease;
+}
+</style>

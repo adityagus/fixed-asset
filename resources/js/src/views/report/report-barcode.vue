@@ -14,12 +14,11 @@
     </div>
     <div class="print-area">
       <div class="grid grid-cols-6 gap-6">
-        <div v-for="asset in filteredAssets" :key="asset.assetTag" class="flex flex-col items-center mb-6">
-          <span class="font-semibold text-sm mb-1">{{ asset.name }}</span>
-          <span class="text-xs mb-1">{{ asset.assetTag }}</span>
-          <qrcode-vue :value="asset.assetTag" :size="100" class="mb-1" />
-          <span class="text-xs">{{ asset.type }}</span>
-          <span class="text-xs">{{ asset.branch }}</span>
+        <div v-for="asset in filteredAssets" :key="asset.asset_number" class="flex flex-col items-center mb-6 col-span-1">
+        <span class="text-xs mb-1 w-full text-center block">{{ asset.item.nama_brg }}</span>
+          <span class="text-xs mb-1">{{ asset.asset_number }}</span>
+          <qrcode-vue :value="asset.asset_number" :size="100" class="mb-1" />
+          <span class="text-xs">{{ asset.location }}</span>
         </div>
       </div>
     </div>
@@ -29,6 +28,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import QrcodeVue from 'qrcode.vue';
+import { useGetReportBarcode } from '@/services/queries';
 
 const branches = ['Jakarta', 'Bandung', 'Surabaya', 'Medan', 'Bali'];
 const types = ['Laptop', 'Printer', 'Monitor', 'Meja', 'Kursi'];
@@ -36,12 +36,19 @@ const types = ['Laptop', 'Printer', 'Monitor', 'Meja', 'Kursi'];
 const selectedBranch = ref('');
 const selectedType = ref('');
 
-const assets = ref(Array.from({ length: 300 }, (_, i) => ({
-  assetTag: `AT-${(i + 1).toString().padStart(3, '0')}`,
-  name: `ASSET ${i + 1}`,
-  type: ['Laptop', 'Printer', 'Monitor', 'Meja', 'Kursi'][Math.floor(Math.random() * 5)],
-  branch: ['Jakarta', 'Bandung', 'Surabaya', 'Medan', 'Bali'][i % 5],
-})));
+const {data: reportBarcodeData} = useGetReportBarcode();
+
+// const assets = ref(Array.from({ length: 300 }, (_, i) => ({
+//   assetTag: `AT-${(i + 1).toString().padStart(3, '0')}`,
+//   name: `ASSET ${i + 1}`,
+//   type: ['Laptop', 'Printer', 'Monitor', 'Meja', 'Kursi'][Math.floor(Math.random() * 5)],
+//   branch: ['Jakarta', 'Bandung', 'Surabaya', 'Medan', 'Bali'][i % 5],
+// })));
+
+console.log("reportBarcodeData", reportBarcodeData);
+const assets = computed(() => {
+  return reportBarcodeData.value?.data || [];
+});
 
 // const assets = ref([
 //     { assetTag: 'LPT0000001', name: 'LENOVO IP320S', type: 'Laptop', branch: 'Jakarta' },

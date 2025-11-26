@@ -24,13 +24,13 @@ class AssetRegistrationSeeder extends Seeder
                 // Register 80% of items as assets
                 if (rand(1, 100) <= 80) {
                     $asset = AssetRegistration::factory()->create([
-                        'purchase_order_item_id' => $item->id,
+                        'purchase_order_number' => $item->po_number,
                     ]);
                     
                     // 70% chance of having approval
                     if (rand(1, 100) <= 70) {
                         AssetRegistrationApproval::factory()->create([
-                            'asset_registration_id' => $asset->id,
+                            'asset_registration_number' => $asset->ar_number,
                         ]);
                     }
                 }

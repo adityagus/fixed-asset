@@ -48,6 +48,22 @@ app.use(VueEasymde);
 import Popper from 'vue3-popper';
 app.component('Popper', Popper);
 
+// vuequery
+import { VueQueryPlugin, QueryClient } from '@tanstack/vue-query';
+const queryClient = new QueryClient(
+  {
+    defaultOptions: {
+      queries: {
+        retry: 5,
+        retryDelay: 1000
+      },
+    },
+  }
+);
+
+app.use(VueQueryPlugin, {queryClient});
+  
+
 // json to excel
 import vue3JsonExcel from 'vue3-json-excel';
 app.use(vue3JsonExcel);

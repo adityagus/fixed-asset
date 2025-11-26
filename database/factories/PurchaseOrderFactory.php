@@ -20,12 +20,12 @@ class PurchaseOrderFactory extends Factory
     {
         return [
             'po_number' => 'PO-' . fake()->year() . fake()->unique()->numberBetween(1000, 9999),
-            'purchase_request_id' => PurchaseRequest::factory(),
+            'purchase_request_number' => PurchaseRequest::factory()->create()->pr_number,
             'vendor_id' => Vendor::factory(),
             'total_amount' => fake()->numberBetween(100000, 10000000),
-            'status' => fake()->randomElement(['draft', 'waiting_approval', 'approved', 'revised', 'rejected']),
-            'created_by' => fake()->name(),
-            'updated_by' => fake()->name(),
+            'status' => fake()->randomElement(['draft', 'waiting approval', 'approved', 'revised', 'rejected']),
+            // 'created_by' => fake()->name(),
+            // 'updated_by' => fake()->name(),
         ];
     }
 

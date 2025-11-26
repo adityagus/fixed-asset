@@ -3,6 +3,7 @@ import { useAppStore } from '@/stores/index';
 import appSetting from '@/app-setting';
 
 import HomeView from '../views/index.vue';
+import ReportSusut from '@/views/report/report-susut.vue';
 
 const routes: RouteRecordRaw[] = [
     // dashboard
@@ -55,17 +56,17 @@ const routes: RouteRecordRaw[] = [
         component: () => import(/* webpackChunkName: "apps-submission" */ '../views/apps/submission.vue'),
     },
     {
-        path: '/apps/contacts',
-        name: 'contacts',
-        component: () => import(/* webpackChunkName: "apps-contacts" */ '../views/apps/submission.vue'),
+        path: '/submission',
+        name: 'submission',
+        component: () => import(/* webpackChunkName: "apps-submission" */ '../views/apps/submission.vue'),
     },
     {
-        path: '/apps/form-builder',
+        path: '/apps/form',
         name: 'form-builder',
         component: () => import(/* webpackChunkName: "apps-form-builder" */ '../views/apps/form-builder.vue'),
     },
     {
-        path: '/apps/form-builder/:formType/:formNumber?',
+        path: '/apps/form/:formType/:formNumber?',
         name: 'form-builder-with-params',
         component: () => import(/* webpackChunkName: "apps-form-builder" */ '../views/apps/form-builder.vue'),
     },
@@ -86,9 +87,9 @@ const routes: RouteRecordRaw[] = [
         component: () => import(/* webpackChunkName: "apps-pr-approval" */ '../views/approvals/pr-approval.vue'),
     },
     {
-        path: '/approval/ar-approval',
-        name: 'ar-approval',
-        component: () => import(/* webpackChunkName: "apps-ar-approval" */ '../views/approvals/ar-approval.vue'),
+        path: '/approval/ra-approval',
+        name: 'ra-approval',
+        component: () => import(/* webpackChunkName: "apps-ra-approval" */ '../views/approvals/ra-approval.vue'),
     },
     {
         path: '/master/calendar',
@@ -258,11 +259,6 @@ const routes: RouteRecordRaw[] = [
         path: '/elements/tooltips',
         name: 'tooltips',
         component: () => import(/* webpackChunkName: "elements-tooltips" */ '../views/elements/tooltips.vue'),
-    },
-    {
-        path: '/elements/treeview',
-        name: 'treeview',
-        component: () => import(/* webpackChunkName: "elements-treeview" */ '../views/elements/treeview.vue'),
     },
     {
         path: '/elements/typography',
@@ -528,7 +524,7 @@ const routes: RouteRecordRaw[] = [
 
     // authentication
     {
-        path: '/auth/boxed-signin',
+        path: '/login',
         name: 'boxed-signin',
         component: () => import(/* webpackChunkName: "auth-boxed-signin" */ '../views/auth/boxed-signin.vue'),
         meta: { layout: 'auth' },
@@ -574,6 +570,12 @@ const routes: RouteRecordRaw[] = [
         name: 'cover-password-reset',
         component: () => import(/* webpackChunkName: "auth-cover-password-reset" */ '../views/auth/cover-password-reset.vue'),
         meta: { layout: 'auth' },
+    },
+    {
+        path: '/report/susut',
+        name: 'report-susut',
+        component: ReportSusut,
+        meta: { requiresAuth: true }
     },
 ];
 

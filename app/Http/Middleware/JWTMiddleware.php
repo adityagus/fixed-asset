@@ -19,6 +19,11 @@ class JWTMiddleware
    */
   public function handle($request, Closure $next)
   {
+    // jika tidak ada maka redirect ke login
+    if (!JWTAuth::parseToken()->check()) {
+      return response()->json(['success' => false, 'message' => 'Token not provided'], 401);
+    }
+    
     try {
       $user = JWTAuth::parseToken()->authenticate();
       // you can store user in request if needed

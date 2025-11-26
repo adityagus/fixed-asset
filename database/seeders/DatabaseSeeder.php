@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Assets;
 use App\Models\User;
 use App\Models\Vendor;
 use App\Models\PurchaseOrder;
@@ -14,6 +15,7 @@ use App\Models\AssetRegistrationItem;
 use App\Models\PurchaseOrderApproval;
 use App\Models\PurchaseRequestApproval;
 use App\Models\AssetRegistrationApproval;
+use App\Models\Asset;
 
 class DatabaseSeeder extends Seeder
 {
@@ -45,14 +47,14 @@ class DatabaseSeeder extends Seeder
             // Create 1-5 items per purchase request
             PurchaseRequestItem::factory()
                 ->count(rand(1, 5))
-                ->create(['purchase_request_id' => $pr->id]);
+                ->create(['purchase_request_number' => $pr->pr_number]);
         }
 
         // Create Purchase Request Approvals for approved requests
         $approvedRequests = $purchaseRequests->where('status', 'approved');
         foreach ($approvedRequests as $pr) {
             PurchaseRequestApproval::factory()->create([
-                'purchase_request_id' => $pr->id,
+                'purchase_request_number' => $pr->pr_number,
                 'approval_status' => 'approved'
             ]);
         }
@@ -61,18 +63,20 @@ class DatabaseSeeder extends Seeder
         $purchaseOrders = collect();
         foreach ($approvedRequests as $pr) {
           $po = PurchaseOrder::factory()->create([
-            'purchase_request_id' => $pr->id,
+            'purchase_request_number' => $pr->pr_number,
             'vendor_id' => $vendors->random()->id,
+            'created_by' => fake()->name(),
+            'updated_by' => fake()->name(),
           ]);
           $purchaseOrders->push($po);
 
           // Create items for purchase orders based on request items
           foreach ($pr->purchaseRequestItems as $item) {
             PurchaseOrderItem::factory()->create([
-              'purchase_order_id' => $po->id,
+              'purchase_order_number' => $po->po_number,
               'item_name' => $item->item_name,
               'quantity' => $item->quantity,
-              'unit_price' => $item->estimate_unit_price,
+              'unit_price' => $item->unit_price,
               'total_price' => $item->total_price,
             ]);
           }
@@ -82,33 +86,46 @@ class DatabaseSeeder extends Seeder
         foreach ($purchaseOrders as $po) {
             if (rand(1, 100) <= 80) { // 80% chance of having approval
                 PurchaseOrderApproval::factory()->create([
-                    'purchase_order_id' => $po->id,
+                    'purchase_order_number' => $po->po_number,
+                ]);
+                // Tandai PO sebagai approved
+                $po->status = 'approved';
+                $po->save();
+            }
+        }
+
+        // Create Asset Registrations for approved purchase orders
+        $approvedPOs = $purchaseOrders->where('status', 'approved');
+        foreach ($approvedPOs as $po) {
+            // Contoh: buat 1-3 asset registration per PO
+            $assetCount = rand(1, 3);
+            for ($i = 0; $i < $assetCount; $i++) {
+                $ra = AssetRegistration::factory()->create([
+                    'ar_number' => 'RA-' . $po->po_number . '-' . ($i+1),
+                    // 'purchase_order_number' => $po->po_number,
+                    'registered_by' => fake()->name(),
+                    'registration_date' => now()->subDays(rand(0, 30)),
+                    'status' => ['active', 'inactive'][rand(0, 1)],
+                ]);
+
+                // Create asset(s) for each asset registration
+                Assets::create([
+                    'asset_number' => 'AST-' . $po->po_number . '-' . ($i+1),
+                    'serial_number' => 'SN-' . fake()->unique()->numerify('#####'),
+                    'purchase_order_number' => $po->po_number,
+                    'register_assets_number' => $ra->ar_number,
+                    'item_name' => 'Barang ' . ($i+1),
+                    'category' => ['Elektronik', 'Furniture', 'Komputer'][rand(0,2)],
+                    'status' => 'active',
+                    'assigned_to' => null,
+                    'location' => 'Lokasi ' . rand(1,10),
+                    'purchase_date' => $po->created_at->format('Y-m-d'),
+                    'purchase_price' => rand(1000000, 10000000),
+                    'warranty_until' => now()->addYears(1)->format('Y-m-d'),
+                    'notes' => 'Asset otomatis dari seeder.',
                 ]);
             }
         }
 
-        // Create Asset Registrations for approved purchase order items
-        $approvedPOs = $purchaseOrders->where('status', 'approved');
-        foreach ($approvedPOs as $po) {
-          foreach ($po->purchaseOrderItems as $item) {
-              // Register 70% of items as assets
-              if (rand(1, 100) <= 70) {
-                  $asset = AssetRegistration::factory()->create([
-                      'purchase_order_item_id' => $item->id,
-                  ]);
-                  
-                AssetRegistrationItem::factory()
-                ->count(rand(1, 3))
-                ->create(['asset_registration_id' => $asset->id]);
-                
-                  // 60% chance of having approval
-                  if (rand(1, 100) <= 60) {
-                      AssetRegistrationApproval::factory()->create([
-                          'asset_registration_id' => $asset->id,
-                      ]);
-                  }
-              }
-          }
-      }
     }
 }

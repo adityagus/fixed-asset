@@ -32,7 +32,7 @@ class PurchaseOrderSeeder extends Seeder
                     'purchase_order_id' => $po->id,
                     'item_name' => $item->item_name,
                     'quantity' => $item->quantity,
-                    'unit_price' => $item->estimate_unit_price,
+                    'unit_price' => $item->unit_price,
                     'total_price' => $item->total_price,
                 ]);
             }

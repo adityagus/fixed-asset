@@ -2,11 +2,12 @@
 
 namespace Database\Factories;
 
+use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\AssetRegistration>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\RegistrationAsset>
  */
 class AssetRegistrationFactory extends Factory
 {
@@ -18,7 +19,7 @@ class AssetRegistrationFactory extends Factory
     public function definition(): array
     {
         return [
-            'purchase_order_item_id' => PurchaseOrderItem::factory(),
+            'purchase_order_number' => PurchaseOrder::factory()->create()->po_number,
             'ar_number' => 'AST-' . fake()->year() . '-' . fake()->unique()->numberBetween(10000, 99999),
             'registered_by' => fake()->name(),
             'registration_date' => fake()->dateTimeBetween('-1 year', 'now')->format('Y-m-d'),

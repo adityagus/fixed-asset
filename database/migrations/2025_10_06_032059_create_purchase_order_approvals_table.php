@@ -13,10 +13,15 @@ return new class extends Migration
     {
         Schema::create('purchase_order_approvals', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('purchase_order_id')->constrained('purchase_orders')->onDelete('cascade');
+            $table->integer('layer');
+            $table->string('request_number');
+            $table->foreign('request_number')->references('po_number')->on('purchase_orders')->onDelete('cascade');
             $table->string('approver_by');
+            $table->string('email');
+            $table->string('jabatan');
+            $table->string('type');
             $table->date('approval_date');
-            $table->enum('approval_status', ['waiting_approval', 'approved', 'revised', 'rejected']);
+            $table->enum('approval_status', ['In Progress', 'Revised', 'Approved', 'Rejected']);
             $table->timestamps();
         });
     }

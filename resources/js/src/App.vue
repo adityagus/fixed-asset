@@ -4,6 +4,7 @@
         :class="[store.sidebar ? 'toggle-sidebar' : '', store.menu, store.layout, store.rtlClass]"
     >
         <component v-bind:is="mainLayout"></component>
+        <VueQueryDevtools position='right'/>
     </div>
 </template>
 
@@ -15,6 +16,7 @@
 
     import { useAppStore } from '@/stores/index';
     import { useMeta } from '@/composables/use-meta';
+    import { VueQueryDevtools } from '@tanstack/vue-query-devtools';
 
     const store = useAppStore();
 

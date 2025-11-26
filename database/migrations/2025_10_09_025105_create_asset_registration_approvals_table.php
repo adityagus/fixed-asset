@@ -12,11 +12,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('asset_registration_approvals', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('asset_registration_id')->constrained('asset_registrations')->onDelete('cascade');
+              $table->id();
+            $table->integer('layer');
+            $table->string('request_number');
+            $table->foreign('request_number')->references('ra_number')->on('registration_assets')->onDelete('cascade');
             $table->string('approver_by');
-            $table->timestamp('approved_at')->nullable();
-            $table->enum('approval_status', ['waiting_approval', 'approved', 'revised', 'rejected']);
+            $table->string('email');
+            $table->string('jabatan');
+            $table->string('type');
+            $table->date('approval_date');
+            $table->enum('approval_status', ['In Progress', 'Revised', 'Approved', 'Rejected']);
+            $table->timestamps();
         });
     }
 

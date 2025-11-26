@@ -16,7 +16,7 @@ class PurchaseRequestSeeder extends Seeder
             [
                 'pr_number' => 'PR-2025001',
                 'pr_date' => '2025-10-06',
-                'requested_by' => 'John Doe',
+                'created_by' => 'John Doe',
                 'department' => 'Finance',
                 'justification' => 'Purchase new laptops for staff.',
                 'status' => 'draft',
@@ -26,7 +26,7 @@ class PurchaseRequestSeeder extends Seeder
             [
                 'pr_number' => 'PR-2025002',
                 'pr_date' => '2025-10-07',
-                'requested_by' => 'Jane Smith',
+                'created_by' => 'Jane Smith',
                 'department' => 'IT',
                 'justification' => 'Upgrade server hardware.',
                 'status' => 'waiting_approval',
@@ -36,7 +36,7 @@ class PurchaseRequestSeeder extends Seeder
             [
                 'pr_number' => 'PR-2025003',
                 'pr_date' => '2025-10-08',
-                'requested_by' => 'Alice Brown',
+                'created_by' => 'Alice Brown',
                 'department' => 'HR',
                 'justification' => 'Office supplies restock.',
                 'status' => 'approved',
@@ -46,7 +46,7 @@ class PurchaseRequestSeeder extends Seeder
             [
                 'pr_number' => 'PR-2025004',
                 'pr_date' => '2025-10-09',
-                'requested_by' => 'Bob Martin',
+                'created_by' => 'Bob Martin',
                 'department' => 'Logistics',
                 'justification' => 'Purchase delivery van.',
                 'status' => 'rejected',
@@ -56,7 +56,7 @@ class PurchaseRequestSeeder extends Seeder
             [
                 'pr_number' => 'PR-2025005',
                 'pr_date' => '2025-10-10',
-                'requested_by' => 'Carol White',
+                'created_by' => 'Carol White',
                 'department' => 'Marketing',
                 'justification' => 'Promotional materials.',
                 'status' => 'draft',
@@ -66,7 +66,7 @@ class PurchaseRequestSeeder extends Seeder
             [
                 'pr_number' => 'PR-2025006',
                 'pr_date' => '2025-10-11',
-                'requested_by' => 'David Black',
+                'created_by' => 'David Black',
                 'department' => 'Sales',
                 'justification' => 'Client gifts.',
                 'status' => 'waiting_approval',
@@ -76,7 +76,7 @@ class PurchaseRequestSeeder extends Seeder
             [
                 'pr_number' => 'PR-2025007',
                 'pr_date' => '2025-10-12',
-                'requested_by' => 'Eva Green',
+                'created_by' => 'Eva Green',
                 'department' => 'IT',
                 'justification' => 'Software licenses renewal.',
                 'status' => 'approved',
@@ -86,7 +86,7 @@ class PurchaseRequestSeeder extends Seeder
             [
                 'pr_number' => 'PR-2025008',
                 'pr_date' => '2025-10-13',
-                'requested_by' => 'Frank Blue',
+                'created_by' => 'Frank Blue',
                 'department' => 'Finance',
                 'justification' => 'Accounting software upgrade.',
                 'status' => 'rejected',
@@ -96,7 +96,7 @@ class PurchaseRequestSeeder extends Seeder
             [
                 'pr_number' => 'PR-2025009',
                 'pr_date' => '2025-10-14',
-                'requested_by' => 'Grace Yellow',
+                'created_by' => 'Grace Yellow',
                 'department' => 'HR',
                 'justification' => 'Employee training materials.',
                 'status' => 'draft',
@@ -106,10 +106,34 @@ class PurchaseRequestSeeder extends Seeder
             [
                 'pr_number' => 'PR-2025010',
                 'pr_date' => '2025-10-15',
-                'requested_by' => 'Henry Purple',
+                'created_by' => 'Henry Purple',
                 'department' => 'Logistics',
                 'justification' => 'Warehouse equipment.',
                 'status' => 'waiting_approval',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
+
+        // Contoh create asset registration dummy
+        DB::table('asset_registrations')->insert([
+            [
+                'ar_number' => 'AR-2025001',
+                'registration_date' => '2025-11-01',
+                'po_number' => 'PO-2025001',
+                'assetName' => 'Laptop Lenovo ThinkPad',
+                'department' => 'Finance',
+                'status' => 'Registered',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'ar_number' => 'AR-2025002',
+                'registration_date' => '2025-11-02',
+                'po_number' => 'PO-2025002',
+                'assetName' => 'Server Dell PowerEdge',
+                'department' => 'IT',
+                'status' => 'Draft',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],

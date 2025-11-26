@@ -21,7 +21,7 @@ class AssetRegistrationItemFactory extends Factory
         $unitPrice = fake()->randomFloat(2, 100, 5000);
 
         return [
-            'asset_registration_id' => AssetRegistration::factory(),
+            'asset_registration_number' => AssetRegistration::factory()->create()->ar_number,
             'item_name' => fake()->randomElement([
                 'Monitor Samsung 24"',
                 'Keyboard Mechanical',

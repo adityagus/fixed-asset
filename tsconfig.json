@@ -12,7 +12,8 @@
         "esModuleInterop": true,
         "lib": ["ESNext", "DOM"],
         "skipLibCheck": true,
-        "baseUrl": "./",
+        "ignoreDeprecations": "6.0", 
+        "baseUrl": "./resources/js",
         "paths": {
             "@/*": ["src/*"]
         },
@@ -20,7 +21,13 @@
         "allowJs": true,
         "types": ["@intlify/vite-plugin-vue-i18n/client"]
     },
-    "include": ["src/**/*.js", "src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
+    "include": [
+        "resources/js/src/**/*.js",   // ← UPDATE INI
+        "resources/js/src/**/*.ts", 
+        "resources/js/src/**/*.d.ts", 
+        "resources/js/src/**/*.tsx", 
+        "resources/js/src/**/*.vue"
+    ],
     "references": [
         {
             "path": "./tsconfig.node.json"

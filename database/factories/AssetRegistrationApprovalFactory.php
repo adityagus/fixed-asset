@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\AssetRegistration;
+use App\Models\RegistrationAsset;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,10 +18,10 @@ class AssetRegistrationApprovalFactory extends Factory
     public function definition(): array
     {
         return [
-            'asset_registration_id' => AssetRegistration::factory(),
+            'registration_asset_number' => RegistrationAsset::factory(),
             'approver_by' => fake()->name(),
             'approved_at' => fake()->optional()->dateTimeBetween('-2 months', 'now'),
-            'approval_status' => fake()->randomElement(['waiting_approval', 'approved', 'revised', 'rejected']),
+            'approval_status' => fake()->randomElement(['waiting approval', 'approved', 'revised', 'rejected']),
         ];
     }
 }

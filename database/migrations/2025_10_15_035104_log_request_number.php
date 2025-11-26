@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('log_request_numbers', function (Blueprint $table) {
             $table->id();
             $table->string('request_number');
+            $table->string('nomor');
             $table->string('type');
             $table->string('year');
             $table->timestamps();

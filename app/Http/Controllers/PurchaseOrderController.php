@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PurchaseOrderItem;
+use App\Models\PurchaseRequest;
 use Tymon\JWTAuth\JWTAuth;
 use Illuminate\Http\Request;
 use App\Models\PurchaseOrder;
@@ -9,151 +11,137 @@ use Illuminate\Http\Response;
 use App\Models\LogRequestNumber;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Validation\ValidationException;
 
 class PurchaseOrderController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(): Response
-    {
-        //
-    }
+  protected $jwtAuth;
 
-    public function detail($po_number)
-    {
-      $purchaseOrder = PurchaseOrder::with('purchaseOrderItems', 'purchaseApprovals')->where('po_number', $po_number)->first();
+  public function __construct(JWTAuth $jwtAuth)
+  {
+    $this->jwtAuth = $jwtAuth;
+  }
 
-      return response()->json([
-          'success' => true,
-          'data' => $purchaseOrder
-      ]);
-    }
-    
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create(Request $request): JsonResponse
-    {
-      // jwt auth user
-      $user = auth()->user();
-      // $user = $request->get('jwt_user');
-      dd($user);
+  /**
+   * Display a listing of the resource.
+   */
+  public function index(): Response
+  {
+    //
+  }
 
-      $latestPo = LogRequestNumber::createRequest('PO');
-      $po_number = $latestPo->request_number;
-      $status = 'draft';
-      $requested_by = $user->name;
-      $res = PurchaseOrder::create([
+  public function detail($po_number)
+  {
+    $purchaseOrder = PurchaseOrder::with('purchaseOrderItems.itemMaster.category', 'purchaseOrderItems.itemMaster.brand', 'purchaseOrderItems.itemMaster.type', 'approvals', 'purchaseRequest')->where('po_number', $po_number)->first();
+
+    return response()->json([
+      'success' => true,
+      'data' => $purchaseOrder
+    ]);
+  }
+
+  public function create(Request $request): JsonResponse
+  {
+    $getUser = $this->jwtAuth->parseToken()->getPayload()->get('user');
+    // jwt auth user
+    // $user = $request->get('jwt_user');
+
+    $latestPo = LogRequestNumber::createRequest('PO');
+    $po_number = $latestPo->request_number;
+    $status = 'draft';
+    $created_by = $getUser['username'] ?? 'Unknown';
+    $res = PurchaseOrder::create([
+      'po_number' => $po_number,
+      'purchase_request_number' => null,
+      'vendor_id' => null,
+      'total_amount' => 0,
+      'status' => $status,
+      'created_by' => $created_by,
+    ]);
+    return response()->json([
+      'success' => true,
+      'data' => [
         'po_number' => $po_number,
-        'purchase_request_id' => null,
-        'vendor_id' => null,
-        'total_amount' => 0,
+        'result' => $res,
         'status' => $status,
-        'created_by' => $requested_by,
-      ]);
+        'created_by' => $created_by,
+      ],
+      'type' => 'purchase-order',
+    ]);
+    // generate po_number
+    // set status to draft
+    // siapa yang request by (user yang sedang login)
+    // return jsnon response
+    // ---
+
+
+  }
+
+  public function saveDraftItem(Request $request, $po_number): JsonResponse
+  {
+    $purchaseOrder = PurchaseOrder::where('po_number', $po_number)->first();
+
+
+    // dd($request->all());
+    if (!$purchaseOrder) {
       return response()->json([
-          'success' => true,
-          'data' => [
-              'po_number' => $po_number,
-              'result' => $res,
-              'status' => $status,
-              'requested_by' => $requested_by,
-          ]
-      ]);
-        // generate po_number
-        // set status to draft
-        // siapa yang request by (user yang sedang login)
-        // return jsnon response
-        // ---
-        
-        
+        'success' => false,
+        'message' => 'Purchase Order not found'
+      ], 404);
     }
-    
-    public function saveDraftItem(Request $request, $po_number): JsonResponse
-    {
-      $purchaseOrder = PurchaseOrder::where('po_number', $po_number)->first();
-      
-      
-      // dd($request->all());
-      if (!$purchaseOrder) {
+
+    // calculate total amount from items
+    // dd($request->all());
+    $total_amount = 0;
+    if (isset($request->items) && is_array($request->items)) {
+      foreach ($request->items as $item) {
+        $total_amount += $item['quantity'] * $item['unit_price'];
+      }
+    }
+
+    $request->merge(['total_amount' => $total_amount]);
+
+    // update purchase order with request data
+    $purchaseOrder->update($request->all());
+    return response()->json([
+      'success' => true,
+      'data' => $purchaseOrder
+    ]);
+  }
+
+  public function submit(Request $request): JsonResponse
+  {
+    try {
+      // jalankan fungsion saveDraftItem dulu untuk menyimpan data item dan total_amount
+      $po_number = $request->input('formNumber');
+      if (!$po_number) {
         return response()->json([
           'success' => false,
-          'message' => 'Purchase Order not found'
-        ], 404);
+          'message' => 'PO Number is required'
+        ], 400);
       }
-      
-      // calculate total amount from items
-      $total_amount = 0;
-      if (isset($request->items) && is_array($request->items)) {
-        foreach ($request->items as $item) {
-          $total_amount += $item['quantity'] * $item['unit_price'];
-        }
-      }
-      
-      $request->merge(['total_amount' => $total_amount]);
-      
-      // update purchase order with request data
-      $purchaseOrder->update($request->all());
-      return response()->json([
-        'success' => true,
-        'data' => $purchaseOrder
-      ]);
-    }
-    
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    
-    public function submit(Request $request): JsonResponse
-    {
-      try{
-        // jalankan fungsion saveDraftItem dulu untuk menyimpan data item dan total_amount
-        $po_number = $request->input('po_number');
-        $this->saveDraftItem($request, $po_number);
-        if (!$po_number) {
-          return response()->json([
-            'success' => false,
-            'message' => 'PO Number is required'
-          ], 400);
-        }
-        
-        // calculate total amount from items
+      // calculate total amount from items
       $request->merge(['total_amount' => 0]);
       if (isset($request->items) && is_array($request->items)) {
         foreach ($request->items as $item) {
           $request->merge(['total_amount' => $request->input('total_amount') + ($item['quantity'] * $item['unit_price'])]);
         }
       }
-        
-        $validated = $request->validate([
-          'purchase_request_id' => 'required|exists:purchase_requests,id',
-          'vendor_id' => 'required|exists:mst_vendor,id',
-          'total_amount' => 'required|numeric|min:0',
-          'status' => 'required|string|in:draft,waiting_approval,approved,rejected',
-          'items' => 'required|array|min:1',
-          'items.*.item_name' => 'required|string|max:255',
-          'items.*.quantity' => 'required|integer|min:1',
-          'items.*.unit_price' => 'required|numeric|min:0',
-        ]);
+      // dd($request->all());
+      $validated = $request->validate([
+        'purchase_request_number' => 'required|string|max:255',
+        'vendor_id' => 'required|exists:mst_vendor,id',
+        'total_amount' => 'required|numeric|min:0',
+        'status' => 'required|string|in:Draft,Waiting Approval,Approved,Rejected',
+        'items' => 'required|array|min:1',
+        // relasi ke master item
+        'items.*.item_id' => 'required|numeric|min:1',
+        'items.*.quantity' => 'required|integer|min:1',
+        'items.*.unit_price' => 'required|numeric|min:0',
+        'items.*.total_price' => 'required|numeric|min:0',
+      ]);
 
-        $purchaseOrder = PurchaseOrder::where('po_number', $po_number)->first();
-        if (!$purchaseOrder) {
-          return response()->json([
-            'success' => false,
-            'message' => 'Purchase Order not found'
-          ], 404);
-        }
-
-      }catch(\Illuminate\Validation\ValidationException $e){
-        return response()->json([
-          'success' => false,
-          'message' => 'Validation failed',
-          'errors' => $e->validator->errors()
-        ], 422);
-      }
-      
       $purchaseOrder = PurchaseOrder::where('po_number', $po_number)->first();
       if (!$purchaseOrder) {
         return response()->json([
@@ -161,54 +149,119 @@ class PurchaseOrderController extends Controller
           'message' => 'Purchase Order not found'
         ], 404);
       }
-      // validate required fields
-      $validated = $request->validate([
-        'purchase_request_id' => 'required|exists:purchase_requests,id',
-        'vendor_id' => 'required|exists:mst_vendor,id',
-        'total_amount' => 'required|numeric|min:0',
-      ]);
-      // update status to waiting_approval
-      $purchaseOrder->update(array_merge($validated, ['status' => 'waiting_approval']));
+
+      // Handle save/Update data
+      $purchaseOrder->update($validated);
+
+      if (PurchaseOrderItem::where('purchase_order_number', $purchaseOrder->po_number)->exists()) {
+        PurchaseOrderItem::where('purchase_order_number', $purchaseOrder->po_number)->delete();
+      }
+      foreach ($request->items as $itemData) {
+        $itemData['purchase_order_number'] = $purchaseOrder->po_number; // Set the purchase_order_number
+        PurchaseOrderItem::create($itemData);
+      }
+
+      $purchaseOrder = PurchaseOrder::where('po_number', $po_number)->first();
+      
+      if (!$purchaseOrder) {
+        return response()->json([
+          'success' => false,
+          'message' => 'Purchase Order not found'
+        ], 404);
+      }
+
+      // create approval layers
+      SubmissionController::CreateLayerApproval(new Request([
+        'type' => 'purchase-order',
+        'request_number' => $po_number,
+        'need_it_approval' => 'true', // sesuaikan dengan kebutuhan
+      ]));
+
+
+      self::updateStatusPO(new Request(['status' => 'waiting approval']), $po_number);
+
+
       return response()->json([
         'success' => true,
         'data' => $purchaseOrder
       ]);
+      // update status to waiting approval
+      // self::updateStatusPO(new Request(['status' => 'waiting approval']), $po_number);
+
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+      return response()->json([
+        'success' => false,
+        'message' => 'Validation failed',
+        'errors' => $e->validator->errors()
+      ], 422);
     }
-    
-    public function store(Request $request): RedirectResponse
-    {
-        //
+  }
+
+  public static function updateStatusPO(Request $request, $po_number): JsonResponse
+  {
+    $request->validate([
+      'status' => 'required|string|max:50'
+    ]);
+
+
+    $purchaseOrder = PurchaseOrder::where('po_number', $po_number)->first();
+
+    if (!$purchaseOrder) {
+      return response()->json([
+        'success' => false,
+        'message' => 'Purchase request not found.'
+      ], 404);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id): Response
-    {
-        //
-    }
+    $purchaseOrder->status = $request->status; // status sudah divalidasi string Inggris
+    $purchaseOrder->save();
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id): Response
-    {
-        //
-    }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id): RedirectResponse
-    {
-        //
-    }
+    return response()->json([
+      'success' => true,
+      'message' => 'Status updated successfully.',
+      'data' => [
+        'po_number' => $po_number,
+        'status' => $purchaseOrder->status
+      ]
+    ]);
+  }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id): RedirectResponse
-    {
-        //
-    }
+  public function store(Request $request): RedirectResponse
+  {
+    //
+  }
+
+  /**
+   * Display the specified resource.
+   */
+  public function show(string $id): Response
+  {
+    //
+  }
+
+  /**
+   * Show the form for editing the specified resource.
+   */
+  public function edit(string $id): Response
+  {
+    //
+  }
+
+  /**
+   * Update the specified resource in storage.
+   */
+  public function update(Request $request, string $id): RedirectResponse
+  {
+    //
+  }
+
+  /**
+   * Remove the specified resource from storage.
+   */
+  public function destroy(string $id): RedirectResponse
+  {
+    //
+  }
 }

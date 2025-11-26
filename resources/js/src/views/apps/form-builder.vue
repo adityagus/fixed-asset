@@ -1,737 +1,1582 @@
 <template>
-    <div class="bg-white p-6 rounded-md shadow-md dark:bg-black">
-        <!-- Header Section -->
-        <div class="border-b border-gray-200 pb-4 mb-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white"><span class='text-gray-600'>Create: </span>{{ formTitle }}</h1>
-                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 font-medium">
-                      {{ formNumberLabel }} : {{ formData.formNumber || formNumberPlaceholder }}
-                    </p>
-                </div>
-                <div class="flex gap-2">
-                    <button @click="$router.back()" class="btn btn-outline-secondary" v-if="isDraft">Back</button>
-                    <button @click="saveDraft" class="btn btn-outline-primary" v-if="isDraft">Save as Draft</button>
-                    <button @click="submitForm" class="btn btn-primary" v-if="isDraft">Submit</button>
-                </div>
-            </div>
+  <div v-if="isPending">
+    <div class="flex flex-col items-center justify-center py-16">
+      <svg
+        class="animate-spin h-10 w-10 text-blue-500 mb-4"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <circle
+          class="opacity-25"
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          stroke-width="4"
+        ></circle>
+        <path
+          class="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8v8H4z"
+        ></path>
+      </svg>
+      <p class="text-gray-600 dark:text-gray-400 text-lg font-medium">
+        Memuat data formulir...
+      </p>
+    </div>
+  </div>
+  <div class="bg-white p-6 rounded-md shadow-md dark:bg-black" v-else>
+    <!-- Header Section -->
+    <div class="border-b border-gray-200 pb-4 mb-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+            <span class="text-gray-600">Buat: </span>{{ formTitle }}
+          </h1>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 font-medium">
+            {{ formNumberLabel }} :
+            {{ formData.formNumber || formNumberPlaceholder }}
+          </p>
         </div>
-
-        <!-- Form Details Header -->
-         <h1 class="text-lg font-semibold text-gray-900 dark:text-white">{{ formTitle }} Form</h1>
-
-        
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-          <!-- Select PR (for PO and AR only) -->
-        <div v-if="formType === 'purchaseOrder' || formType === 'assetRegistration'" class="col-span-3">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Select Purchase Request (PR)</label>
-            <select v-model="selectedPR" @change="onPRSelect" class="form-select">
-                <option value="">Select PR</option>
-                <option v-for="pr in availablePRs" :key="pr.formNumber" :value="pr.formNumber">
-                    {{ pr.formNumber }}
-                </option>
-            </select>
-        </div>
-          
-          <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Requested By</label>
-                <input 
-                    v-model="formData.requestedBy" 
-                    type="text" 
-                    class="form-input disabled" 
-                    placeholder="Enter requester name"
-                    :readonly="!isDraft"
+        <div class="flex gap-2 items-center">
+          <button @click="$router.back()" class="btn btn-outline-secondary">
+            Kembali
+          </button>
+          <!-- <button
+            @click="saveDraft"
+            class="btn btn-outline-primary"
+            v-if="isDraft"
+          >
+            Simpan sebagai Draf
+          </button> -->
+          <button @click="submitForm" class="btn btn-primary" v-if="isDraft">
+            Kirim
+          </button>
+          <!-- Response Button (dropdown) -->
+          <div
+            v-if="canShowResponseButton"
+            class="relative ml-2"
+          >
+            <button
+              @click="toggleResponseMenu"
+              class="btn btn-outline-primary flex items-center"
+            >
+              Response
+              <svg
+                class="ml-1 w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
                 />
+              </svg>
+            </button>
+            <div
+              v-if="showResponseMenu"
+              class="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg z-10"
+            >
+              <ul>
+                <li>
+                  <button
+                    @click="handleResponse('Approved')"
+                    class="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    Approved
+                  </button>
+                </li>
+                <li>
+                  <button
+                    @click="handleResponse('Revised')"
+                    class="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    Revised
+                  </button>
+                </li>
+                <li>
+                  <button
+                    @click="handleResponse('Rejected')"
+                    class="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    Rejected
+                  </button>
+                </li>
+              </ul>
             </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Regional</label>
-                <input 
-                    class='form-input read-only:bg-gray-50/5 read-only:text-gray-500 dark:read-only:bg-gray-700'
-                    v-model="formData.cabangUser" 
-                    v-value='"cabang"'
-                    type="text" 
-                    disabled
-                />
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Department</label>
-                <select v-model="formData.department" class="form-select disabled" :disabled="!isDraft">
-                    <option value="">Select Department</option>
-                    <option value="IT Department">IT Department</option>
-                    <option value="HR Department">HR Department</option>
-                    <option value="Finance Department">Finance Department</option>
-                    <option value="Operations Department">Operations Department</option>
-                    <option value="Marketing Department">Marketing Department</option>
-                </select>
-            </div>
-            <!-- Justification (only for Purchase Request) -->
-            <div v-if="formType === 'purchaseRequest'" class="col-span-12 md:col-span-3">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Justification</label>
-                <textarea 
-                    v-model="formData.justification" 
-                    class="form-textarea" 
-                    rows="3"
-                    placeholder="Enter the reason for this purchase request..."
-                    :readonly="!isDraft"
-                ></textarea>
-            </div>
-            
-            <div v-if="formType === 'purchaseOrder'" class="md:col-span-2">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Supplier</label>
-                <select v-model="formData.supplier" class="form-select" :disabled="!isDraft">
-                    <option value="">Select Supplier</option>
-                    <option value="PT. Komputer Indonesia">PT. Komputer Indonesia</option>
-                    <option value="PT. Monitor Nusantara">PT. Monitor Nusantara</option>
-                    <option value="PT. Office Supplies">PT. Office Supplies</option>
-                </select>
-            </div>
-            <div v-if="formType === 'assetRegistration'" class="md:col-span-2">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">PO Number Reference</label>
-                <select v-model="formData.poReference" class="form-select" :disabled="!isDraft">
-                    <option value="">Select PO Number</option>
-                    <option value="PO-2025-001">PO-2025-001</option>
-                    <option value="PO-2025-002">PO-2025-002</option>
-                </select>
-            </div>
+          </div>
         </div>
+      </div>
+    </div>
 
-        <!-- Items Section -->
-        <div class="mb-6">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ itemsSectionTitle }}</h3>
-                <button @click="addItem" class="btn btn-outline-primary btn-sm" v-if="isDraft">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                    </svg>
-                    Add Item
-                </button>
-            </div>
+    <!-- Form Details Header -->
+    <div class="flex items-center justify-end mb-6">
+      <div class="status-label">
+        <span
+          :class="[
+            'inline-block px-3 py-1 rounded-full text-xs font-semibold',
+            formData.status === 'Draft'
+              ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+              : formData.status === 'Waiting Approval'
+              ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+              : formData.status === 'Full Approved'
+              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+              : formData.status === 'Rejected'
+              ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+              : '',
+          ]"
+        >
+          {{
+            formData.status === 'Draft'
+              ? 'Draf'
+              : formData.status === 'Waiting Approval'
+              ? 'Menunggu Persetujuan'
+              : formData.status === 'Full Approved'
+              ? 'Disetujui'
+              : formData.status === 'Revised'
+              ? 'Direvisi'
+              : formData.status === 'Rejected'
+              ? 'Ditolak'
+              : ''
+          }}
+        </span>
+      </div>
+    </div>
 
-            <div class="overflow-x-auto">
-                <table class="table-auto w-full">
-                    <thead>
-                        <tr class="bg-gray-100 dark:bg-gray-700">
-                            <th class="px-4 py-2 text-left">Item Description</th>
-                            <th class="px-4 py-2 text-center">Quantity</th>
-                            <th class="px-4 py-2 text-right" v-if="formType !== 'assetRegistration'">Unit Price</th>
-                            <th class="px-4 py-2 text-right" v-if="formType !== 'assetRegistration'">Total Price</th>
-                            <th class="px-4 py-2 text-center" v-if="formType === 'assetRegistration'">Asset Tag</th>
-                            <th class="px-4 py-2 text-center" v-if="formType === 'assetRegistration'">Location</th>
-                            <th class="px-4 py-2 text-center" v-if="isDraft">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(item, index) in formData.items" :key="index" class="border-b">
-                            <td class="px-4 py-2">
-                                <input 
-                                    v-model="item.description" 
+    <!-- Approval Layer Section -->
+    <div class="mb-8" v-if="!isDraft">
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+        Approval Layer
+      </h2>
+      <div class="border rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
+        <table class="min-w-full">
+          <thead>
+            <tr class="text-gray-700 dark:text-gray-200">
+              <th class="px-4 py-2 text-left">Layer</th>
+              <th class="px-4 py-2 text-left">Approval Email</th>
+              <th class="px-4 py-2 text-left">Status</th>
+              <th class="px-4 py-2 text-left">Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="(layer, idx) in approvalLayers"
+              :key="idx"
+              class="bg-white dark:bg-gray-900 border-b dark:border-gray-700"
+            >
+              <td class="px-4 py-2">{{ layer.layer }}</td>
+              <td class="px-4 py-2">{{ layer.email }}</td>
+              <td class="px-4 py-2">
+                <span
+                  :class="[
+                    'inline-block px-3 py-1 rounded-full text-xs font-semibold',
+                    layer.approval_status === 'Approved'
+                      ? 'bg-blue-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                      : layer.approval_status === 'In Progress'
+                      ? 'bg-blue-300 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                      : layer.approval_status === 'Rejected'
+                      ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                      : layer.approval_status === 'Revised'
+                      ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200'
+                      : '',
+                  ]"
+                >
+                  {{ statusLabel(layer.approval_status) }}
+                </span>
+              </td>
+              <td class="px-4 py-2">{{ layer.approval_date }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="formulir">
+      <h1 class="text-lg font-semibold text-gray-900 dark:text-white">
+        Formulir {{ formTitle }}
+      </h1>
+    </div>
+    <div
+      class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg"
+    >
+      <!-- Select PR (for PO and ra only) -->
+      <div v-if="formType === 'purchase-order'" class="col-span-3">
+        <label
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          >Pilih Permintaan Pembelian (PR)</label
+        >
+        <input
+          type="text"
+          v-model="selectedPR"
+          @input="onPRSelect"
+          class="form-input disabled"
+          :disabled="!isDraft"
+          v-if="!isDraft"
+        />
+        <select
+          v-if="isDraft"
+          v-model="selectedPR"
+          @change="onPRSelect"
+          class="form-select"
+          :disabled="!isDraft"
+        >
+          <option value="">Pilih PR</option>
+          <option
+            v-for="pr in availablePRs"
+            :key="pr.pr_number"
+            :value="pr.pr_number"
+          >
+            {{ pr.pr_number }} - {{ pr.cabang }}
+          </option>
+        </select>
+      </div>
+
+      <div v-if="formType === 'registration-asset'" class="md:col-span-3">
+        <label
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          >Referensi Nomor PO</label
+        >
+        <input
+          type="text"
+          v-model="selectedPO"
+          @input="onPOSelect"
+          class="form-input disabled"
+          :disabled="!isDraft"
+          v-if="!isDraft"
+        />
+
+        <select
+          v-model="selectedPO"
+          @change="onPOSelect"
+          :class="['form-select', !isDraft ? 'disabled' : '']"
+          :disabled="!isDraft"
+          v-else
+        >
+          <option value="">Pilih Nomor PO</option>
+          <option
+            v-for="po in availablePOs"
+            :key="po.po_number"
+            :value="po.po_number"
+          >
+            {{ po.po_number }} - {{ po.purchase_request.cabang }}
+          </option>
+        </select>
+      </div>
+
+      <div>
+        <label
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          >Permintaan</label
+        >
+        <input
+          v-model="formData.requestedBy"
+          type="text"
+          class="form-input disabled"
+          placeholder="Masukkan nama pemohon"
+          :readonly="!isDraft"
+          :disabled="!isDraft"
+        />
+      </div>
+      <div>
+        <label
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          >Cabang</label
+        >
+        <input
+          class="form-input disabled"
+          v-model="formData.cabang"
+          type="text"
+          placeholder="Masukan Nama Cabang"
+          :disabled="true"
+        />
+      </div>
+      <div>
+        <label
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          >Jabatan</label
+        >
+        <input
+          type="text"
+          class="form-input disabled"
+          placeholder="Masukkan jabatan"
+          v-model="formData.department"
+          :readonly="!isDraft"
+          :disabled="!isDraft"
+        />
+      </div>
+
+      <!-- Justification (only for Purchase Request) -->
+      <div
+        v-if="formType !== 'registration-asset'"
+        class="col-span-12 md:col-span-3"
+      >
+        <label
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          >Alasan</label
+        >
+        <textarea
+          v-model="formData.justification"
+          :class="[
+            'form-textarea',
+            !isDraft || formType == 'purchase-order' ? 'disabled' : '',
+          ]"
+          rows="3"
+          placeholder="Masukkan alasan untuk permintaan pembelian ini..."
+          :readonly="!isDraft"
+          :disabled="!isDraft"
+        ></textarea>
+      </div>
+
+      <div
+        v-if="
+          formType === 'purchase-order' || formType === 'registration-asset'
+        "
+        :class="[
+          formType === 'purchase-order' ? 'md:col-span-2' : 'md:col-span-1',
+        ]"
+      >
+        <label
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          >Vendor</label
+        >
+        <select
+          v-model="formData.vendor_id"
+          :class="[
+            'form-select',
+            !isDraft || formType == 'registration-asset' ? 'disabled' : '',
+          ]"
+          :disabled="!isDraft || formType == 'registration-asset'"
+        >
+          <option value="">Pilih Vendor</option>
+          <option
+            v-for="vendor in vendorList"
+            :key="vendor.id"
+            :value="vendor.id"
+          >
+            {{ vendor.nama }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Tanggal PO untuk purchase-order -->
+      <div v-if="formType === 'purchase-order'" class="md:col-span-1">
+        <label
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          >Tanggal PO</label
+        >
+        <input
+          type="date"
+          :min="formData.prDate"
+          v-model="formData.requestDate"
+          :class="['form-input', !isDraft ? 'disabled' : '']"
+          :readonly="!isDraft"
+          :disabled="!isDraft"
+        />
+      </div>
+
+      <!-- Tanggal RA untuk registration-asset -->
+      <div v-if="formType === 'registration-asset'" class="md:col-span-1">
+        <label
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          >Tanggal RA</label
+        >
+        <input
+          type="date"
+          :class="['form-input', !isDraft ? 'disabled' : '']"
+          :min="formData.poDate"
+          v-model="formData.requestDate"
+          class="form-input"
+          :readonly="!isDraft"
+          :disabled="!isDraft"
+        />
+      </div>
+
+      <!-- Tanggal RA untuk registra[tion-asset -->
+      <div v-if="formType === 'registration-asset'" class="md:col-span-1">
+        <label
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          >Tanggal Invoice</label
+        >
+        <input
+          type="date"
+          :class="['form-input', !isDraft ? 'disabled' : '']"
+          :min="formData.poDate"
+          v-model="formData.invoiceDate"
+          class="form-input"
+          :readonly="!isDraft"
+          :disabled="!isDraft"
+        />
+      </div>
+    </div>
+
+    <!-- Items Section -->
+    <div class="mb-6">
+      <div
+        class="flex items-center justify-between mb-4"
+        v-if="formType === 'purchase-request'"
+      >
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+          {{ itemsSectionTitle }}
+        </h3>
+        <button
+          @click="addItem"
+          class="btn btn-outline-primary btn-sm"
+          v-if="isDraft"
+        >
+          <svg
+            class="w-4 h-4 mr-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+            />
+          </svg>
+          Tambah Item
+        </button>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="table-auto w-full">
+          <thead>
+            <tr class="bg-gray-100 dark:bg-gray-700">
+              <th class="px-4 py-2 text-left">Nama Barang</th>
+              <th class="px-4 py-2 text-center">Kategori</th>
+              <th class="px-4 py-2 text-center">Kuantitas</th>
+              <th class="px-4 py-2 text-right">Harga Satuan</th>
+              <th class="px-4 py-2 text-right" v-if="isFieldSecret">Asset</th>
+              <th class="px-4 py-2 text-right">Total Harga</th>
+              <!-- <th class="px-4 py-2 text-center" v-if="formType === 'registration-asset'">Asset Tag</th>
+              <th class="px-4 py-2 text-center" v-if="formType === 'registration-asset'">Location</th> -->
+              <th class="px-4 py-2 text-center" v-if="isDraft">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- <tr>
+                        <td v-for="item in formData.items">{{ item }}</td>
+                      </tr> -->
+            <tr
+              v-for="(item, index) in formData.items"
+              :key="index"
+              class="border-b"
+            >
+              <td class="px-4 py-2">
+                <!-- <input 
+                                    v-model="item.item_name" 
                                     type="text" 
                                     class="form-input w-full" 
-                                    placeholder="Enter item description"
-                                    v-if='formType == "purchaseRequest"'
+                                    placeholder="Enter item item_name"
+                                    v-if='formType == "purchase-request"'
                                     :readonly="!isDraft"
-                                />
-                                <select name="itemCategory" class="form-input w-full" id="" v-if='formType !== "purchaseRequest"' v-model="item.description" :disabled="!isDraft">
+                                /> -->
+                <select
+                  name=""
+                  id=""
+                  :class="[
+                    'form-input',
+                    !isDraft || formType == 'registration-asset'
+                      ? 'disabled'
+                      : '',
+                  ]"
+                  v-model="item.item_id"
+                  @change="onItemSelect(index, item.item_id)"
+                  :disabled="!isDraft || formType == 'registration-asset'"
+                >
+                  <option value="">Pilih Barang</option>
+                  <option v-for="barang in masterBrgData" :value="barang.id">
+                    {{ barang.nama_brg }} <span v-if="barang.ket_brg">-</span>
+                    {{ barang.ket_brg }}
+                  </option>
+                </select>
+
+                <!-- <select name="itemCategory" class="form-input w-full" id="" v-if='formType !== "purchase-request"' v-model="item.item_id" :disabled="!isDraft">
                                     <option value="">Select Category</option>
                                     <option value="Electronics">Electronics</option>
                                     <option value="Furniture">Furniture</option>
                                     <option value="Stationery">Stationery</option>
                                     <option value="Software">Software</option>
                                     <option value="Other">Other</option>
-                                </select>
-                            </td>
-                            <td class="px-4 py-2">
-                                <input 
-                                    v-model.number="item.qty" 
-                                    type="number" 
-                                    class="form-input w-20 mx-auto" 
-                                    min="1"
-                                    @input="calculateTotal(index)"
-                                    :readonly="!isDraft"
-                                />
-                            </td>
-                            <td class="px-4 py-2" v-if="formType !== 'assetRegistration'">
-                                <input 
-                                    v-model.number="item.unitPrice" 
-                                    type="number" 
-                                    class="form-input w-24 ml-auto" 
-                                    min="0"
-                                    step="0.01"
-                                    @input="calculateTotal(index)"
-                                    :readonly="!isDraft"
-                                />
-                            </td>
-                            <td class="px-4 py-2 text-right font-semibold" v-if="formType !== 'assetRegistration'">
-                                Rp. {{ formatCurrency(item.totalPrice || 0) }}
-                            </td>
-                            <td class="px-4 py-2" v-if="formType === 'assetRegistration'">
-                                <input 
-                                    v-model="item.assetTag" 
-                                    type="text" 
-                                    class="form-input w-32 mx-auto" 
-                                    placeholder="AT-001"
-                                    :readonly="!isDraft"
-                                />
-                            </td>
-                            <td class="px-4 py-2" v-if="formType === 'assetRegistration'">
-                                <input 
-                                    v-model="item.location" 
-                                    type="text" 
-                                    class="form-input w-32 mx-auto" 
-                                    placeholder="Room 101"
-                                    :readonly="!isDraft"
-                                />
-                            </td>
-                            <td class="px-4 py-2" style='text-align: center !important;' v-if="isDraft">
-                                <button @click="removeItem(index)" class="text-red-600 hover:text-red-800" :disabled="!isDraft">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                    </svg>
-                                </button>
-                            </td>
-                        </tr>
-                    </tbody>
-                    <tfoot v-if="formType !== 'assetRegistration'">
-                        <tr class="bg-gray-50 dark:bg-gray-800 font-semibold">
-                            <td colspan="3" class="px-4 py-2 text-right">Total Amount:</td>
-                            <td class="px-4 py-2 text-right text-lg">Rp {{ formatCurrency(totalAmount) }}</td>
-                            <td></td>
-                        </tr>
-                    </tfoot>
-                </table>
+                                </select> -->
+              </td>
+              <td class="px-4 py-2">
+                <input
+                  type="text"
+                  v-model="item.category"
+                  class="form-input w-full disabled"
+                  :readonly="isDraft"
+                  :disabled="isDraft"
+                />
+                <!-- <select name="itemCategory" id="" v-model='item.id_kategori' :class="['form-input', !isDraft ? 'disabled' : '']">
+                  <option value=""></option>
+                  <option v-for="item in masterBrgData" v-value="item.nama_katbrg">{{ item.nama_katbrg }}</option>
+                </select> -->
+              </td>
+              <td class="px-4 py-2">
+                <input
+                  v-model.number="item.quantity"
+                  type="number"
+                  :class="[
+                    'form-input',
+                    'w-20',
+                    'mx-auto',
+                    !isDraft || formType == 'registration-asset'
+                      ? 'disabled'
+                      : '',
+                  ]"
+                  min="1"
+                  @input="calculateTotal(index)"
+                  :readonly="!isDraft || formType == 'registration-asset'"
+                  :disabled="!isDraft || formType == 'registration-asset'"
+                />
+              </td>
+              <td class="px-4 py-2">
+                <input
+                  v-model.number="item.unit_price"
+                  type="number"
+                  :class="[
+                    'form-input',
+                    'w-24',
+                    'ml-auto',
+                    !isDraft ? 'disabled' : '',
+                  ]"
+                  min="0"
+                  step="0.01"
+                  @input="calculateTotal(index)"
+                  :readonly="!isDraft"
+                  :disabled="!isDraft"
+                />
+              </td>
+              <td class="px-4 py-2 text-right font-semibold">
+                Rp. {{ formatCurrency(item.total_price || 0) }}
+              </td>
+              <!-- <td class="px-4 py-2" v-if="formType === 'registration-asset'">
+                <input v-model="item.purchase_request_number" type="text"
+                  :class="['form-input', 'w-32', 'mx-auto', !isDraft ? 'disabled' : '']" placeholder="AT-001" :readonly="!isDraft"
+                  :disabled="!isDraft" />
+              </td>
+              <td class="px-4 py-2" v-if="formType === 'registration-asset'">
+                <input v-model="item.location" type="text" :class="['form-input', 'w-32', 'mx-auto', !isDraft ? 'disabled' : '']"
+                  placeholder="Room 101" :readonly="!isDraft" :disabled="!isDraft" />
+              </td> -->
+              <td
+                class="px-4 py-2"
+                style="text-align: center !important"
+                v-if="isDraft"
+              >
+                <button
+                  @click="removeItem(index)"
+                  class="text-red-600 hover:text-red-800"
+                  :disabled="!isDraft"
+                >
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
+                  </svg>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="bg-gray-50 dark:bg-gray-800 font-semibold">
+              <td colspan="4" class="px-4 py-2 text-right">Jumlah Total:</td>
+              <td class="px-4 py-2 text-right text-lg">
+                Rp {{ formatCurrency(totalAmount) }}
+              </td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- Footer Section: Upload Notes and Attachments -->
+    <div class="border-t border-gray-200 pt-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div>
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >Dokumen Lampiran</label
+          >
+          <label for="file-upload" class="cursor-pointer">
+            <div
+              class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4"
+              v-if="isDraft"
+            >
+              <div class="text-center">
+                <svg
+                  class="mx-auto h-12 w-12 text-gray-400"
+                  stroke="currentColor"
+                  fill="none"
+                  viewBox="0 0 48 48"
+                >
+                  <path
+                    d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                <div class="mt-4">
+                  <span
+                    class="mt-2 block text-sm font-medium text-gray-900 dark:text-white"
+                    >Unggah berkas</span
+                  >
+                  <input
+                    id="file-upload"
+                    name="file-upload"
+                    type="file"
+                    :class="!isDraft ? 'disabled' : ''"
+                    class="sr-only"
+                    multiple
+                    @change="handleFileUpload"
+                    accept=".pdf"
+                    :disabled="!isDraft"
+                  />
+                  <p class="text-xs text-gray-500 dark:text-gray-400">
+                    PDF, DOC, DOCX, JPG, PNG hingga 10MB masing-masing
+                  </p>
+                </div>
+              </div>
             </div>
+            <div
+              v-else
+              class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg text-left text-sm text-gray-500 dark:text-gray-400"
+              id="see-attachment"
+            >
+              <div>
+                <span v-if="uploadedFiles.length === 0" class="text-gray-400"
+                  >Tidak ada berkas terunggah.</span
+                >
+                <ul v-else class="space-y-1">
+                  <li
+                    v-for="(file, idx) in uploadedFiles"
+                    :key="file.id || idx"
+                  >
+                    <a
+                      :href="`/storage/${file.url_file}`"
+                      class="text-blue-600 hover:underline"
+                      target="_blank"
+                      rel="noopener"
+                    >
+                      {{ file.file_name || file.name }}
+                    </a>
+                    <span class="text-xs text-gray-500 ml-2"
+                      >({{ formatFileSize(file.size) }})</span
+                    >
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </label>
+
+          <!-- Uploaded Files List -->
         </div>
+        <div v-if="uploadedFiles.length > 0 && isDraft" class="mt-4">
+          <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Berkas yang Diunggah:
+          </h4>
+          <ul class="space-y-2">
+            <li
+              v-for="(file, index) in uploadedFiles"
+              :key="index"
+              class="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800 rounded"
+            >
+              <div class="flex items-center">
+                <svg
+                  class="w-4 h-4 text-gray-500 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
+                </svg>
+                <span class="text-sm text-gray-700 dark:text-gray-300">{{
+                  file.file_name
+                }}</span>
+                <span class="text-xs text-gray-500 ml-2"
+                  >({{ formatFileSize(file.size) }})</span
+                >
+              </div>
+              <button
+                @click="removeFile(file.id)"
+                class="text-red-600 hover:text-red-800"
+                :disabled="!isDraft"
+              >
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="w-full">
+        <!-- Notes Section -->
+        <div>
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >Catatan</label
+          >
+          <div class="flex gap-2 mb-2">
+            <textarea
+              v-model="newNote"
+              :class="['form-textarea']"
+              class="form-textarea flex-1"
+              rows="2"
+              placeholder="Ketik catatan..."
+              :disabled="isDraft || !canShowResponseButton"
+            ></textarea>
+            <button
+              @click="sendNote"
+              class="btn btn-primary"
+              :disabled="isDraft || !canShowResponseButton"
+            >
+              Kirim
+            </button>
+          </div>
+          <textarea
+            v-model="formData.notes"
+            :class="['form-textarea']"
+            class="form-textarea"
+            rows="4"
+            placeholder="Masukkan catatan atau komentar tambahan..."
+            :readonly="!isDraft"
+            :disabled="!isDraft"
+            style="display: none"
+          ></textarea>
 
-        <!-- Footer Section: Upload Notes and Attachments -->
-        <div class="border-t border-gray-200 pt-6">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Notes Section -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Additional Notes</label>
-                    <div class="flex gap-2 mb-2">
-                        <textarea 
-                            v-model="newNote"
-                            class="form-textarea flex-1"
-                            rows="2"
-                            placeholder="Type a note..."
-                            :readonly="!isDraft"
-                        ></textarea>
-                        <button @click="sendNote" class="btn btn-primary" :disabled="!isDraft || !newNote.trim()">Kirim</button>
-                    </div>
-                    <textarea 
-                        v-model="formData.notes" 
-                        class="form-textarea" 
-                        rows="4"
-                        placeholder="Enter any additional notes or comments..."
-                        :readonly="!isDraft"
-                        style="display:none"
-                    ></textarea>
-
-                    <!-- Balon chat notes -->
-                    <div class="mt-4 space-y-3">
-                        <div
-        v-for="(note, idx) in notesHistory"
-        :key="idx"
-        class="flex items-start gap-2"
-        :class="{
-            'justify-end': note.sender === formData.requestedBy,
-            'justify-start': note.sender !== formData.requestedBy
-        }"
-    >
-        <div
-            :class="[
-                'rounded-lg px-4 py-2 max-w-lg',
-                note.sender === formData.requestedBy
+          <!-- Balon chat notes -->
+          <div class="mt-4 space-y-3">
+            <div
+              v-for="(note, idx) in notesHistory"
+              :key="idx"
+              class="flex items-start gap-2"
+              :class="{
+                'justify-end': note.sender === currentUser!.username,
+                'justify-start': note.sender !== currentUser!.username,
+              }"
+            >
+              <div
+                :class="[
+                  'rounded-lg px-4 py-2 max-w-lg',
+                  note.sender === currentUser!.username
                     ? 'bg-blue-50 dark:bg-blue-900 text-right ml-auto'
-                    : 'bg-gray-100 dark:bg-gray-700 text-left mr-auto'
-            ]"
-        >
-            <div class="flex items-center gap-2 mb-1" :class="note.sender === formData.requestedBy ? 'justify-end' : 'justify-start'">
-                <span class="font-semibold"
-                    :class="note.sender === formData.requestedBy ? 'text-blue-700 dark:text-blue-200' : 'text-gray-700 dark:text-gray-200'">
+                    : 'bg-gray-100 dark:bg-gray-700 text-left mr-auto',
+                ]"
+              >
+                <div
+                  class="flex items-center gap-2 mb-1"
+                  :class="
+                    note.sender === currentUser!.username
+                      ? 'justify-end'
+                      : 'justify-start'
+                  "
+                >
+                  <span
+                    class="font-semibold"
+                    :class="
+                      note.sender === currentUser!.username
+                        ? 'text-blue-700 dark:text-blue-200'
+                        : 'text-gray-700 dark:text-gray-200'
+                    "
+                  >
                     {{ note.sender }}
-                </span>
-                <span class="text-xs text-gray-500 dark:text-gray-400">{{ note.time }}</span>
+                  </span>
+                  <span class="text-xs text-gray-500 dark:text-gray-400">{{
+                    note.time
+                  }}</span>
+                </div>
+                <div
+                  :class="
+                    note.sender === currentUser!.username
+                      ? 'text-blue-900 dark:text-blue-100'
+                      : 'text-gray-800 dark:text-gray-200'
+                  "
+                >
+                  {{ note.text }}
+                </div>
+              </div>
             </div>
-            <div :class="note.sender === formData.requestedBy ? 'text-blue-900 dark:text-blue-100' : 'text-gray-800 dark:text-gray-200'">
-                {{ note.text }}
-            </div>
+          </div>
         </div>
+      </div>
     </div>
-</div>
-                </div>
 
-                <!-- Attachments Section -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Attachment Documents</label>
-                    <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4" v-if='isDraft'>
-                        <div class="text-center">
-                            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                            <div class="mt-4">
-                                <label for="file-upload" class="cursor-pointer">
-                                    <span class="mt-2 block text-sm font-medium text-gray-900 dark:text-white">Upload files</span>
-                                    <input 
-                                        id="file-upload" 
-                                        name="file-upload" 
-                                        type="file" 
-                                        class="sr-only" 
-                                        multiple
-                                        @change="handleFileUpload"
-                                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                                        :disabled="!isDraft"
-                                    />
-                                </label>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">PDF, DOC, DOCX, JPG, PNG up to 10MB each</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div v-else class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg text-left text-sm text-gray-500 dark:text-gray-400" id='see-attachment'>
-                      Link check upload
-                      
-                </div>
-
-                    <!-- Uploaded Files List -->
-                    <div v-if="uploadedFiles.length > 0" class="mt-4">
-                        <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Uploaded Files:</h4>
-                        <ul class="space-y-2">
-                            <li v-for="(file, index) in uploadedFiles" :key="index" class="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800 rounded">
-                                <div class="flex items-center">
-                                    <svg class="w-4 h-4 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                    </svg>
-                                    <span class="text-sm text-gray-700 dark:text-gray-300">{{ file.name }}</span>
-                                    <span class="text-xs text-gray-500 ml-2">({{ formatFileSize(file.size) }})</span>
-                                </div>
-                                <button @click="removeFile(index)" class="text-red-600 hover:text-red-800" :disabled="!isDraft">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                    </svg>
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+    <!-- Chat Notes Section (after submit) -->
+    <div v-if="showNotesChat" class="mt-8">
+      <h3 class="text-lg font-semibold mb-4">Riwayat Catatan</h3>
+      <div class="space-y-3">
+        <div
+          v-for="(note, idx) in notesHistory"
+          :key="idx"
+          class="flex items-start gap-2"
+        >
+          <div class="bg-gray-100 dark:bg-gray-700 rounded-lg px-4 py-2">
+            <div class="text-sm text-gray-800 dark:text-gray-200">
+              {{ note.text }}
             </div>
-        </div>
-
-        <!-- Chat Notes Section (after submit) -->
-        <div v-if="showNotesChat" class="mt-8">
-            <h3 class="text-lg font-semibold mb-4">Notes History</h3>
-            <div class="space-y-3">
-                <div v-for="(note, idx) in notesHistory" :key="idx" class="flex items-start gap-2">
-                    <div class="bg-gray-100 dark:bg-gray-700 rounded-lg px-4 py-2">
-                        <div class="text-sm text-gray-800 dark:text-gray-200">{{ note.text }}</div>
-                        <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ note.time }}</div>
-                    </div>
-                </div>
+            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              {{ note.time }}
             </div>
+          </div>
         </div>
+      </div>
     </div>
+
+    <!-- Tambahkan di bawah judul form atau di bagian mana saja untuk menampilkan hasil purchaseOrderData -->
+    <div
+      v-if="purchaseOrderData && formType === 'purchase-order'"
+      class="mb-4 p-3 bg-blue-50 rounded"
+    >
+      <strong>Info Purchase Order:</strong><br />
+      Nomor PO: {{ purchaseOrderData.formNumber }}<br />
+      Vendor: {{ purchaseOrderData.vendorName }}<br />
+      PR Terkunci: <span v-if="purchaseOrderData.prLocked">Ya</span
+      ><span v-else>Tidak</span>
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import Swal from 'sweetalert2';
-import { useMeta } from '@/composables/use-meta';
+import { ref, computed, onMounted, watch, watchEffect } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import Swal from 'sweetalert2'
+import { useMeta } from '@/composables/use-meta'
+import {
+    useCheckUser,
+  useDetailSubmission,
+  useGetFileList,
+  useGetListApproved,
+  useGetMasterBrg,
+  useGetVendorList,
+} from '@/services/queries'
+import {
+  useSaveDraftPurchaseRequest,
+  useSendNote,
+  useSetApprovalStatus,
+  useSubmitPurchaseOrder,
+  useSubmitPurchaseRequest,
+  useSubmitRegistrationAsset,
+  useUploadFileSubmission,
+} from '@/services/mutations'
+import { useFileDelete, useFileUpload } from '@/composables/useFileUpload'
+import { usePurchaseOrder } from '@/composables/usePurchaseOrder'
+import { useSubmissionForm } from '@/composables/useSubmissionForm'
+import { useGetNotes } from '@/services/queries'
 
-// Get form type from route params
-const route = useRoute();
-const router = useRouter();
-const formType = ref(route.params.formType as string || route.query.type as string || 'purchaseRequest');
-const formNumber = ref(route.params.formNumber as string || '');
+// Routing & Form Type
+const route = useRoute()
+const router = useRouter()
+const formType = ref(
+  (route.params.formType as string) ||
+    (route.query.type as string) ||
+    'purchase-request'
+)
+const formNumber = ref((route.params.formNumber as string) || '')
 
-useMeta({ title: computed(() => formTitle.value) });
-
-// Form configuration based on type
+// Form Config
 const formConfig = computed(() => {
-    switch (formType.value) {
-        case 'purchaseRequest':
-            return {
-                title: 'Purchase Request',
-                description: 'Create a new purchase request for items needed by your department',
-                numberLabel: 'PR Number',
-                numberPrefix: 'PR',
-                itemsTitle: 'Items Requested'
-            };
-        case 'purchaseOrder':
-            return {
-                title: 'Purchase Order',
-                description: 'Create a new purchase order to procure items from suppliers',
-                numberLabel: 'PO Number',
-                numberPrefix: 'PO',
-                itemsTitle: 'Items to Purchase'
-            };
-        case 'assetRegistration':
-            return {
-                title: 'Asset Registration',
-                description: 'Register new assets for tracking and management',
-                numberLabel: 'AR Number',
-                numberPrefix: 'AR',
-                itemsTitle: 'Assets to Register'
-            };
-        default:
-            return {
-                title: 'Form Builder',
-                description: 'Create a new form',
-                numberLabel: 'Form Number',
-                numberPrefix: 'F',
-                itemsTitle: 'Items'
-            };
-    }
-});
+  switch (formType.value) {
+    case 'purchase-request':
+      return {
+        title: 'Permintaan Pembelian',
+        item_name:
+          'Buat permintaan pembelian barang untuk kebutuhan departemen Anda',
+        numberLabel: 'Nomor PR',
+        numberPrefix: 'PR',
+        itemsTitle: 'Daftar Barang Diminta',
+      }
+    case 'purchase-order':
+      return {
+        title: 'Pesanan Pembelian',
+        item_name:
+          'Buat pesanan pembelian untuk pengadaan barang dari supplier',
+        numberLabel: 'Nomor PO',
+        numberPrefix: 'PO',
+        itemsTitle: 'Daftar Barang Dibeli',
+      }
+    case 'registration-asset':
+      return {
+        title: 'Registrasi Aset',
+        item_name: 'Registrasi aset baru untuk keperluan inventaris',
+        numberLabel: 'Nomor ra',
+        numberPrefix: 'ra',
+        itemsTitle: 'Daftar Aset',
+      }
+    default:
+      return {
+        title: 'Form Builder',
+        item_name: 'Buat formulir baru',
+        numberLabel: 'Nomor Formulir',
+        numberPrefix: 'F',
+        itemsTitle: 'Daftar Barang',
+      }
+  }
+})
 
-// Computed properties for form configuration
-const formTitle = computed(() => formConfig.value.title);
-const formDescription = computed(() => formConfig.value.description);
-const formNumberLabel = computed(() => formConfig.value.numberLabel);
-const formNumberPlaceholder = computed(() => `${formConfig.value.numberPrefix}-${new Date().getFullYear()}-001`);
-const itemsSectionTitle = computed(() => formConfig.value.itemsTitle);
+const formTitle = computed(() => formConfig.value.title)
+const formNumberLabel = computed(() => formConfig.value.numberLabel)
+const formNumberPlaceholder = computed(
+  () => `${formConfig.value.numberPrefix}-${new Date().getFullYear()}-001`
+)
+const itemsSectionTitle = computed(() => formConfig.value.itemsTitle)
 
-// Check if this is edit mode (form number exists in URL)
-const isEditMode = computed(() => !!formNumber.value);
+useMeta({ title: 'Formulir' })
 
-// Status draft, default true jika query draft=true, selain itu false
-const isDraft = computed(() => formData.value.status === 'draft');
+const isEditMode = computed(() => !!formNumber.value)
 
-// Jika status berubah, update isDraft
-watch(() => route.query.draft, (val) => {
-    isDraft.value = val === 'true';
-});
+// Draft status
+const isDraft = ref(true)
+const isFieldSecret = ref(false)
+// formData.items some
+// check if unit_price 2.500.000
 
-// Form data
-const formData = ref({
-    formNumber: '',
-    cabangUser: '',
-    requestDate: new Date().toISOString().slice(0, 16),
-    requestedBy: '',
-    department: '',
-    supplier: '', // for PO
-    poReference: '', // for AR
-    justification: '', // for PR
-    notes: '',
-    status: 'Waiting', // status dari database, default draft
-    personalDetail: {
-        fullName: '',
-        email: '',
-        phone: ''
-    },
-    items: [
-        {
-            description: '',
-            qty: 1,
-            unitPrice: 0,
-            totalPrice: 0,
-            assetTag: '', // for AR
-            location: '' // for AR
-        }
-    ]
-});
 
-// File upload
-const uploadedFiles = ref<File[]>([]);
-const newNote = ref('');
-const notesHistory = ref<{text: string, time: string, sender: string}[]>([]);
-const showNotesChat = ref(false);
+const capitalize = (val: string) =>
+  val ? val.charAt(0).toUpperCase() + val.slice(1) : ''
 
-// Simulasi data PR yang tersedia
-const availablePRs = ref([
+// Form Data
+const defaultFormData = () => ({
+  formNumber: '',
+  cabang: '',
+  requestDate: new Date().toISOString().slice(0, 16),
+  requestedBy: '',
+  department: '',
+  vendor_id: '',
+  poReference: '',
+  prReference: '',
+  raReference: '',
+  justification: '',
+  notes: '',
+  status: 'Draft',
+  items: [
     {
-        formNumber: 'PR-20240601-001',
-        requestedBy: 'Alice',
-        department: 'IT Department',
-        justification: 'Pengadaan laptop baru',
-        items: [
-            { description: 'Laptop', qty: 2, unitPrice: 9000000, totalPrice: 18000000 },
-            { description: 'Mouse', qty: 2, unitPrice: 150000, totalPrice: 300000 }
-        ]
+      item_id: '',
+      category: '',
+      quantity: 1,
+      unit_price: 0,
+      total_price: 0,
+      formNumber: '',
+      additional_information: '',
     },
-    {
-        formNumber: 'PR-20240601-002',
-        requestedBy: 'Bob',
-        department: 'HR Department',
-        justification: 'Pengadaan kursi kantor',
-        items: [
-            { description: 'Chair', qty: 5, unitPrice: 700000, totalPrice: 3500000 }
-        ]
-    }
-]);
+  ],
+})
+const formData = ref(defaultFormData())
+const approvalLayers = ref<any[]>([])
 
-const selectedPR = ref('');
+// File & Notes
+const newNote = ref('')
+const notesHistory = ref<{ text: string; time: string; sender: string }[]>([])
+const showNotesChat = ref(false)
+const showNotesModal = ref(false)
 
-// Ketika PR dipilih, isi input dan item dari PR
+// PR Data
+const selectedPR = ref('')
+const limitTable = ref(null)
+
+// PO Data
+const selectedPO = ref('')
+
+// Queries
+const {
+  data: submissionRef,
+  isPending,
+  isSuccess,
+} = useDetailSubmission(formType.value, formNumber.value)
+const { data: masterBrgData } = useGetMasterBrg()
+const { data: fileListRef } = useGetFileList(formNumber.value)
+const { data: availablePRs } = useGetListApproved({ formType: formType.value })
+const { data: availablePOs } = useGetListApproved({ formType: formType.value })
+const { data: vendorList } = useGetVendorList()
+const { data: userDataRef, isLoading, error, refetch } = useCheckUser();
+const { data: notedDataRef } = useGetNotes(formType.value, formNumber.value);
+
+// mutation
+const mutationDelete = useFileDelete()
+const mutateSubmitPR = useSubmitPurchaseRequest()
+const mutateSubmitPO = useSubmitPurchaseOrder()
+const mutateSubmitRA = useSubmitRegistrationAsset()
+const mutateSaveDraft = useSaveDraftPurchaseRequest()
+const mutateSetStatus = useSetApprovalStatus()
+
+const onItemSelect = (index: number, id_brg: string) => {
+  console.log('id_brg', id_brg)
+  const selectedItem = masterBrgData.value.find(
+    (item: any) => item.id === id_brg
+  )
+
+  if (selectedItem) {
+    console.log('stroke-linejoin selectedItem', selectedItem)
+    formData.value.items[index].category = selectedItem.category.nama_katbrg
+    formData.value.items[index].tipe = selectedItem.type
+    console.log(
+      'formData.value.items[index].category',
+      formData.value.items[index].category
+    )
+  } else {
+    console.log('opopo')
+    formData.value.items[index].category = ''
+  }
+}
+
+const currentUser = ref<UserData | null>(null);
+
+const canShowResponseButton = computed(() => {
+  if (formData.value.status !== 'Waiting Approval') return false;
+  // Cek apakah ada approval layer milik user login yang statusnya "In Progress"
+  return approvalLayers.value.some(
+    (layer) =>
+      layer.approval_status === 'In Progress' &&
+      (layer.approver_by === 'Agung')
+  );
+});
+
+
+
+// computed langsung dari query
+const uploadedFiles = computed(() => fileListRef.value ?? [])
+// Pastikan ini dipanggil sebagai function jika dari composable
+const purchaseOrderData = usePurchaseOrder(formType, formData, vendorList)
+
+console.log('uploadedFiles', uploadedFiles.value)
+
+// Watch submission data (gunakan composable)
+useSubmissionForm({
+  submissionRef,
+  formType,
+  formData,
+  defaultFormData,
+  isDraft,
+  approvalLayers,
+  selectedPR,
+  selectedPO,
+  currentUser,
+  userDataRef,
+  notedDataRef,
+  notesHistory
+})
+
+// PR selection
 const onPRSelect = () => {
-    const pr = availablePRs.value.find(pr => pr.formNumber === selectedPR.value);
-    if (pr) {
-        formData.value.requestedBy = pr.requestedBy;
-        formData.value.department = pr.department;
-        formData.value.justification = pr.justification || '';
-        // Untuk PO dan AR, item bisa diubah sesuai kebutuhan
-        formData.value.items = pr.items.map(item => ({
-            ...item,
-            assetTag: '',
-            location: ''
-        }));
-    }
-};
+  // PR sudah lock jika bukan draft
+  if (!isDraft.value) return
+  const pr = availablePRs.value.find((pr) => pr.pr_number === selectedPR.value)
+  console.log('Selected PR:', pr)
+  if (pr) {
+    limitTable.value = pr.purchase_request_items.length
+    // reset items dulu
+    formData.value.items = []
+    formData.value.cabang = pr.cabang
+    formData.value.requestedBy = pr.created_by
+    formData.value.justification = pr.justification
+    formData.value.department = pr.department
+    formData.value.prDate = pr.created_at.slice(0, 10)
+    formData.value.prReference = selectedPR.value
+    formData.value.items = pr.purchase_request_items.map((item: any) => ({
+      item_id: item.item_id,
+      quantity: item.quantity,
+      category: item.item_master.category.nama_katbrg,
+      additional_information: item.item_master.ket_brg,
+      unit_price: item.unit_price,
+      total_price: item.total_price,
+      purchase_request_number: item.purchase_request_number,
+    }))
+    console.log('formData PR', formData.value)
+  }
+}
 
-// Generate form number on mount
-onMounted(() => {
-    if (formNumber.value) {
-        // Edit mode - load existing form data
-        formData.value.formNumber = formNumber.value;
-        loadFormData(formNumber.value);
-    } else {
-        // Create mode - generate new form number
-        generateFormNumber();
-    }
-});
+// PR selection
+const onPOSelect = () => {
+  // PR sudah lock jika bukan draft
+  if (!isDraft.value) return
+  const po = availablePOs.value.find((po) => po.po_number === selectedPO.value)
+  console.log('Selected PO:', po)
+  if (po) {
+    limitTable.value = po.purchase_order_items.length
+    // reset items dulu
+    formData.value.items = []
+    formData.value.cabang = po.purchase_request.cabang
+    formData.value.requestedBy = po.purchase_request.created_by
+    formData.value.justification = po.purchase_request.justification
+    formData.value.department = po.purchase_request.department
+    formData.value.vendor_id = po.vendor_id
+    // created date sementara
+    formData.value.poDate = po.created_at.slice(0, 10)
+    formData.value.poReference = selectedPO.value
+    formData.value.assigned_to = po.purchase_request.created_by
+    formData.value.prReference = po.purchase_request.pr_number
+    // Penjabaran item sesuai quantity
+    const expandedItems = []
+    po.purchase_order_items.forEach((item: any) => {
+      for (let i = 0; i < item.quantity; i++) {
+        expandedItems.push({
+          item_id: item.item_id,
+          category: item.item_master.category.nama_katbrg,
+          additional_information: item.item_master.ket_brg,
+          quantity: 1,
+          unit_price: item.unit_price,
+          total_price: item.unit_price,
+          purchase_order_number: item.purchase_request_number,
+          // tambahkan property lain jika perlu
+        })
+      }
+    })
+    formData.value.items = expandedItems
+    console.log('formData PR', formData.value)
+  }
+}
 
-// Watch for route changes
-watch(() => route.params, (newParams) => {
-    formType.value = newParams.formType as string || 'purchaseRequest';
-    formNumber.value = newParams.formNumber as string || '';
-    
-    if (formNumber.value) {
-        formData.value.formNumber = formNumber.value;
-        loadFormData(formNumber.value);
-    } else {
-        generateFormNumber();
-    }
-});
+watch(
+  () => formData.value.items,
+  (newItems) => {
+    newItems.some((item) => {
+      if (item.unit_price >= 2500000) {
+        isFieldSecret.value = true
+        return true // stop iterasi
+      }
+      isFieldSecret.value = false
+      return false
+    })
+  },
+  { deep: true }
+)
 
+// Inisialisasi mutation
+const mutateSendNote = useSendNote()
+
+
+// Generate form number
 const generateFormNumber = () => {
-    const year = new Date().getFullYear();
-    const month = String(new Date().getMonth() + 1).padStart(2, '0');
-    const day = String(new Date().getDate()).padStart(2, '0');
-    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-    const newFormNumber = `${formConfig.value.numberPrefix}-${year}${month}${day}-${random}`;
-    
-    formData.value.formNumber = newFormNumber;
-    
-    // Update URL to include the generated form number
-    router.replace(`/apps/form-builder/${formType.value}/${newFormNumber}`);
-};
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = String(now.getMonth() + 1).padStart(2, '0')
+  const day = String(now.getDate()).padStart(2, '0')
+  const random = Math.floor(Math.random() * 1000)
+    .toString()
+    .padStart(3, '0')
+  const newFormNumber = `${formConfig.value.numberPrefix}-${year}${month}${day}-${random}`
+  formData.value.formNumber = newFormNumber
+  router.replace(`/apps/form-builder/${formType.value}/${newFormNumber}`)
+}
 
+// Load form data (stub)
 const loadFormData = (formNum: string) => {
-    // TODO: Load existing form data from API/database
-    // Simulasi data dari database, misal status: 'submitted'
-    if (isEditMode.value) {
-        formData.value = {
-            ...formData.value,
-            requestedBy: 'John Doe',
-            department: 'IT Department',
-            justification: 'Existing form justification...',
-            notes: 'Existing notes...',
-            status: 'draft' // contoh status dari database, ubah sesuai data asli
-        };
+  // TODO: Load from API/database if needed
+}
+
+// On mount/init
+onMounted(() => {
+  if (formNumber.value) {
+    formData.value.formNumber = formNumber.value
+    loadFormData(formNumber.value)
+  } else {
+    Object.assign(formData.value, defaultFormData())
+    generateFormNumber()
+  }
+})
+
+// Watch route changes
+watch(
+  () => route.params,
+  (newParams) => {
+    formType.value = (newParams.formType as string) || 'purchase-request'
+    formNumber.value = (newParams.formNumber as string) || ''
+    if (formNumber.value) {
+      formData.value.formNumber = formNumber.value
+      loadFormData(formNumber.value)
+    } else {
+      Object.assign(formData.value, defaultFormData())
+      generateFormNumber()
     }
-};
+  }
+)
 
 // Item management
 const addItem = () => {
-    const newItem: any = {
-        description: '',
-        qty: 1,
-        unitPrice: 0,
-        totalPrice: 0
-    };
-    
-    if (formType.value === 'assetRegistration') {
-        newItem.assetTag = '';
-        newItem.location = '';
-    }
-    
-    formData.value.items.push(newItem);
-};
-
+  const newItem: any = {
+    item_name: '',
+    quantity: 1,
+    unit_price: 0,
+    total_price: 0,
+  }
+  if (formType.value === 'registration-asset') {
+    newItem.purchase_request_number = ''
+    newItem.location = ''
+  }
+  if (limitTable.value && formData.value.items.length >= limitTable.value) {
+    showMessage(
+      `Maksimum item yang dapat ditambahkan adalah ${limitTable.value}.`,
+      'error'
+    )
+    return
+  }
+  formData.value.items.push(newItem)
+}
 const removeItem = (index: number) => {
-    if (formData.value.items.length > 1) {
-        formData.value.items.splice(index, 1);
-    }
-};
-
+  if (formData.value.items.length > 1) formData.value.items.splice(index, 1)
+}
 const calculateTotal = (index: number) => {
-    const item = formData.value.items[index];
-    item.totalPrice = (item.qty || 0) * (item.unitPrice || 0);
-};
+  const item = formData.value.items[index]
+  item.total_price = (item.quantity || 0) * (item.unit_price || 0)
+}
+const totalAmount = computed(() =>
+  formData.value.items.reduce((sum, item) => sum + (item.total_price || 0), 0)
+)
+const mutateFileUpload = useFileUpload()
 
-// Calculate total amount
-const totalAmount = computed(() => {
-    return formData.value.items.reduce((sum, item) => sum + (item.totalPrice || 0), 0);
-});
+const files = ref([])
 
 // File handling
-const handleFileUpload = (event: Event) => {
-    const target = event.target as HTMLInputElement;
-    if (target.files) {
-        Array.from(target.files).forEach(file => {
-            if (file.size <= 10 * 1024 * 1024) { // 10MB limit
-                uploadedFiles.value.push(file);
-            } else {
-                showMessage(`File ${file.name} is too large. Maximum size is 10MB.`, 'error');
-            }
-        });
-        target.value = ''; // Reset input
+const handleFileUpload = async (event: Event) => {
+  const target = event.target as HTMLInputElement
+  if (target.files) {
+    for (const file of Array.from(target.files)) {
+      if (file.size <= 10 * 1024 * 1024) {
+        uploadedFiles.value.push(file)
+
+        const dataUpload = {
+          formNumber: formData.value.formNumber,
+          formType: formType.value,
+          uploaded_by: formData.value.requestedBy,
+          // type: formType.value,
+        }
+        console.log('dataUpload', dataUpload)
+
+        // panggil mutateAsync saja, jangan useFileUpload ulang!
+        await mutateFileUpload.mutateAsync({ data: dataUpload, file: file })
+      } else {
+        showMessage(
+          `File ${file.name} terlalu besar. Ukuran maksimum adalah 10MB.`,
+          'error'
+        )
+      }
     }
-};
+    target.value = ''
+  }
+}
+const removeFile = (id: number) => {
+  mutationDelete.mutateAsync(id)
+  // uploadedFiles.value.splice(index, 1);
+  // TODO: Call API to delete file from server
+  // mutationDelete.mutateAsync({
+  //     formNumber: formData.value.formNumber,
+  //     fileId: uploadedFiles?.value[index].id
+  // });
+}
 
-const removeFile = (index: number) => {
-    uploadedFiles.value.splice(index, 1);
-};
+// Notes
+// Modifikasi fungsi sendNote
+const sendNote = async () => {
+  if (!newNote.value.trim()) return
 
-const sendNote = () => {
-    if (!newNote.value.trim()) return;
-    // Kirim note dari user
-    notesHistory.value.push({
+  // Kirim ke backend
+  try{
+    
+      await mutateSendNote.mutateAsync({
+        formNumber: formData.value.formNumber,
+        formType: formType.value,
+        text: newNote.value,
+        sender: currentUser.value?.username || formData.value.requestedBy || 'Me',
+        time: new Date().toISOString(),
+      })
+    
+      // Tambahkan ke local history (opsional, jika ingin langsung tampil)
+      notesHistory.value.push({
         text: newNote.value,
         time: new Date().toLocaleString(),
-        sender: formData.value.requestedBy || 'Me'
-    });
-    // Balasan dummy otomatis setelah 1 detik
-    setTimeout(() => {
-        notesHistory.value.push({
-            text: 'Terima kasih atas pesan Anda. Ini balasan dummy.',
-            time: new Date().toLocaleString(),
-            sender: 'Other User'
-        });
-    }, 1000);
-    newNote.value = '';
-};
+        sender: currentUser.value?.username || formData.value.requestedBy || 'Me',
+      })
+      isNotes.value = true;
+      newNote.value = ''
+  }catch(err){
+    console.error('Error sending note:', err);
+    showMessage('Gagal mengirim catatan. Silakan coba lagi.', 'error');
+    return;
+  }
+}
 
-// Utility functions
-const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-    }).format(amount);
-};
+// Dummy approval layer data
+const approvalSet = ref()
 
+// Response dropdown state
+import { onClickOutside } from '@vueuse/core'
+import { ref as vueRef } from 'vue'
+import MasterBarang from '../barang/master-barang.vue'
+import { UserData } from '@/types/user'
+
+const showResponseMenu = ref(false)
+const responseMenuRef = vueRef(null)
+const isNotes = ref(false);
+
+function toggleResponseMenu() {
+  showResponseMenu.value = !showResponseMenu.value
+}
+function handleResponse(action: string) {
+  showResponseMenu.value = false
+  // Dummy: tampilkan alert, ganti dengan logic approval sesuai kebutuhan
+  Swal.fire({
+    title: 'Konfirmasi',
+    text: `Anda yakin ingin melakukan response: ${
+      action.charAt(0).toUpperCase() + action.slice(1)
+    }?`,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Ya',
+    cancelButtonText: 'Batal',
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // TODO: Kirim response ke backend
+        
+    if (!isNotes.value && (action === 'Revised' || action === 'Rejected')) {
+        // wajib isi notes
+        showMessage(`Silakan isi catatan sebelum mengirim ${action}`, 'error')
+        // Simulasi update status
+        return;
+    }
+      
+      approvalSet.value = {
+        formNumber: formData.value.formNumber,
+        layer:
+          approvalLayers.value.find(
+            (layer: any) => layer.approval_status === 'In Progress'
+          )?.layer || '',
+        status: action,
+        type: formType.value,
+      }
+
+      mutateSetStatus.mutateAsync(approvalSet.value)
+      showMessage(`Response "${action}" berhasil dikirim!`, 'success')
+      // Simulasi update status
+      formData.value.status = action
+    }
+  })
+}
+// Tutup dropdown jika klik di luar
+onClickOutside(responseMenuRef, () => {
+  showResponseMenu.value = false
+})
+
+// Fungsi mapping status DB ke label Indonesia
+const statusLabel = (status: string) => {
+  switch ((status || '').toLowerCase()) {
+    case 'draft':
+      return 'Draf'
+    case 'waiting approval':
+      return 'Menunggu Persetujuan'
+    case 'approved':
+      return 'Disetujui'
+    case 'revised':
+      return 'Direvisi'
+    case 'rejected':
+      return 'Ditolak'
+    default:
+      return capitalize(status) || ''
+  }
+}
+
+// Utility
+const formatCurrency = (amount: number) =>
+  new Intl.NumberFormat('en-US').format(amount)
 const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-};
-
+  if (bytes === 0) return '0 Bytes'
+  const k = 1024,
+    sizes = ['Bytes', 'KB', 'MB', 'GB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+}
 const showMessage = (msg = '', type = 'success') => {
-    const toast: any = Swal.mixin({
-        toast: true,
-        position: 'top',
-        showConfirmButton: false,
-        timer: 3000,
-        customClass: { container: 'toast' },
-    });
-    toast.fire({
-        icon: type,
-        title: msg,
-        padding: '10px 20px',
-    });
-};
+  Swal.mixin({
+    toast: true,
+    position: 'top',
+    showConfirmButton: false,
+    timer: 3000,
+    customClass: { container: 'toast' },
+  }).fire({ icon: type, title: msg, padding: '10px 20px' })
+}
 
 // Form actions
 const saveDraft = () => {
-    // Validate required fields
-    if (!formData.value.requestedBy || !formData.value.department) {
-        showMessage('Please fill in required fields (Requested By, Department)', 'error');
-        return;
-    }
+  if (!formData.value.requestedBy || !formData.value.department) {
+    showMessage(
+      'Silakan lengkapi kolom yang wajib diisi (Permintaan Oleh, Departemen)',
+      'error'
+    )
+    return
+  }
 
-    console.log('Saving draft:', formData.value);
-    console.log('Form Number:', formData.value.formNumber);
-    console.log('Uploaded files:', uploadedFiles.value);
-    
-    // TODO: Save to API/database
-    
-    showMessage(`${formTitle.value} (${formData.value.formNumber}) saved as draft successfully!`);
-};
+  mutateSaveDraft.mutateAsync(formData.value)
+
+  // TODO: Save to API/database
+  showMessage(
+    `${formTitle.value} (${formData.value.formNumber}) berhasil disimpan sebagai draf!`
+  )
+}
 
 const submitForm = () => {
-    // Validate required fields
-    if (!formData.value.requestedBy || !formData.value.department) {
-        showMessage('Please fill in required fields (Requested By, Department)', 'error');
-        return;
-    }
+  if (!formData.value.requestedBy || !formData.value.department) {
+    showMessage(
+      'Silakan lengkapi kolom yang wajib diisi (Permintaan Oleh, Departemen)',
+      'error'
+    )
+    return
+  }
 
-    // Validate items
-    const hasValidItems = formData.value.items.some(item => item.description.trim() !== '');
-    if (!hasValidItems) {
-        showMessage('Please add at least one item with description', 'error');
-        return;
-    }
+  const hasValidItems = formData.value.items.some((item) => item.item_id !== '')
+  if (!hasValidItems) {
+    showMessage(
+      'Silakan tambahkan setidaknya satu item dengan deskripsi',
+      'error'
+    )
+    return
+  }
+  if (formType.value === 'purchase-order' && !formData.value.vendor_id) {
+    showMessage('Silakan pilih vendor untuk pesanan pembelian', 'error')
+    return
+  }
+  if (formType.value === 'registration-asset' && !formData.value.poReference) {
+    showMessage('Silakan pilih referensi PO untuk registrasi aset', 'error')
+    return
+  }
+  if (
+    formType.value === 'purchase-request' &&
+    !formData.value.justification.trim()
+  ) {
+    showMessage('Silakan berikan alasan untuk permintaan pembelian', 'error')
+    return
+  }
 
-    // Additional validations based on form type
-    if (formType.value === 'purchaseOrder' && !formData.value.supplier) {
-        showMessage('Please select a supplier for the purchase order', 'error');
-        return;
+  if (formType.value === 'registration-asset') {
+    // tanggal RA dan tanggal invoice
+    if (!formData.value.requestDate) {
+      showMessage('Silakan lengkapi tanggal RA untuk registrasi aset', 'error')
+      return
     }
-
-    if (formType.value === 'assetRegistration' && !formData.value.poReference) {
-        showMessage('Please select a PO reference for asset registration', 'error');
-        return;
+    if (!formData.value.invoiceDate) {
+      showMessage(
+        'Silakan lengkapi tanggal invoice untuk registrasi aset',
+        'error'
+      )
+      return
     }
+  }
+  if (uploadedFiles.value.length === 0) {
+    showMessage('Silakan unggah minimal satu berkas lampiran!', 'error')
+    return
+  }
+  // Submit ke API sesuai tipe form
+  if (formType.value === 'purchase-request') {
+    console.log('Submitting PR with data:', formData.value)
+    mutateSubmitPR.mutateAsync(formData.value)
+  } else if (formType.value === 'purchase-order') {
+    console.log('Submitting PO with data:', formData.value)
+    mutateSubmitPO.mutateAsync(formData.value)
+  } else if (formType.value === 'registration-asset') {
+    console.log('Submitting RA with data:', formData.value)
+    mutateSubmitRA.mutateAsync(formData.value)
+  }
 
-    if (formType.value === 'purchaseRequest' && !formData.value.justification.trim()) {
-        showMessage('Please provide justification for the purchase request', 'error');
-        return;
-    }
+}
 
-    console.log('Submitting form:', formData.value);
-    console.log('Form Number:', formData.value.formNumber);
-    console.log('Uploaded files:', uploadedFiles.value);
-    
-    // TODO: Submit to API/database
-    
-    Swal.fire({
-        title: 'Success!',
-        text: `${formTitle.value} (${formData.value.formNumber}) has been submitted successfully!`,
-        icon: 'success',
-        confirmButtonText: 'OK'
-    }).then(() => {
-        // Redirect to submissions page or dashboard
-        // window.location.href = '/apps/contacts';
-        showNotesChat.value = true;
-    });
-};
+// computed: purchaseOrderData
+// const purchaseOrderData = computed(() => {
+//   if (
+//     formType.value === 'purchase-order' &&
+//     formData.value.status &&
+//     formData.value.status.toLowerCase() !== 'draft'
+//   ) {
+//     // Data PO sudah fix, PR sudah lock
+//     return {
+//       ...formData.value,
+//       vendorName: vendorList.value?.find(v => v.id === formData.value.vendor_id)?.nama || '',
+//       prLocked: true,
+//     };
+//   }
+//   return null;
+// });
+
+// --- Cara menggunakan purchaseOrderData di template ---
+// Contoh: tampilkan info PO jika bukan draft
+/*
+<div v-if="purchaseOrderData">
+  <div class="mb-4 p-3 bg-blue-50 rounded">
+    <strong>Info Purchase Order:</strong><br>
+    Nomor PO: {{ purchaseOrderData.formNumber }}<br>
+    Vendor: {{ purchaseOrderData.vendorName }}<br>
+    PR Terkunci: <span v-if="purchaseOrderData.prLocked">Ya</span><span v-else>Tidak</span>
+  </div>
+</div>
+*/
 </script>
 
 <style scoped>
 .btn {
-    @apply px-4 py-2 rounded-md font-medium transition duration-200;
+  @apply px-4 py-2 rounded-md font-medium transition duration-200;
 }
 
-.disabled{
-    @apply bg-gray-200 text-gray-500 cursor-not-allowed;
+.disabled {
+  @apply bg-gray-200 text-gray-500 cursor-not-allowed;
 }
 
 .btn-primary {
-    @apply bg-blue-600 text-white hover:bg-blue-700;
+  @apply bg-blue-600 text-white hover:bg-blue-700;
 }
 
 .btn-outline-primary {
-    @apply border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white;
+  @apply border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white;
 }
 
 .btn-outline-secondary {
-    @apply border border-gray-300 text-gray-700 hover:bg-gray-50;
+  @apply border border-gray-300 text-gray-700 hover:bg-gray-50;
 }
 
 .btn-sm {
-    @apply px-3 py-1 text-sm;
+  @apply px-3 py-1 text-sm;
 }
 
-.form-input, .form-select, .form-textarea {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white;
+.form-input,
+.form-select,
+.form-textarea {
+  @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white;
 }
 
 .table-auto {
-    @apply min-w-full border-collapse;
+  @apply min-w-full border-collapse;
 }
 
 .table-auto th,
 .table-auto td {
-    @apply border border-gray-200 dark:border-gray-600;
+  @apply border border-gray-200 dark:border-gray-600;
 }
 </style>

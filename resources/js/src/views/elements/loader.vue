@@ -35,7 +35,7 @@
                 </div>
                 <div class="mb-5">
                     <div class="flex flex-wrap items-center justify-center w-full gap-4">
-                        <button type="button" class="btn btn-info btn-lg">
+                        <button type="button" class="btn btn-lg bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 text-white border-0">
                             <svg
                                 viewBox="0 0 24 24"
                                 width="24"
@@ -59,14 +59,14 @@
                             Loading
                         </button>
 
-                        <button type="button" class="btn btn-danger btn-lg">
+                        <button type="button" class="btn btn-lg bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 text-white border-0">
                             <span
                                 class="animate-spin border-2 border-white border-l-transparent rounded-full w-5 h-5 ltr:mr-4 rtl:ml-4 inline-block align-middle shrink-0"
                             ></span
                             >Loading
                         </button>
 
-                        <button type="button" class="btn btn-secondary btn-lg">
+                        <button type="button" class="btn btn-lg bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 text-white border-0">
                             <span class="animate-ping w-3 h-3 ltr:mr-4 rtl:ml-4 inline-block rounded-full bg-white shrink-0"></span>
                             Loading
                         </button>
@@ -75,17 +75,17 @@
                 <template v-if="codeArr.includes('code1')">
                     <highlight>
                         <pre>
-&lt;!-- info --&gt;
-&lt;button type=&quot;button&quot; class=&quot;btn btn-info btn-lg&quot;&gt;
+&lt;!-- gradient yellow --&gt;
+&lt;button type=&quot;button&quot; class=&quot;btn btn-lg bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 text-white border-0&quot;&gt;
   &lt;svg&gt; ... &lt;/svg&gt;
   Loading
 &lt;/button&gt;
 
-&lt;button type=&quot;button&quot; class=&quot;btn btn-danger btn-lg&quot;&gt;
+&lt;button type=&quot;button&quot; class=&quot;btn btn-lg bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 text-white border-0&quot;&gt;
   &lt;span class=&quot;animate-spin border-2 border-white border-l-transparent rounded-full w-5 h-5 ltr:mr-4 rtl:ml-4 inline-block align-middle&quot;&gt;&lt;/span&gt;Loading
 &lt;/button&gt;
 
-&lt;button type=&quot;button&quot; class=&quot;btn btn-secondary btn-lg&quot;&gt;
+&lt;button type=&quot;button&quot; class=&quot;btn btn-lg bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 text-white border-0&quot;&gt;
   &lt;span class=&quot;animate-ping w-3 h-3 ltr:mr-4 rtl:ml-4 inline-block rounded-full bg-white&quot;&gt;&lt;/span&gt;
   Loading
 &lt;/button&gt;
@@ -123,7 +123,7 @@
                     <div class="flex flex-wrap w-full">
                         <div class="flex flex-wrap items-center justify-center w-full sm:w-1/2 text-center mb-3 sm:mb-0">
                             <p class="w-full mb-2">Default Button</p>
-                            <button type="button" class="btn btn-primary btn-lg">
+                            <button type="button" class="btn btn-lg bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 text-white border-0">
                                 <svg
                                     viewBox="0 0 24 24"
                                     width="24"
@@ -149,7 +149,7 @@
                         </div>
                         <div class="flex flex-wrap items-center justify-center w-full sm:w-1/2 text-center">
                             <p class="w-full mb-2">Outline Button</p>
-                            <button type="button" class="btn btn-outline-primary btn-lg">
+                            <button type="button" class="btn btn-lg border-2 border-yellow-500 text-yellow-600 hover:bg-gradient-to-r hover:from-yellow-400 hover:to-yellow-600 hover:text-white hover:border-transparent transition-all">
                                 Loading
                                 <svg
                                     viewBox="0 0 24 24"
@@ -181,7 +181,7 @@
 &lt;!-- default --&gt;
 &lt;div class=&quot;flex flex-wrap items-center justify-center w-full sm:w-1/2 text-center mb-3 sm:mb-0&quot;&gt;
   &lt;p class=&quot;w-full mb-2&quot;&gt;Default Button&lt;/p&gt;
-  &lt;button type=&quot;button&quot; class=&quot;btn btn-primary btn-lg&quot;&gt;
+  &lt;button type=&quot;button&quot; class=&quot;btn btn-lg bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 text-white border-0&quot;&gt;
     &lt;svg&gt; ... &lt;/svg&gt;
     Loading
   &lt;/button&gt;
@@ -190,7 +190,7 @@
 &lt;!-- outline --&gt;
 &lt;div class=&quot;flex flex-wrap items-center justify-center w-full sm:w-1/2 text-center&quot;&gt;
   &lt;p class=&quot;w-full mb-2&quot;&gt;Outline Button&lt;/p&gt;
-  &lt;button type=&quot;button&quot; class=&quot;btn btn-outline-primary btn-lg&quot;&gt;
+  &lt;button type=&quot;button&quot; class=&quot;btn btn-lg border-2 border-yellow-500 text-yellow-600 hover:bg-gradient-to-r hover:from-yellow-400 hover:to-yellow-600 hover:text-white hover:border-transparent transition-all&quot;&gt;
     Loading
     &lt;svg&gt; ... &lt;/svg&gt;
   &lt;/button&gt;
@@ -228,57 +228,57 @@
                 <div class="mb-5">
                     <div class="grid grid-cols-3 w-full gap-4">
                         <span
-                            class="animate-spin border-4 border-success border-l-transparent rounded-full w-12 h-12 inline-block align-middle m-auto mb-10"
+                            class="animate-spin border-4 border-yellow-500 border-l-transparent rounded-full w-12 h-12 inline-block align-middle m-auto mb-10"
                         ></span>
                         <span
-                            class="animate-spin border-4 border-success border-l-transparent rounded-full w-10 h-10 inline-block align-middle m-auto mb-10"
+                            class="animate-spin border-4 border-yellow-500 border-l-transparent rounded-full w-10 h-10 inline-block align-middle m-auto mb-10"
                         ></span>
                         <span
-                            class="animate-spin border-[3px] border-success border-l-transparent rounded-full w-6 h-6 inline-block align-middle m-auto mb-10"
+                            class="animate-spin border-[3px] border-yellow-500 border-l-transparent rounded-full w-6 h-6 inline-block align-middle m-auto mb-10"
                         ></span>
                         <span
-                            class="animate-spin border-4 border-transparent border-l-primary rounded-full w-12 h-12 inline-block align-middle m-auto mb-10"
+                            class="animate-spin border-4 border-transparent border-l-yellow-500 rounded-full w-12 h-12 inline-block align-middle m-auto mb-10"
                         ></span>
                         <span
-                            class="animate-spin border-4 border-transparent border-l-primary rounded-full w-10 h-10 inline-block align-middle m-auto mb-10"
+                            class="animate-spin border-4 border-transparent border-l-yellow-500 rounded-full w-10 h-10 inline-block align-middle m-auto mb-10"
                         ></span>
                         <span
-                            class="animate-spin border-[3px] border-transparent border-l-primary rounded-full w-6 h-6 inline-block align-middle m-auto mb-10"
+                            class="animate-spin border-[3px] border-transparent border-l-yellow-500 rounded-full w-6 h-6 inline-block align-middle m-auto mb-10"
                         ></span>
-                        <span class="w-5 h-5 m-auto mb-10"><span class="animate-ping inline-flex h-full w-full rounded-full bg-info"></span></span>
-                        <span class="w-4 h-4 m-auto mb-10"><span class="animate-ping inline-flex h-full w-full rounded-full bg-info"></span></span>
-                        <span class="w-3 h-3 m-auto mb-10"><span class="animate-ping inline-flex h-full w-full rounded-full bg-info"></span></span>
+                        <span class="w-5 h-5 m-auto mb-10"><span class="animate-ping inline-flex h-full w-full rounded-full bg-yellow-500"></span></span>
+                        <span class="w-4 h-4 m-auto mb-10"><span class="animate-ping inline-flex h-full w-full rounded-full bg-yellow-500"></span></span>
+                        <span class="w-3 h-3 m-auto mb-10"><span class="animate-ping inline-flex h-full w-full rounded-full bg-yellow-500"></span></span>
                     </div>
                 </div>
                 <template v-if="codeArr.includes('code3')">
                     <highlight>
                         <pre>
 &lt;!-- large --&gt;
-&lt;span class=&quot;animate-spin border-4 border-success border-l-transparent rounded-full w-12 h-12 inline-block align-middle m-auto mb-10&quot;&gt;&lt;/span&gt;
+&lt;span class=&quot;animate-spin border-4 border-yellow-500 border-l-transparent rounded-full w-12 h-12 inline-block align-middle m-auto mb-10&quot;&gt;&lt;/span&gt;
 
 &lt;!-- default --&gt;
-&lt;span class=&quot;animate-spin border-4 border-success border-l-transparent rounded-full w-10 h-10 inline-block align-middle m-auto mb-10&quot;&gt;&lt;/span&gt;
+&lt;span class=&quot;animate-spin border-4 border-yellow-500 border-l-transparent rounded-full w-10 h-10 inline-block align-middle m-auto mb-10&quot;&gt;&lt;/span&gt;
 
 &lt;!-- small --&gt;
-&lt;span class=&quot;animate-spin border-[3px] border-success border-l-transparent rounded-full w-6 h-6 inline-block align-middle m-auto mb-10&quot;&gt;&lt;/span&gt;
+&lt;span class=&quot;animate-spin border-[3px] border-yellow-500 border-l-transparent rounded-full w-6 h-6 inline-block align-middle m-auto mb-10&quot;&gt;&lt;/span&gt;
 
 &lt;!-- large --&gt;
-&lt;span class=&quot;animate-spin border-4 border-transparent border-l-primary rounded-full w-12 h-12 inline-block align-middle m-auto mb-10&quot;&gt;&lt;/span&gt;
+&lt;span class=&quot;animate-spin border-4 border-transparent border-l-yellow-500 rounded-full w-12 h-12 inline-block align-middle m-auto mb-10&quot;&gt;&lt;/span&gt;
 
 &lt;!-- default --&gt;
-&lt;span class=&quot;animate-spin border-4 border-transparent border-l-primary rounded-full w-10 h-10 inline-block align-middle m-auto mb-10&quot;&gt;&lt;/span&gt;
+&lt;span class=&quot;animate-spin border-4 border-transparent border-l-yellow-500 rounded-full w-10 h-10 inline-block align-middle m-auto mb-10&quot;&gt;&lt;/span&gt;
 
 &lt;!-- small --&gt;
-&lt;span class=&quot;animate-spin border-[3px] border-transparent border-l-primary rounded-full w-6 h-6 inline-block align-middle m-auto mb-10&quot;&gt;&lt;/span&gt;
+&lt;span class=&quot;animate-spin border-[3px] border-transparent border-l-yellow-500 rounded-full w-6 h-6 inline-block align-middle m-auto mb-10&quot;&gt;&lt;/span&gt;
 
 &lt;!-- large --&gt;
-&lt;span class=&quot;w-5 h-5 m-auto mb-10&quot;&gt;&lt;span class=&quot;animate-ping inline-flex h-full w-full rounded-full bg-info&quot;&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;w-5 h-5 m-auto mb-10&quot;&gt;&lt;span class=&quot;animate-ping inline-flex h-full w-full rounded-full bg-yellow-500&quot;&gt;&lt;/span&gt;&lt;/span&gt;
 
 &lt;!-- default --&gt;
-&lt;span class=&quot;w-4 h-4 m-auto mb-10&quot;&gt;&lt;span class=&quot;animate-ping inline-flex h-full w-full rounded-full bg-info&quot;&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;w-4 h-4 m-auto mb-10&quot;&gt;&lt;span class=&quot;animate-ping inline-flex h-full w-full rounded-full bg-yellow-500&quot;&gt;&lt;/span&gt;&lt;/span&gt;
 
 &lt;!-- small --&gt;
-&lt;span class=&quot;w-3 h-3 m-auto mb-10&quot;&gt;&lt;span class=&quot;animate-ping inline-flex h-full w-full rounded-full bg-info&quot;&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;w-3 h-3 m-auto mb-10&quot;&gt;&lt;span class=&quot;animate-ping inline-flex h-full w-full rounded-full bg-yellow-500&quot;&gt;&lt;/span&gt;&lt;/span&gt;
 </pre
                         >
                     </highlight>
@@ -312,73 +312,73 @@
                 <div class="mb-5">
                     <div class="grid grid-cols-4 w-full gap-4">
                         <span
-                            class="animate-spin border-4 border-success border-l-transparent rounded-full w-10 h-10 inline-block align-middle m-auto mb-10"
+                            class="animate-spin border-4 border-yellow-400 border-l-transparent rounded-full w-10 h-10 inline-block align-middle m-auto mb-10"
                         ></span>
                         <span
-                            class="animate-spin border-4 border-danger border-l-transparent rounded-full w-10 h-10 inline-block align-middle m-auto mb-10"
+                            class="animate-spin border-4 border-yellow-500 border-l-transparent rounded-full w-10 h-10 inline-block align-middle m-auto mb-10"
                         ></span>
                         <span
-                            class="animate-spin border-4 border-warning border-l-transparent rounded-full w-10 h-10 inline-block align-middle m-auto mb-10"
+                            class="animate-spin border-4 border-yellow-600 border-l-transparent rounded-full w-10 h-10 inline-block align-middle m-auto mb-10"
                         ></span>
                         <span
-                            class="animate-spin border-4 border-primary border-l-transparent rounded-full w-10 h-10 inline-block align-middle m-auto mb-10"
+                            class="animate-spin border-4 border-amber-500 border-l-transparent rounded-full w-10 h-10 inline-block align-middle m-auto mb-10"
                         ></span>
                         <span
-                            class="animate-spin border-4 border-transparent border-l-black rounded-full w-10 h-10 inline-block align-middle m-auto mb-10 dark:border-l-dark"
+                            class="animate-spin border-4 border-transparent border-l-yellow-400 rounded-full w-10 h-10 inline-block align-middle m-auto mb-10"
                         ></span>
                         <span
-                            class="animate-spin border-4 border-transparent border-l-danger rounded-full w-10 h-10 inline-block align-middle m-auto mb-10"
+                            class="animate-spin border-4 border-transparent border-l-yellow-500 rounded-full w-10 h-10 inline-block align-middle m-auto mb-10"
                         ></span>
                         <span
-                            class="animate-spin border-4 border-transparent border-l-warning rounded-full w-10 h-10 inline-block align-middle m-auto mb-10"
+                            class="animate-spin border-4 border-transparent border-l-yellow-600 rounded-full w-10 h-10 inline-block align-middle m-auto mb-10"
                         ></span>
                         <span
-                            class="animate-spin border-4 border-transparent border-l-primary rounded-full w-10 h-10 inline-block align-middle m-auto mb-10"
+                            class="animate-spin border-4 border-transparent border-l-amber-500 rounded-full w-10 h-10 inline-block align-middle m-auto mb-10"
                         ></span>
-                        <span class="w-4 h-4 m-auto mb-10"><span class="animate-ping inline-flex h-full w-full rounded-full bg-info"></span></span>
-                        <span class="w-4 h-4 m-auto mb-10"><span class="animate-ping inline-flex h-full w-full rounded-full bg-danger"></span></span>
-                        <span class="w-4 h-4 m-auto mb-10"><span class="animate-ping inline-flex h-full w-full rounded-full bg-warning"></span></span>
-                        <span class="w-4 h-4 m-auto mb-10"><span class="animate-ping inline-flex h-full w-full rounded-full bg-primary"></span></span>
+                        <span class="w-4 h-4 m-auto mb-10"><span class="animate-ping inline-flex h-full w-full rounded-full bg-yellow-400"></span></span>
+                        <span class="w-4 h-4 m-auto mb-10"><span class="animate-ping inline-flex h-full w-full rounded-full bg-yellow-500"></span></span>
+                        <span class="w-4 h-4 m-auto mb-10"><span class="animate-ping inline-flex h-full w-full rounded-full bg-yellow-600"></span></span>
+                        <span class="w-4 h-4 m-auto mb-10"><span class="animate-ping inline-flex h-full w-full rounded-full bg-amber-500"></span></span>
                     </div>
                 </div>
                 <template v-if="codeArr.includes('code4')">
                     <highlight>
                         <pre>
-&lt;!-- success --&gt;
-&lt;span class=&quot;animate-spin border-4 border-success border-l-transparent rounded-full w-10 h-10 inline-block align-middle m-auto mb-10&quot;&gt;&lt;/span&gt;
+&lt;!-- yellow-400 --&gt;
+&lt;span class=&quot;animate-spin border-4 border-yellow-400 border-l-transparent rounded-full w-10 h-10 inline-block align-middle m-auto mb-10&quot;&gt;&lt;/span&gt;
 
-&lt;!-- danger --&gt;
-&lt;span class=&quot;animate-spin border-4 border-danger border-l-transparent rounded-full w-10 h-10 inline-block align-middle m-auto mb-10&quot;&gt;&lt;/span&gt;
+&lt;!-- yellow-500 --&gt;
+&lt;span class=&quot;animate-spin border-4 border-yellow-500 border-l-transparent rounded-full w-10 h-10 inline-block align-middle m-auto mb-10&quot;&gt;&lt;/span&gt;
 
-&lt;!-- warning --&gt;
-&lt;span class=&quot;animate-spin border-4 border-warning border-l-transparent rounded-full w-10 h-10 inline-block align-middle m-auto mb-10&quot;&gt;&lt;/span&gt;
+&lt;!-- yellow-600 --&gt;
+&lt;span class=&quot;animate-spin border-4 border-yellow-600 border-l-transparent rounded-full w-10 h-10 inline-block align-middle m-auto mb-10&quot;&gt;&lt;/span&gt;
 
-&lt;!-- primary --&gt;
-&lt;span class=&quot;animate-spin border-4 border-primary border-l-transparent rounded-full w-10 h-10 inline-block align-middle m-auto mb-10&quot;&gt;&lt;/span&gt;
+&lt;!-- amber-500 --&gt;
+&lt;span class=&quot;animate-spin border-4 border-amber-500 border-l-transparent rounded-full w-10 h-10 inline-block align-middle m-auto mb-10&quot;&gt;&lt;/span&gt;
 
-&lt;!-- black --&gt;
-&lt;span class=&quot;animate-spin border-4 border-transparent border-l-black rounded-full w-10 h-10 inline-block align-middle m-auto mb-10 dark:border-l-dark&quot;&gt;&lt;/span&gt;
+&lt;!-- yellow-400 --&gt;
+&lt;span class=&quot;animate-spin border-4 border-transparent border-l-yellow-400 rounded-full w-10 h-10 inline-block align-middle m-auto mb-10&quot;&gt;&lt;/span&gt;
 
-&lt;!-- danger --&gt;
-&lt;span class=&quot;animate-spin border-4 border-transparent border-l-danger rounded-full w-10 h-10 inline-block align-middle m-auto mb-10&quot;&gt;&lt;/span&gt;
+&lt;!-- yellow-500 --&gt;
+&lt;span class=&quot;animate-spin border-4 border-transparent border-l-yellow-500 rounded-full w-10 h-10 inline-block align-middle m-auto mb-10&quot;&gt;&lt;/span&gt;
 
-&lt;!-- warning --&gt;
-&lt;span class=&quot;animate-spin border-4 border-transparent border-l-warning rounded-full w-10 h-10 inline-block align-middle m-auto mb-10&quot;&gt;&lt;/span&gt;
+&lt;!-- yellow-600 --&gt;
+&lt;span class=&quot;animate-spin border-4 border-transparent border-l-yellow-600 rounded-full w-10 h-10 inline-block align-middle m-auto mb-10&quot;&gt;&lt;/span&gt;
 
-&lt;!-- primary --&gt;
-&lt;span class=&quot;animate-spin border-4 border-transparent border-l-primary rounded-full w-10 h-10 inline-block align-middle m-auto mb-10&quot;&gt;&lt;/span&gt;
+&lt;!-- amber-500 --&gt;
+&lt;span class=&quot;animate-spin border-4 border-transparent border-l-amber-500 rounded-full w-10 h-10 inline-block align-middle m-auto mb-10&quot;&gt;&lt;/span&gt;
 
-&lt;!-- info --&gt;
-&lt;span class=&quot;w-4 h-4 m-auto mb-10&quot;&gt;&lt;span class=&quot;animate-ping inline-flex h-full w-full rounded-full bg-info&quot;&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;!-- yellow-400 --&gt;
+&lt;span class=&quot;w-4 h-4 m-auto mb-10&quot;&gt;&lt;span class=&quot;animate-ping inline-flex h-full w-full rounded-full bg-yellow-400&quot;&gt;&lt;/span&gt;&lt;/span&gt;
 
-&lt;!-- danger --&gt;
-&lt;span class=&quot;w-4 h-4 m-auto mb-10&quot;&gt;&lt;span class=&quot;animate-ping inline-flex h-full w-full rounded-full bg-danger&quot;&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;!-- yellow-500 --&gt;
+&lt;span class=&quot;w-4 h-4 m-auto mb-10&quot;&gt;&lt;span class=&quot;animate-ping inline-flex h-full w-full rounded-full bg-yellow-500&quot;&gt;&lt;/span&gt;&lt;/span&gt;
 
-&lt;!-- warning --&gt;
-&lt;span class=&quot;w-4 h-4 m-auto mb-10&quot;&gt;&lt;span class=&quot;animate-ping inline-flex h-full w-full rounded-full bg-warning&quot;&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;!-- yellow-600 --&gt;
+&lt;span class=&quot;w-4 h-4 m-auto mb-10&quot;&gt;&lt;span class=&quot;animate-ping inline-flex h-full w-full rounded-full bg-yellow-600&quot;&gt;&lt;/span&gt;&lt;/span&gt;
 
-&lt;!-- primary --&gt;
-&lt;span class=&quot;w-4 h-4 m-auto mb-10&quot;&gt;&lt;span class=&quot;animate-ping inline-flex h-full w-full rounded-full bg-primary&quot;&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;!-- amber-500 --&gt;
+&lt;span class=&quot;w-4 h-4 m-auto mb-10&quot;&gt;&lt;span class=&quot;animate-ping inline-flex h-full w-full rounded-full bg-amber-500&quot;&gt;&lt;/span&gt;&lt;/span&gt;
 </pre
                         >
                     </highlight>
@@ -412,13 +412,13 @@
                 <div class="mb-5">
                     <div class="grid grid-cols-3 w-full gap-4">
                         <span
-                            class="animate-spin border-8 border-[#f1f2f3] border-l-primary rounded-full w-14 h-14 inline-block align-middle m-auto mb-10"
+                            class="animate-spin border-8 border-yellow-200 border-l-yellow-500 rounded-full w-14 h-14 inline-block align-middle m-auto mb-10"
                         ></span>
                         <span
-                            class="animate-[spin_2s_linear_infinite] border-8 border-[#f1f2f3] border-l-primary border-r-primary rounded-full w-14 h-14 inline-block align-middle m-auto mb-10"
+                            class="animate-[spin_2s_linear_infinite] border-8 border-yellow-200 border-l-yellow-500 border-r-yellow-500 rounded-full w-14 h-14 inline-block align-middle m-auto mb-10"
                         ></span>
                         <span
-                            class="animate-[spin_3s_linear_infinite] border-8 border-r-warning border-l-primary border-t-danger border-b-success rounded-full w-14 h-14 inline-block align-middle m-auto mb-10"
+                            class="animate-[spin_3s_linear_infinite] border-8 border-r-yellow-400 border-l-yellow-500 border-t-yellow-600 border-b-amber-500 rounded-full w-14 h-14 inline-block align-middle m-auto mb-10"
                         ></span>
                     </div>
                 </div>
@@ -426,14 +426,14 @@
                     <highlight>
                         <pre>
 &lt;!-- custom loader --&gt;
-&lt;span class=&quot;animate-spin border-8 border-[#f1f2f3] border-l-primary rounded-full w-14 h-14 inline-block align-middle m-auto mb-10&quot;&gt;&lt;/span&gt;
+&lt;span class=&quot;animate-spin border-8 border-yellow-200 border-l-yellow-500 rounded-full w-14 h-14 inline-block align-middle m-auto mb-10&quot;&gt;&lt;/span&gt;
 
 &lt;!-- custom loader --&gt
-&lt;span class=&quot;animate-[spin_2s_linear_infinite] border-8 border-[#f1f2f3] border-l-primary border-r-primary rounded-full w-14 h-14 inline-block align-middle m-auto mb-10&quot;&gt;&lt;/span&gt;
+&lt;span class=&quot;animate-[spin_2s_linear_infinite] border-8 border-yellow-200 border-l-yellow-500 border-r-yellow-500 rounded-full w-14 h-14 inline-block align-middle m-auto mb-10&quot;&gt;&lt;/span&gt;
 
 &lt;!-- custom loader --&gt
 &lt;span
-  class=&quot;animate-[spin_3s_linear_infinite] border-8 border-r-warning border-l-primary border-t-danger border-b-success rounded-full w-14 h-14 inline-block align-middle m-auto mb-10&quot;
+  class=&quot;animate-[spin_3s_linear_infinite] border-8 border-r-yellow-400 border-l-yellow-500 border-t-yellow-600 border-b-amber-500 rounded-full w-14 h-14 inline-block align-middle m-auto mb-10&quot;
 &gt;&lt;/span&gt;
 </pre
                         >

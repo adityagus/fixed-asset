@@ -13,8 +13,10 @@ class PurchaseRequest extends Model
     protected $fillable = [
         'pr_number',
         'pr_date',
-        'requested_by',
+        'url_file',
+        'created_by',
         'department',
+        'cabang',
         'justification',
         'status',
     ];
@@ -47,11 +49,16 @@ class PurchaseRequest extends Model
     
     public function purchaseRequestItems()
     {
-      return $this->hasMany(PurchaseRequestItem::class, 'purchase_request_id');
+      return $this->hasMany(PurchaseRequestItem::class, 'purchase_request_number', 'pr_number');
     }
     
     public function approvals()
     {
-      return $this->hasMany(PurchaseRequestApproval::class, 'purchase_request_id');
+      return $this->hasMany(PurchaseRequestApproval::class, 'request_number', 'pr_number');
+    }
+    
+    public function attachments()
+    {
+      return $this->hasMany( Attachment::class, 'purchase_request_number', 'pr_number');
     }
 }

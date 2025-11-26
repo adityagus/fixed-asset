@@ -20,7 +20,7 @@ class PurchaseRequestItemSeeder extends Seeder
             // Create 1-5 items per purchase request
             PurchaseRequestItem::factory()
                 ->count(rand(1, 5))
-                ->create(['purchase_request_id' => $pr->id]);
+                ->create(['purchase_request_number' => $pr->pr_number]);
         }
     }
 }

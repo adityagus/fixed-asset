@@ -9,9 +9,10 @@ class PurchaseOrder extends Model
 {
     use HasFactory;
     
-    public $fillable = [
+    protected $fillable = [
         'po_number',
-        'purchase_request_id',
+        'po_date',
+        'purchase_request_number',
         'vendor_id',
         'total_amount',
         'status',
@@ -19,14 +20,21 @@ class PurchaseOrder extends Model
         'updated_by',
     ];
     
+    public $timestamps = true;
+    
     public function purchaseOrderItems()
     {
-        return $this->hasMany(PurchaseOrderItem::class, 'purchase_order_id');
+        return $this->hasMany(PurchaseOrderItem::class, 'purchase_order_number', 'po_number');
     }
     
-    public function purchaseApprovals()
+    public function approvals()
     {
-        return $this->hasMany(PurchaseOrderApproval::class, 'purchase_order_id');
+        return $this->hasMany(PurchaseOrderApproval::class, 'request_number', 'po_number');
+    }
+    
+    public function purchaseRequest()
+    {
+        return $this->belongsTo(PurchaseRequest::class, 'purchase_request_number', 'pr_number');
     }
     
     

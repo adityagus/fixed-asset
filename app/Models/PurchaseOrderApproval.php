@@ -9,19 +9,15 @@ class PurchaseOrderApproval extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'purchase_order_id',
-        'approved_by',
-        'approval_date',
-        'status',
-        'remarks',
+      'type', 'request_number', 'layer', 'approver_by', 'approval_date', 'email', 'jabatan', 'approval_status'
     ];
     
     
-    public $timestamps = false;
+    public $timestamps = true;
     // created_at and updated_at are managed by Eloquent automatically
     
-    public function purchaseOrder()
-    {
-        return $this->belongsTo(PurchaseOrder::class, 'purchase_order_id');
-    }
+    // public function purchaseOrder()
+    // {
+    //     return $this->belongsTo(PurchaseOrder::class, 'request_number', 'po_number');
+    // }
 }

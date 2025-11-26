@@ -13,11 +13,13 @@ return new class extends Migration
     {
         Schema::create('purchase_request_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('purchase_request_id')->constrained('purchase_requests')->onDelete('cascade');
+            $table->string('purchase_request_number'); // tambahkan ini
+            $table->foreign('purchase_request_number')->references('pr_number')->on('purchase_requests')->onDelete('cascade');
             $table->string('item_name');
             $table->integer('quantity');
-            $table->decimal('estimate_unit_price', 15);
-            $table->decimal('total_price', 15);
+            $table->integer('unit_price', 15);
+            $table->integer('total_price', 15);
+            $table->timestamps();
         });
     }
 

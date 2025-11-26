@@ -18,10 +18,10 @@ class PurchaseOrderApprovalFactory extends Factory
     public function definition(): array
     {
         return [
-            'purchase_order_id' => PurchaseOrder::factory(),
+            'purchase_order_number' => PurchaseOrder::factory(),
             'approver_by' => fake()->name(),
             'approval_date' => fake()->dateTimeBetween('-3 months', 'now')->format('Y-m-d'),
-            'approval_status' => fake()->randomElement(['waiting_approval', 'approved', 'revised', 'rejected']),
+            'approval_status' => fake()->randomElement(['waiting approval', 'approved', 'revised', 'rejected']),
         ];
     }
 }

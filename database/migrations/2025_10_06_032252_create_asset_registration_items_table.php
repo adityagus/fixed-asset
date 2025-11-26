@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('asset_registration_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('asset_registration_id')->constrained('asset_registrations')->onDelete('cascade');
+            $table->foreignId('asset_registration_number')->constrained('asset_registrations')->onDelete('cascade');
             $table->string('item_name');
             $table->integer('quantity');
             $table->decimal('unit_price', 15);

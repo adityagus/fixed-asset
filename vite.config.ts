@@ -29,4 +29,11 @@ export default defineConfig({
     optimizeDeps: {
         include: ["quill"],
     },
+    // server: {
+    // host: '192.168.254.219', // Atau gunakan IP spesifik: '192.168.1.100'
+    // port: 8001,
+    // hmr: {
+    //     host: '192.168.254.219', // Ganti dengan IP Anda
+    //   },
+    // },
 });
