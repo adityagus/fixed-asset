@@ -125,18 +125,27 @@ class LoginController extends Controller
         // }
     }
 
-    
+
     public function logout(Request $request)
     {
         try {
-            JWTAuth::invalidate(JWTAuth::getToken());
+            // Ambil token dari header (Authorization: Bearer xxx)
+            $token = $request->bearerToken();
+            if (!$token) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No token found in request'
+                ], 400);
+            }
+
+            JWTAuth::invalidate($token);
+
             session()->forget('auth');
-            
             return response()->json([
                 'success' => true,
                 'message' => 'Successfully logged out'
             ]);
-        } catch (JWTException $e) {
+        } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to logout, please try again'

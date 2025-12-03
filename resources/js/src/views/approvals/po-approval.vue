@@ -18,10 +18,10 @@
       <span
         :class="{
           'badge bg-info': normalizeStatus(item.status) === 'Waiting Approval',
+          'badge bg-primary': normalizeStatus(item.status) === 'Proses',
           'badge bg-warning': normalizeStatus(item.status) === 'Revised',
-          'badge bg-danger': normalizeStatus(item.status) === 'Rejected',
           'badge bg-success': normalizeStatus(item.status) === 'Full Approved',
-          'badge bg-secondary': normalizeStatus(item.status) === 'Other'
+          'badge bg-danger': normalizeStatus(item.status) === 'Rejected'
         }"
       >
         {{ getIndoStatus(item.status) }}
@@ -40,19 +40,22 @@ useMeta({ title: 'PO Approval' });
 
 const tabs = [
   { label: 'Waiting Approval', value: 'Waiting Approval', indo: 'Menunggu Persetujuan' },
+  { label: 'Proses', value: 'Other', indo: 'Proses' },
   { label: 'Revised', value: 'Revised', indo: 'Direvisi' },
-  { label: 'Rejected', value: 'Rejected', indo: 'Ditolak' },
   { label: 'Full Approved', value: 'Approved', indo: 'Disetujui' },
-  { label: 'Other', value: 'Other', indo: 'Lainnya' },
+  { label: 'Rejected', value: 'Rejected', indo: 'Ditolak' },
 ];
 
 const router = useRouter();
 function goToDetail(item: any) {
-  router.push(`/apps/form/purchase-order/${item.po_number}`);
+  router.push({
+    path: `/apps/form/purchase-order/${item.po_number}`,
+    query: { from: 'approval' }
+  });
 }
 
 // Data fetching
-const {data: PoApprovalRef, isPending, isSucces: isSuccess} = useGetApprovalList('po');
+const {data: PoApprovalRef, isPending, isSucces: isSuccess} = useGetApprovalList('purchase-order');
 
 const poApprovals = computed(() => {
   const data = PoApprovalRef.value?.data;
@@ -60,7 +63,7 @@ const poApprovals = computed(() => {
 });
 
 const approvalColumns = [
-  { key: 'created_at', title: 'Tanggal' },
+  { key: 'request_time', title: 'Tanggal' },
   { key: 'po_number', title: 'Nomor PO' },
   { key: 'created_by', title: 'Pemohon' },
   { key: 'cabang', title: 'Cabang' },
@@ -72,10 +75,10 @@ function normalizeStatus(status: string): string {
   if (!status) return '';
   status = status.trim().toLowerCase();
   if (['waiting approval', 'waiting list', 'menunggu persetujuan'].includes(status)) return 'Waiting Approval';
+  if (['other', 'proses'].includes(status)) return 'Proses';
   if (['revised', 'direvisi'].includes(status)) return 'Revised';
   if (['rejected', 'ditolak'].includes(status)) return 'Rejected';
   if (['full approved', 'disetujui'].includes(status)) return 'Full Approved';
-  if (['other', 'lainnya'].includes(status)) return 'Other';
   return status.charAt(0).toUpperCase() + status.slice(1);
 }
 function getIndoStatus(status: string): string {

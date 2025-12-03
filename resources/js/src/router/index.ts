@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
-import { useAppStore } from '@/stores/index';
+import { useAppStore } from '@/stores';
 import appSetting from '@/app-setting';
 
 import HomeView from '../views/index.vue';
@@ -9,51 +9,9 @@ const routes: RouteRecordRaw[] = [
     // dashboard
     { path: '/', name: 'home', component: HomeView },
     {
-        path: '/analytics',
-        name: 'analytics',
-        component: () => import(/* webpackChunkName: "analytics" */ '../views/analytics.vue'),
-    },
-    {
-        path: '/finance',
-        name: 'finance',
-        component: () => import(/* webpackChunkName: "finance" */ '../views/finance.vue'),
-    },
-    {
-        path: '/crypto',
-        name: 'crypto',
-        component: () => import(/* webpackChunkName: "crypto" */ '../views/crypto.vue'),
-    },
-
-    // apps
-    {
-        path: '/apps/chat',
-        name: 'chat',
-        component: () => import(/* webpackChunkName: "apps-chat" */ '../views/apps/chat.vue'),
-    },
-    {
-        path: '/apps/mailbox',
-        name: 'mailbox',
-        component: () => import(/* webpackChunkName: "apps-mailbox" */ '../views/apps/mailbox.vue'),
-    },
-    {
-        path: '/apps/todolist',
-        name: 'todolist',
-        component: () => import(/* webpackChunkName: "apps-todolist" */ '../views/apps/todolist.vue'),
-    },
-    {
         path: '/apps/notes',
         name: 'notes',
         component: () => import(/* webpackChunkName: "apps-notes" */ '../views/apps/notes.vue'),
-    },
-    {
-        path: '/apps/scrumboard',
-        name: 'scrumboard',
-        component: () => import(/* webpackChunkName: "apps-scrumboard" */ '../views/apps/scrumboard.vue'),
-    },
-    {
-        path: '/submission',
-        name: 'submission',
-        component: () => import(/* webpackChunkName: "apps-submission" */ '../views/apps/submission.vue'),
     },
     {
         path: '/submission',
@@ -591,6 +549,17 @@ const router = createRouter({
         }
     },
 });
+
+router.beforeEach((to, from, next) => {
+    const appStore = useAppStore()
+    // Pastikan hydrateFromStorage sudah dipanggil di main.ts sebelum router digunakan
+    if (to.meta.requiresAuth && !appStore.isLoggedIn) {
+      // redirect ke login jika belum login
+      next({ name: 'login' })
+    } else {
+      next()
+    }
+  })
 
 router.beforeEach((to, from, next) => {
     const store = useAppStore();

@@ -13,7 +13,7 @@ class RegistrationAsset extends Model
     protected $fillable = [
         'ra_number',
         'purchase_order_number',
-        'registered_by',
+        'created_by',
         'ra_date',
         'invoice_date',
         'status',

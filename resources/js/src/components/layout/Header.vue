@@ -3,7 +3,7 @@
 
 <template>
     <header class="z-40" :class="{ dark: store.semidark && store.menu === 'horizontal' }">
-        <div class="shadow-sm" v-if="userLocal">
+        <div class="shadow-sm" >
             <div class="relative bg-white flex w-full items-center px-5 py-2.5 dark:bg-[#0e1726]">
                 <div class="horizontal-logo flex lg:hidden justify-between items-center ltr:mr-2 rtl:ml-2">
                     <router-link to="/" class="main-logo flex items-center shrink-0">
@@ -466,10 +466,10 @@
                                             </div>
                                             <div class="ltr:pl-4 rtl:pr-4 truncate">
                                                 <h4 class="text-base">
-                                                    {{ userLocal.username }}
+                                                    {{ userLocal?.username }}
                                                 </h4>
                                                 <a class="text-black/60 hover:text-primary dark:text-dark-light/60 dark:hover:text-white" href="javascript:;">
-                                                    {{ userLocal.idgrup || '-' }}
+                                                    {{ userLocal?.idgrup || '-' }}
                                                 </a>
                                             </div>
                                         </div>
@@ -565,7 +565,7 @@
                                         </router-link>
                                     </li>
                                     <li class="border-t border-white-light dark:border-white-light/10">
-                                        <router-link to="/login" class="text-danger !py-3" @click="close()">
+                                        <a @click.prevent="handleLogout" class="text-danger !py-3">
                                             <svg
                                                 class="w-4.5 h-4.5 ltr:mr-2 rtl:ml-2 rotate-90 shrink-0"
                                                 width="18"
@@ -591,7 +591,7 @@
                                             </svg>
 
                                             Sign Out
-                                        </router-link>
+                                        </a>
                                     </li>
                                 </ul>
                             </template>
@@ -1297,23 +1297,25 @@
     import { ref, onMounted, computed, reactive, watchEffect } from 'vue';
     import { useI18n } from 'vue-i18n';
     import appSetting from '@/app-setting';
-    import { useRoute } from 'vue-router';
+    import { useRoute, useRouter } from 'vue-router';
     import { useAppStore } from '@/stores/index'
     import { useCheckUser } from '@/services/queries';
     import { UserData } from '@/types/user';
     const store = useAppStore();
     const route = useRoute();
+    const router = useRouter();
     const search = ref(false);
 
-    // Gunakan hanya satu instance useCheckUser
-    const { data: userDataRef, isLoading, error, refetch } = useCheckUser();
-    const userLocal = ref<UserData | null>(null);
-
-    watchEffect(() => {
-        userLocal.value = userDataRef.value ?? null;
-        console.log('userlocal', userLocal.value)
+    // Ambil userLocal langsung dari store.user
+    const userLocal = computed(() => {
+        if(!store.token){
+            router.push('/login');
+            return null;
+        }
+        return store.user;
     });
-    
+
+    console.log('store', store.user);   
     
 
     // multi language
@@ -1346,6 +1348,13 @@
             time: '9h Ago',
         },
     ]);
+    
+    const handleLogout = () => {
+        // handle error
+        router.push('/login').then(() => {
+            store.logout();
+        });
+    };
 
     const messages = ref([
         {

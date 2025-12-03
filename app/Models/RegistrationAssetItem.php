@@ -11,6 +11,7 @@ class RegistrationAssetItem extends Model
     protected $fillable = [
         'registration_asset_number',
         'item_id',
+        'pengajuan',
         'quantity',
         'unit_price',
         'total_price',

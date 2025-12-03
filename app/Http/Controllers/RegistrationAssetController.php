@@ -46,11 +46,11 @@ class RegistrationAssetController extends Controller
         $latestAR = LogRequestNumber::createRequest('RA');
         $ra_number = $latestAR->request_number;
         $status = 'Draft';
-        $registered_by = $user->username ?? 'Unknown';
+        $created_by = $user->username ?? 'Unknown';
         $res = RegistrationAsset::create([
             'ra_number' => $ra_number,
             'purchase_order_number' => null,
-            'registered_by' => $registered_by,
+            'created_by' => $created_by,
             'status' => $status,
         ]);
 
@@ -61,7 +61,7 @@ class RegistrationAssetController extends Controller
                 'ra_number' => $ra_number,
                 'res' => $res,
                 'status' => $status,
-                'registered_by' => $registered_by,
+                'created_by' => $created_by,
             ],
             'type' => 'registration-asset',
             'message' => 'Create Asset Registration'
@@ -173,6 +173,7 @@ class RegistrationAssetController extends Controller
                 'items' => 'required|array|min:1',
                 'items.*.item_id' => 'required|numeric|max:255',
                 'items.*.quantity' => 'required|integer|min:1',
+                'items.*.pengajuan' => 'required|string|max:255',
                 'items.*.unit_price' => 'nullable|numeric|min:0', // opsional
                 'items.*.total_price' => 'required|numeric|min:0',
             ]);
@@ -202,6 +203,7 @@ class RegistrationAssetController extends Controller
                     'unit_price' => $item['unit_price'] ?? 0,
                     'total_price' => $item['total_price'] ?? 0,
                     'quantity' => $item['quantity'],
+                    'pengajuan' => $item['pengajuan'],
                     // tambahkan field lain jika ada di tabel
                 ]);
 

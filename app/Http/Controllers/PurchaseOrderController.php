@@ -112,6 +112,16 @@ class PurchaseOrderController extends Controller
   public function submit(Request $request): JsonResponse
   {
     try {
+        
+        $getUser = (object) $this->jwtAuth->parseToken()->getPayload()->get('user');
+        // $user = (object) $payload->get('user');
+        if($getUser->username != $request->get('requestedBy')){
+            return response()->json([
+              'success' => false,
+              'message' => 'You cannot submit your own request.'
+            ], 403);
+        }
+        
       // jalankan fungsion saveDraftItem dulu untuk menyimpan data item dan total_amount
       $po_number = $request->input('formNumber');
       if (!$po_number) {
@@ -128,10 +138,11 @@ class PurchaseOrderController extends Controller
           $request->merge(['total_amount' => $request->input('total_amount') + ($item['quantity'] * $item['unit_price'])]);
         }
       }
-      // dd($request->all());
+    //   dd($request->all());
       $validated = $request->validate([
         'purchase_request_number' => 'required|string|max:255',
         'vendor_id' => 'required|exists:mst_vendor,id',
+        'po_date' => 'required|date',
         'total_amount' => 'required|numeric|min:0',
         'status' => 'required|string|in:Draft,Waiting Approval,Approved,Rejected',
         'items' => 'required|array|min:1',

@@ -9,9 +9,10 @@
         <template #status="{ item }">
             <span :class="{
                 'badge bg-info': normalizeStatus(item.status) === 'Waiting Approval',
+                'badge bg-primary': normalizeStatus(item.status) === 'Proses',
                 'badge bg-warning': normalizeStatus(item.status) === 'Revised',
-                'badge bg-danger': normalizeStatus(item.status) === 'Rejected',
-                'badge bg-success': normalizeStatus(item.status) === 'Approved'
+                'badge bg-success': normalizeStatus(item.status) === 'Approved',
+                'badge bg-danger': normalizeStatus(item.status) === 'Rejected'
             }">
                 {{ getIndoStatus(item.status) }}
             </span>
@@ -28,19 +29,22 @@ useMeta({ title: 'RA Approval' });
 
 const tabs = [
     { label: 'Waiting Approval', value: 'Waiting Approval', indo: 'Menunggu Persetujuan' },
+    { label: 'Proses', value: 'Other', indo: 'Proses' },
     { label: 'Revised', value: 'Revised', indo: 'Direvisi' },
+    { label: 'Approved', value: 'Approved', indo: 'Disetujui' },
     { label: 'Rejected', value: 'Rejected', indo: 'Ditolak' },
-    { label: 'Full Approved', value: 'Approved', indo: 'Disetujui' },
-    { label: 'Other', value: 'Other', indo: 'Lainnya' },
 ];
 
 const router = useRouter();
 function goToDetail(item: any) {
-  router.push(`/apps/form/registration-asset/${item.ra_number}`);
+  router.push({
+    path: `/apps/form/registration-asset/${item.ra_number}`,
+    query: { from: 'approval' }
+  });
 }
 
 // Data fetching
-const { data: RaApprovalRef, isPending, isSuccess } = useGetApprovalList('ra');
+const { data: RaApprovalRef, isPending, isSuccess } = useGetApprovalList('registration-asset');
 
 const raApprovals = computed(() => {
     const data = RaApprovalRef.value?.data;
@@ -48,7 +52,7 @@ const raApprovals = computed(() => {
 });
 
 const approvalColumns = [
-    { key: 'ra_date', title: 'Tanggal' },
+    { key: 'request_time', title: 'Tanggal' },
     { key: 'ra_number', title: 'Nomor RA' },
     { key: 'created_by', title: 'Pemohon' },
     { key: 'cabang', title: 'Cabang' },
@@ -60,9 +64,10 @@ function normalizeStatus(status: string): string {
     if (!status) return '';
     status = status.trim().toLowerCase();
     if (['waiting approval', 'waiting list', 'menunggu persetujuan'].includes(status)) return 'Waiting Approval';
+    if (['other', 'proses'].includes(status)) return 'Proses';
     if (['revised', 'direvisi'].includes(status)) return 'Revised';
-    if (['rejected', 'ditolak'].includes(status)) return 'Rejected';
     if (['approved', 'full approved', 'disetujui'].includes(status)) return 'Approved';
+    if (['rejected', 'ditolak'].includes(status)) return 'Rejected';
     return status.charAt(0).toUpperCase() + status.slice(1);
 }
 function getIndoStatus(status: string): string {

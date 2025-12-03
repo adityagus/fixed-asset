@@ -9,7 +9,6 @@ const pinia = createPinia();
 app.use(pinia);
 
 import router from '@/router';
-app.use(router);
 
 // main app css
 import '@/assets/css/app.css';
@@ -48,6 +47,8 @@ app.use(VueEasymde);
 import Popper from 'vue3-popper';
 app.component('Popper', Popper);
 
+// 
+
 // vuequery
 import { VueQueryPlugin, QueryClient } from '@tanstack/vue-query';
 const queryClient = new QueryClient(
@@ -67,5 +68,11 @@ app.use(VueQueryPlugin, {queryClient});
 // json to excel
 import vue3JsonExcel from 'vue3-json-excel';
 app.use(vue3JsonExcel);
+
+// restore pinia state from storage
+import { useAppStore } from './stores'
+const appStore = useAppStore()
+await appStore.hydrateFromStorage?.() // jika hydrateFromStorage async
+app.use(router)
 
 app.mount('#app');

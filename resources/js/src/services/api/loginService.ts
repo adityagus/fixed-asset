@@ -18,3 +18,14 @@ export const getCheckUser = async () => {
   }
 };
 
+
+export const logout = async () => {
+  try {
+    const response = await axiosInstance.post('/logout');
+    return response.data;
+    } catch (error) {
+        console.error('Error during logout:', error);
+        throw error;
+    }
+}
+

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Assets;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -139,6 +140,61 @@ class ReportController extends Controller
             ], 500);
         }
     }
-    
-    
+
+
+    public function susutReport()
+    {
+        try {
+            // pastikan koneksi DB & query berjalan baik
+            $assets = Assets::with('susut', 'registrationAsset')->get();
+
+            foreach ($assets as $asset) {
+                // cek asset relasi & isi data yg dibutuhkan
+                if (!$asset->susut || !$asset->registrationAsset || !$asset->registrationAsset->ra_date) {
+                    continue; // skip asset ini jika relasi tidak lengkap
+                }
+                // cek field tanggal susut ada
+                if (empty($asset->susut->tgl_reg) || empty($asset->susut->total_umur)) {
+                    continue;
+                }
+
+                try {
+                    $tglAkhir = date('Y-m-d', strtotime("+{$asset->susut->total_umur} months", strtotime($asset->susut->tgl_reg)));
+                    $tglSekarang = date('Y-m-d');
+                    $dt1 = new \DateTime($tglSekarang);
+                    $dt2 = new \DateTime($tglAkhir);
+                    $interval = $dt1->diff($dt2);
+                    $sisaBulan = ($interval->y * 12) + $interval->m;
+                    if ($sisaBulan < 0)
+                        $sisaBulan = 0;
+
+                    $asset->susut->sisa_umur = $sisaBulan;
+                    $asset->susut->save();
+                } catch (\Exception $e) {
+                    // Jika gagal hitung/datetime
+                    // Bisa log error atau lanjut asset berikutnya
+                    \Log::error('Gagal update sisa_umur asset ID: ' . $asset->id . ' error: ' . $e->getMessage());
+                    continue;
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $assets,
+            ], 200);
+
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Error koneksi atau query
+            return response()->json([
+                'success' => false,
+                'message' => 'Database error: ' . $e->getMessage(),
+            ], 500);
+        } catch (\Exception $e) {
+            // General error
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
 }

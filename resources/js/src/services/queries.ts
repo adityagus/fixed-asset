@@ -9,7 +9,7 @@ import {
   submitPurchaseRequest,
   getPurchaseRequestDetail,
 } from "./api/purchaseRequestService";
-import { getFileList, getMasterBrg, getVendorList } from "./api/masterService";
+import { getCabangList, getFileList, getMasterBrg, getVendorList, getKategoriList, getTipeBarangList, getMerkList, createMerk, updateMerk, deleteMerk } from "./api/masterService";
 import { getListApproved } from "./api/submissionService";
 import { getAssetReport, getReportBarcode } from "./api/reportService";
 
@@ -47,11 +47,12 @@ export const submissionKeys = {
   
 // };
 
-export const useListSubmission = (type?: MaybeRef<string>) => {
+export const useListSubmission = (type?: MaybeRef<string>, requestBy?: MaybeRef<string>) => {
   return useQuery({
-    queryKey: ['submissions', type],
+    queryKey: ['submissions', type, requestBy, status],
     queryFn: () => getSubmission(unref(type) ?? ''),
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60,
+    
   });
 };
 
@@ -200,3 +201,67 @@ export function useGetNotes(formType, formNumber) {
   )
 }
 // End: Notes
+
+// Master Cabang and Area can be found in masterService.ts
+export function useGetCabangList () {
+    return useQuery({
+        queryKey: ['cabangList'],
+        queryFn: () => getCabangList(),
+    })
+}
+
+
+export function useGetItemMasterList () {
+    return useQuery({
+        queryKey: ['itemMasterList'],
+        queryFn: () => getMasterBrg(),
+    })
+}
+export function useGetKategoriList () {
+    return useQuery({
+        queryKey: ['kategoriList'],
+        queryFn: () => getKategoriList(),
+    })
+}
+export function useGetTipeBarangList () {
+    return useQuery({
+        queryKey: ['tipeBarangList'],
+        queryFn: () => getTipeBarangList(),
+    })
+}
+export function useGetMerkList () {
+    return useQuery({
+        queryKey: ['merkList'],
+        queryFn: () => getMerkList(),
+    })
+}
+
+export function useCreateMerk() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: createMerk,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['merkList'] });
+        }
+    });
+}
+
+export function useUpdateMerk() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({ id, data }: { id: number; data: { nama_merkbrg: string } }) => updateMerk(id, data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['merkList'] });
+        }
+    });
+}
+
+export function useDeleteMerk() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: deleteMerk,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['merkList'] });
+        }
+    });
+}

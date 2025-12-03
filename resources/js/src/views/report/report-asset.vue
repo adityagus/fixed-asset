@@ -74,11 +74,11 @@
                 </template>
             </vue3-datatable>
         </div>
-        <div v-if="activeTab === 'branch'">
+        <div v-if="activeTab === 'branch' && isCabangListSuccess">
             <h3 class="text-lg font-semibold mb-2">Aset Berdasarkan Cabang</h3>
             <select v-model="selectedBranch" class="form-select mb-4 w-64">
                 <option value="">Pilih Cabang</option>
-                <option v-for="branch in branches" :key="branch" :value="branch">{{ branch }}</option>
+                <option v-for="branch in cabangList" :key="branch.id_area" :value="branch.id_area">{{ branch.nm_area }}</option>
             </select>
             <vue3-datatable :rows="branchAssets" :columns="assetSimpleCols" :search="searchBranch"
                 skin="whitespace-nowrap bh-table-hover" />
@@ -134,7 +134,7 @@ import Vue3Datatable from '@bhplugin/vue3-datatable';
 import Vue3JsonExcel from 'vue3-json-excel';
 import { Html5Qrcode } from 'html5-qrcode';
 import { useRouter } from 'vue-router';
-import { useGetAssetReport } from '@/services/queries';
+import { useGetAssetReport, useGetCabangList } from '@/services/queries';
 // State
 const router = useRouter();
 const activeTab = ref('asset');
@@ -149,7 +149,8 @@ const videoRef = ref<HTMLVideoElement | null>(null);
 const capturedImage = ref<string | null>(null);
 let stream: MediaStream | null = null;
 let barcodeScanner: Html5Qrcode | null = null;
-const branches = ['Jakarta', 'Bandung', 'Surabaya', 'Medan', 'Bali'];
+// const branches = ['Jakarta', 'Bandung', 'Surabaya', 'Medan', 'Bali'];
+const { data: cabangList, isSuccess: isCabangListSuccess } = useGetCabangList();
 
 // Kolom untuk tab Asset (seperti gambar)
 const assetSimpleCols = [
@@ -187,7 +188,10 @@ const allAssets = computed(() => assetReport.value?.data ?? []);
 const assetRows = computed(() => allAssets.value); // Untuk tab asset
 const branchAssets = computed(() => {
   if (!selectedBranch.value) return [];
-  return allAssets.value.filter(a => a.location?.toLowerCase() === selectedBranch.value.toLowerCase());
+  return allAssets.value.filter(a => {
+    console.log('Comparing', a.location, 'with', selectedBranch.value);
+    return a.location === selectedBranch.value;
+  });
 });
 const warehouseAssets = computed(() => allAssets.value.filter(a => a.status === 'Gudang'));
 const susutRows = computed(() => allAssets.value); // Untuk tab susut

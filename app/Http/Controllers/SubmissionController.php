@@ -27,35 +27,41 @@ class SubmissionController extends Controller
     {
         try {
             // Ambil user dari JWT payload
-            // $payload = JWTAuth::parseToken()->getPayload();
-            // $user = $payload->get('user');
+            $payload = JWTAuth::parseToken()->getPayload();
+            $user = (object) $payload->get('user');
+            $username = $user->username;
+            
 
             switch ($type) {
-                case 'pr':
+                case 'purchase-request':
                     $model = PurchaseRequest::with([
                         'approvals' => function ($query) {
                             $query->select('*')
                                 ->whereNotNull('approval_status')
                                 ->orderBy('layer', 'desc');
                         }
-                    ])->orderBy('created_at', 'desc')->get();
+                    ])
+                    ->where('created_by', $username)
+                    ->orderBy('created_at', 'desc')->get();
                     foreach ($model as $pr) {
                         $pr->date = Carbon::parse($pr->pr_date)->format('d M Y  H:i');
                     }
                     break;
-                case 'po':
+                case 'purchase-order':
                     $model = PurchaseOrder::with([
                         'approvals' => function ($query) {
                             $query->select('*')
                                 ->whereNotNull('approval_status')
                                 ->orderBy('layer', 'desc');
                         }
-                    ])->orderBy('created_at', 'desc')->get();
+                    ])
+                    ->where('created_by', $username)
+                    ->orderBy('created_at', 'desc')->get();
                     foreach ($model as $po) {
                         $po->date = Carbon::parse($po->po_date)->format('d M Y  H:i');
                     }
                     break;
-                case 'ra':
+                case 'registration-asset':
                     $model = RegistrationAsset::with([
                         'approvals' => function ($query) {
                             $query->select('*')
@@ -64,7 +70,9 @@ class SubmissionController extends Controller
                         },
                         'purchaseOrder:purchase_request_number,po_number',
                         'purchaseOrder.purchaseRequest:id,pr_number,created_by,cabang'
-                    ])->orderBy('created_at', 'desc')->get();
+                    ])
+                    ->where('created_by', $username)
+                    ->orderBy('created_at', 'desc')->get();
 
                     foreach ($model as $ra) {
                         $ra->date = Carbon::parse($ra->ra_date)->format('d M Y  H:i');
@@ -74,6 +82,7 @@ class SubmissionController extends Controller
                 default:
                     abort(404);
             }
+            
             return response()->json([
                 'success' => true,
                 'data' => $model,
@@ -121,22 +130,25 @@ class SubmissionController extends Controller
         try {
             $payload = JWTAuth::parseToken()->getPayload();
             $user = (object) $payload->get('user');
-            $username = "Agung"; // Ganti dengan $user->username jika ada
+            // $username = "Agung"; // Ganti dengan $user->username jika ada
+            $username = $user->username; // Ganti dengan $user->username jika ada
+            
 
             switch ($type) {
-                case 'pr':
+                case 'purchase-request':
                     $model = PurchaseRequest::with('approvals')
                         ->whereIn('status', ['Waiting Approval', 'Revised', 'Rejected', 'Full Approved'])
                         ->orderBy('created_at', 'desc')
                         ->get();
                     break;
-                case 'po':
+                case 'purchase-order':
                     $model = PurchaseOrder::with('approvals', 'purchaseRequest')
                         ->whereIn('status', ['Waiting Approval', 'Revised', 'Rejected', 'Full Approved'])
                         ->orderBy('created_at', 'desc')
                         ->get();
+                        
                     break;
-                case 'ra':
+                case 'registration-asset':
                     $model = RegistrationAsset::with(
                         'approvals',
                         'purchaseOrder:purchase_request_number,po_number',
@@ -165,6 +177,8 @@ class SubmissionController extends Controller
                 $rejected = false;
                 $allApproved = true;
 
+                
+                $item->request_time = Carbon::parse($item->created_at)->format('d-m-Y H:i');
                 foreach ($item->approvals as $approval) {
                     $statusLower = strtolower($approval->approval_status);
 

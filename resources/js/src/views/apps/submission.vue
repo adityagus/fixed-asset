@@ -17,7 +17,7 @@
       </div>
       <div class="flex sm:flex-row flex-col sm:items-center sm:gap-3 gap-4 w-full sm:w-auto">
         <div class="relative">
-          <input type="text" placeholder="Search Submission" class="form-input py-2 ltr:pr-11 rtl:pl-11 peer" v-model="search" />
+          <input type="text" placeholder="Cari Pengajuan" class="form-input py-2 ltr:pr-11 rtl:pl-11 peer" v-model="search" />
           <button type="button" class="absolute ltr:right-[11px] rtl:left-[11px] top-1/2 -translate-y-1/2 peer-focus:text-primary">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <circle cx="11.5" cy="11.5" r="9.5" stroke="currentColor" stroke-width="1.5" opacity="0.5"></circle>
@@ -32,10 +32,10 @@
         <div class="mt-3 flex flex-wrap border-b border-white-light dark:border-[#191e3a]">
           <button :class="[
                             'flex items-center border-transparent p-5 py-3 gap-2 hover:border-b hover:!border-primary hover:text-primary -mb-[1px]',
-                            activeTab === 'pr' 
+                            store.activeTab === 'purchase-request' 
                                 ? 'border-b !border-primary text-primary !outline-none' 
                                 : ''
-                        ]" @click="activeTab = 'pr'">
+                        ]" @click="store.tabSubmission('purchase-request')">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
               class="h-5 w-5 ltr:mr-2 rtl:ml-2">
               <path opacity="0.5"
@@ -44,30 +44,30 @@
               <path d="M12 15L12 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
             </svg>
             <span>
-              Purchase <br /> Requests
+              Permintaan <br /> Pembelian
             </span>
           </button>
           <button :class="[
                             'flex items-center border-transparent p-5 py-3 gap-2 hover:border-b hover:!border-primary hover:text-primary -mb-[1px]',
-                            activeTab === 'po' 
+                            store.activeTab === 'purchase-order' 
                                 ? 'border-b !border-primary text-primary !outline-none' 
                                 : ''
-                        ]" @click="activeTab = 'po'">
+                        ]" @click="store.tabSubmission('purchase-order')">
             <svg width="20" height="20" class="h-5 w-5 ltr:mr-2 rtl:ml-2" viewBox="0 0 24 24" fill="none"
               xmlns="http://www.w3.org/2000/svg">
               <circle cx="12" cy="6" r="4" stroke="currentColor" stroke-width="1.5" />
               <ellipse opacity="0.5" cx="12" cy="17" rx="7" ry="4" stroke="currentColor" stroke-width="1.5" />
             </svg>
             <span>
-              Purchase <br /> Orders
+              Pesanan <br /> Pembelian
             </span>
           </button>
           <button :class="[
                             'flex items-center border-transparent p-5 py-3 gap-2 hover:border-b hover:!border-primary hover:text-primary -mb-[1px]',
-                            activeTab === 'ra' 
+                            store.activeTab === 'registration-asset' 
                                 ? 'border-b !border-primary text-primary !outline-none' 
                                 : ''
-                        ]" @click="activeTab = 'ra'">
+                        ]" @click="store.tabSubmission('registration-asset')">
             <svg class="ltr:mr-2 rtl:ml-2" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
                 d="M5.00659 6.93309C5.04956 5.7996 5.70084 4.77423 6.53785 3.93723C7.9308 2.54428 10.1532 2.73144 11.0376 4.31617L11.6866 5.4791C12.2723 6.52858 12.0372 7.90533 11.1147 8.8278M17.067 18.9934C18.2004 18.9505 19.2258 18.2992 20.0628 17.4622C21.4558 16.0692 21.2686 13.8468 19.6839 12.9624L18.5209 12.3134C17.4715 11.7277 16.0947 11.9628 15.1722 12.8853"
@@ -77,7 +77,7 @@
                 stroke="currentColor" stroke-width="1.5" />
             </svg>
             <span>
-              Registration <br /> Assets
+              Pendaftaran <br /> Aset
             </span>
           </button>
         </div>
@@ -85,7 +85,7 @@
         <!-- Tab Panels -->
         <div class="mt-5">
           <!-- Purchase Requests Tab -->
-          <div v-if="activeTab === 'pr'" class="panel p-0 border-0 overflow-hidden">
+          <div v-if="store.activeTab === 'purchase-request'" class="panel p-0 border-0 overflow-hidden">
             <div v-if="isLoading" class="flex justify-center items-center py-10">
               <span
                 class="animate-spin border-4 border-yellow-400 border-l-transparent rounded-full w-10 h-10 inline-block align-middle"></span>
@@ -94,13 +94,13 @@
               <table class="table-striped table-hover">
                 <tbody>
                   <tr v-if="filteredItems.length === 0">
-                    <td colspan="5" class="text-center py-4 flex justify-center">No Purchase Requests found</td>
+                    <td colspan="5" class="text-center py-4 flex justify-center">Tidak ditemukan Permintaan Pembelian</td>
                   </tr>
                   <tr v-for="pr in filteredItems" :key="pr.id">
                     <td class="text-center">
                       <template v-if="pr.status === 'Draft'">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
-                          class="cursor-pointer hover:text-red-500" @click="handleDeleteSubmission('pr', pr.pr_number)">
+                          class="cursor-pointer hover:text-red-500" @click="handleDeleteSubmission('purchase-request', pr.pr_number)">
                           <path d="M20.5001 6H3.5" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round" />
                           <path d="M9.5 11L10 16" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round" />
                           <path d="M14.5 11L14 16" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round" />
@@ -124,11 +124,10 @@
                         <span :class="`badge ${
                                 pr.status === 'Draft' ? 'bg-gray-500' : pr.status === 'Waiting Approval' ? 'bg-primary' : 
                                 pr.status === 'Full Approved' ? 'bg-success' : 
-                                pr.status === 'Draft' ? 'bg-gray-400' :
                                 pr.status === 'Revised' ? 'bg-warning' :
                                 'bg-danger'
                             } w-36 text-center`">
-                          {{ capitalize(pr.status) }} <span v-if="pr.status == 'Waiting Approval' || pr.status == 'Revised' || pr.status == 'Rejected'">by {{ pr.approvals[0]?.approver_by }}</span>
+                          {{ statusLabel(pr.status) }} <span v-if="pr.status == 'Waiting Approval' || pr.status == 'Revised' || pr.status == 'Rejected'">oleh {{ pr.approvals[0]?.approver_by }}</span>
                         </span>
                       </div>
                     </td>
@@ -139,7 +138,7 @@
           </div>
 
           <!-- Purchase Orders Tab -->
-          <div v-if="activeTab === 'po'" class="panel p-0 border-0 overflow-hidden">
+          <div v-if="store.activeTab === 'purchase-order'" class="panel p-0 border-0 overflow-hidden">
             <div v-if="isLoading" class="flex justify-center items-center py-10">
               <span
                 class="animate-spin border-4 border-yellow-400 border-l-transparent rounded-full w-10 h-10 inline-block align-middle"></span>
@@ -148,13 +147,13 @@
               <table class="table-striped table-hover">
                 <tbody>
                   <tr v-if="filteredOrders.length === 0">
-                    <td colspan="6" class="text-center py-4 flex justify-center">No Purchase Orders found</td>
+                    <td colspan="6" class="text-center py-4 flex justify-center">Tidak ditemukan Pesanan Pembelian</td>
                   </tr>
                   <tr v-for="po in filteredOrders" :key="po.id">
                     <td class="text-center">
                       <template v-if="po.status === 'Draft'">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
-                          class="cursor-pointer hover:text-red-500" @click="handleDeleteSubmission('po', po.po_number)">
+                          class="cursor-pointer hover:text-red-500" @click="handleDeleteSubmission('purchase-order', po.po_number)">
                           <path d="M20.5001 6H3.5" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round" />
                           <path d="M9.5 11L10 16" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round" />
                           <path d="M14.5 11L14 16" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round" />
@@ -175,8 +174,8 @@
                         </a>
                       </strong>
                       <span
-                        :class="`badge text-center ${po.status === 'Draft' ? 'bg-gray-500' : po.status === 'Waiting Approval' ? 'bg-primary' : po.status === 'Full Approved' ? 'bg-success' : 'bg-danger'} w-36`">
-                        {{ capitalize(po.status) }} <span v-if="po.status == 'Waiting Approval' || po.status == 'Revised' || po.status == 'Rejected'">by {{ po.approvals[0]?.approver_by }}</span>
+                        :class="`badge text-center ${po.status === 'Draft' ? 'bg-gray-500' : po.status === 'Waiting Approval' ? 'bg-primary' : po.status === 'Full Approved' ? 'bg-success' : po.status === 'Revised' ? 'bg-warning' : 'bg-danger'} w-36`">
+                        {{ statusLabel(po.status) }} <span v-if="po.status == 'Waiting Approval' || po.status == 'Revised' || po.status == 'Rejected'">oleh {{ po.approvals[0]?.approver_by }}</span>
                       </span>
                     </td>
                     <td>{{ po.supplier }}</td>
@@ -191,7 +190,7 @@
           </div>
 
           <!-- Assets Registration Tab -->
-          <div v-if="activeTab === 'ra'" class="panel p-0 border-0 overflow-hidden">
+          <div v-if="store.activeTab === 'registration-asset'" class="panel p-0 border-0 overflow-hidden">
             <div v-if="isLoading" class="flex justify-center items-center py-10">
               <span
                 class="animate-spin border-4 border-yellow-400 border-l-transparent rounded-full w-10 h-10 inline-block align-middle"></span>
@@ -200,13 +199,13 @@
               <table class="table-striped table-hover">
                 <tbody>
                   <tr v-if="filteredAssets.length === 0">
-                    <td colspan="7" class="text-center py-4 flex justify-center">No Registration Assets found</td>
+                    <td colspan="7" class="text-center py-4 flex justify-center">Tidak ditemukan Pendaftaran Aset</td>
                   </tr>
                   <tr v-for="asset in filteredAssets" :key="asset.id">
                     <td class="text-center">
                       <template v-if="asset.status === 'Draft'">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
-                          class="cursor-pointer hover:text-red-500" @click="handleDeleteSubmission('ra', asset.ra_number)">
+                          class="cursor-pointer hover:text-red-500" @click="handleDeleteSubmission('registration-asset', asset.ra_number)">
                           <path d="M20.5001 6H3.5" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round" />
                           <path d="M9.5 11L10 16" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round" />
                           <path d="M14.5 11L14 16" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round" />
@@ -230,11 +229,10 @@
                         <span :class="`badge ${
                                 asset.status === 'Draft' ? 'bg-gray-500' : asset.status === 'Waiting Approval' ? 'bg-primary' : 
                                 asset.status === 'Full Approved' ? 'bg-success' : 
-                                asset.status === 'Draft' ? 'bg-gray-400' :
                                 asset.status === 'Revised' ? 'bg-warning' :
                                 'bg-danger'
                             } w-36 text-center`">
-                          {{ capitalize(asset.status) }} <span v-if="asset.status == 'Waiting Approval' || asset.status == 'Revised' || asset.status == 'Rejected'">by {{ asset.approvals[0]?.approver_by }}</span>
+                          {{ statusLabel(asset.status) }} <span v-if="asset.status == 'Waiting Approval' || asset.status == 'Revised' || asset.status == 'Rejected'">oleh {{ asset.approvals[0]?.approver_by }}</span>
                         </span>
                       </div>
                     </td>
@@ -258,20 +256,27 @@ import { useDeleteSubmission } from '@/services/mutations';
 import { useMeta } from '@/composables/use-meta';
 import { showMessage } from '@/composables/showMessage';
 import Swal from 'sweetalert2';
+import { useAppStore } from '@/stores'
 
 useMeta({ title: 'Submission' });
 
 const router = useRouter();
 const goToForm = (type: string, number: string) => {
-    router.push(`/apps/form/${type}/${number}`);
+    // Ubah path agar lebih natural dalam bahasa Indonesia jika perlu
+    router.push({
+        path: `/apps/form/${type}/${number}`,
+        query: { from: 'submission' }
+    });
 };
 
-const activeTab = ref('pr');
+const store = useAppStore();
+
 const search = ref('');
 
 // ✅ Pass activeTab sebagai computed agar reactive
-const { data, isLoading, error, refetch } = useListSubmission(
-  computed(() => activeTab.value)
+const { data, isLoading, refetch } = useListSubmission(
+  computed(() => store?.activeTab),
+  store.user?.username,
 );
 
 // ATAU jika composable support ref langsung:
@@ -280,7 +285,7 @@ const { data, isLoading, error, refetch } = useListSubmission(
 // Helper untuk get data by key
 const apiList = (key: string) => {
     console.log('API data:', data.value);
-    console.log('Active Tab:', activeTab.value);
+    console.log('Active Tab:', store?.activeTab);
     
     if (!data.value) return [];
 
@@ -305,13 +310,13 @@ const apiList = (key: string) => {
 
 // Data masing-masing tab
 const purchaseRequests = computed(() => {
-    return apiList('pr');
+    return apiList('purchase-request');
 });
 const purchaseOrders = computed(() => {
-    return apiList('po');
+    return apiList('purchase-order');
 });
 const registrationAssets = computed(() => {
-    return apiList('ra');
+    return apiList('registration-asset');
 });
 
 // Filter masing-masing tab
@@ -346,52 +351,37 @@ const submissionDelete = useDeleteSubmission();
 
 const handleDeleteSubmission = (type:string, number:string) => {
     Swal.fire({
-        title: 'Are you sure?',
-        text: `This will permanently delete the ${type === 'pr' ? 'Purchase Request' : type === 'po' ? 'Purchase Order' : 'Asset Registration'}.`,
+        title: 'Apakah Anda yakin?',
+        text: `Ini akan menghapus permanen ${type === 'purchase-request' ? 'Permintaan Pembelian' : type === 'purchase-order' ? 'Pesanan Pembelian' : 'Registrasi Aset'}.`,
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonText: 'Yes, delete it!',
-        cancelButtonText: 'Cancel',
+        confirmButtonText: 'Ya, hapus!',
+        cancelButtonText: 'Batal',
     }).then((result) => {
         if (result.isConfirmed) {
-            console.log('Deleting', type, number);
             submissionDelete.mutateAsync({ type, number });
         }
     });
 };
 
-// ✅ Reset search saat tab berubah (opsional)
-watch(activeTab, (newTab) => {
-    console.log('Tab changed to:', newTab);
-    search.value = '';
-});
-
 // Capitalize helper setiap kata depan
 const capitalize = (val: string) => val ? val.charAt(0).toUpperCase() + val.slice(1) : '';
 
-
-
-const deletePurchaseRequest = async (id: number) => {
-    const result = await Swal.fire({
-        title: 'Are you sure?',
-        text: 'This will permanently delete the Purchase Request.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Yes, delete it!',
-        cancelButtonText: 'Cancel',
-    });
-    
-    if (result.isConfirmed) {
-        try {
-            // TODO: Call API delete
-            await axios.delete(`/api/purchase-requests/${id}`);
-            // Refetch data after delete
-            await refetch();
-            showMessage('Purchase Request deleted successfully.');
-        } catch (err) {
-            console.log(err);
-            showMessage('Failed to delete Purchase Request.', err);
-        }
+// Mapping status ke label Bahasa Indonesia
+const statusLabel = (status: string) => {
+    switch ((status || '').toLowerCase()) {
+        case 'draft':
+            return 'Draf';
+        case 'waiting approval':
+            return 'Menunggu Persetujuan';
+        case 'full approved':
+            return 'Disetujui';
+        case 'revised':
+            return 'Direvisi';
+        case 'rejected':
+            return 'Ditolak';
+        default:
+            return capitalize(status) || '';
     }
 };
 
@@ -440,4 +430,7 @@ const deleteAssetRegistration = async (id: number) => {
         }
     }
 };
+
+const appStore = useAppStore()
+console.log('isLoggedIn:', appStore.isLoggedIn, 'user:', appStore.user)
 </script>

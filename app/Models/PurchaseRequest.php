@@ -13,11 +13,11 @@ class PurchaseRequest extends Model
     protected $fillable = [
         'pr_number',
         'pr_date',
+        'jenis_permintaan',
         'url_file',
         'created_by',
         'department',
         'cabang',
-        'justification',
         'status',
     ];
     

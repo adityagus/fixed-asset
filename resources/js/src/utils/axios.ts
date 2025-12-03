@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { useAppStore } from '@/stores/index'
 
 const baseUrl = import.meta.env.VITE_API_URL; // Ganti dengan URL dasar API Anda
 export const axiosInstance = axios.create({
@@ -13,9 +14,9 @@ export const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('authToken'); // atau dari store Pinia
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    const appStore = useAppStore(); // atau dari store Pinia
+    if (appStore.token) {
+      config.headers.Authorization = `Bearer ${appStore.token}`;
     }
     return config;
   }

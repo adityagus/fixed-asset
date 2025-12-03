@@ -71,6 +71,7 @@ export const submitPurchaseRequest = async (
 ): Promise<PurchaseRequest> => {
   console.log('isi form', form.formNumber);
   form.pr_number  = form.formNumber;
+  form.jenis_permintaan  = form.jenisPermintaan;
   return (await axiosInstance.post<PurchaseRequest>('/purchase-request/submit', form)).data;
 };
 

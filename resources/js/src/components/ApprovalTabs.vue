@@ -7,11 +7,11 @@
            :class="{'before:w-full text-primary' : activeTab === tab.value}"
            @click="setTab(tab.value)"
         >
-          <svg v-if="tab.value === 'waiting approval'" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="mr-2"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/><path d="M12 6v6l4 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <svg v-else-if="tab.value === 'revised'" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="mr-2"><rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M8 12h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <svg v-else-if="tab.value === 'rejected'" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="mr-2"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/><path d="M8 8l8 8M16 8l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <svg v-if="tab.value === 'Waiting Approval'" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="mr-2"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/><path d="M12 6v6l4 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <svg v-else-if="tab.value === 'Revised'" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="mr-2"><rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M8 12h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <svg v-else-if="tab.value === 'Rejected'" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="mr-2"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/><path d="M8 8l8 8M16 8l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="mr-2"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/><path d="M8 12l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          {{ tab.label }}
+          {{ tab.indo || tab.label }}
         </a>
       </li>
     </ul>
@@ -24,14 +24,14 @@
         </thead>
         <tbody v-if='isPending'>
           <tr>
-            <td :colspan="columns.length" class="py-4" style='text-align: center;'>Loading...</td>
+            <td :colspan="columns.length" class="py-4" style='text-align: center;'>Memuat data...</td>
           </tr>
         </tbody>
         <tbody v-if='!isPending'>
           <!-- grouping -->
           
           <tr v-if="filteredItems.length === 0 ">
-            <td :colspan="columns.length" class="py-4" style="text-align: center;">No data found</td>
+            <td :colspan="columns.length" class="py-4" style="text-align: center;">Tidak ada data ditemukan</td>
           </tr>
           <tr
             v-for="item in filteredItems"

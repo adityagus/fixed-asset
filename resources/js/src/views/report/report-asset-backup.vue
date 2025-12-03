@@ -140,7 +140,7 @@ const assetCols = [
       const val = typeof row.nilai_perolehan === 'number'
         ? row.nilai_perolehan
         : (row.susut && typeof row.susut.total_umur === 'number' && typeof row.susut.nom_susut === 'number'
-          ? row.susut.total_umur * row.susut.nom_susut
+          ? row.susut.total_umur * row.susut.nom_susut //nilai perolehan
           : null);
       return val !== null ? val.toLocaleString('id-ID') : '-';
     }

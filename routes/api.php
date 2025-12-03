@@ -25,7 +25,9 @@ use App\Http\Controllers\AssetRegistrationController;
 */
 
 Route::post('/login', [LoginController::class, 'login']);
+Route::post('/logout', [LoginController::class, 'logout']);
 
+Route::get('/susutReport', [ReportController::class, 'susutReport']);
 
 Route::middleware('jwt')->group(function () {
 
@@ -84,6 +86,14 @@ Route::middleware('jwt')->group(function () {
     Route::prefix('master/')->group(function () {
         Route::get('barang', [MasterController::class, 'getMasterBarang']);
         Route::get('vendor', [MasterController::class, 'getVendorList']);
+        Route::get('cabang', [MasterController::class, 'masterCabangChildren']);
+        Route::get('area', [MasterController::class, 'masterAreaParents']);
+        Route::get('merk', [MasterController::class, 'getMerkList']);
+        Route::post('merk', [MasterController::class, 'createMerk']);
+        Route::put('merk/{id}', [MasterController::class, 'updateMerk']);
+        Route::delete('merk/{id}', [MasterController::class, 'deleteMerk']);
+        Route::get('tipe-barang', [MasterController::class, 'getTipeBarangList']); 
+        Route::get('kategori', [MasterController::class, 'getKategoriList']);
     });
 
 

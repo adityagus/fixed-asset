@@ -22,6 +22,7 @@ import { SubmitPurchaseOrderPayload } from '@/types/purchaseOrders'
 import { submitPurchaseOrder } from './api/purchaseOrderService'
 import { SubmitRegisterAssetPayload } from '@/types/registerAsset'
 import { submitRegistrationAsset } from './api/registerAssetService'
+import { logout } from './api/loginService'
 
 // const queryClient = useQueryClient();
 // export const useCreateSubmission = () => {
@@ -44,7 +45,6 @@ import { submitRegistrationAsset } from './api/registerAssetService'
 //     }
 //   });
 // }
-const router = useRouter()
 
 export const useCreateFormSubmission = () => {
     const queryClient = useQueryClient()
@@ -103,20 +103,27 @@ export const useUploadFileSubmission = (type: string) => {
 
 export const useSubmitPurchaseRequest = () => {
     const qc = useQueryClient()
+    const router = useRouter()
     // console.log('useSubmitPurchaseRequest called', formData);
     return useMutation({
         mutationFn: async (formData: SubmitPurchaseRequestPayload) =>
             await submitPurchaseRequest(formData),
         onSuccess: (data, variable) => {
             console.log('Purchase Request submitted successfully:', data)
-            qc.invalidateQueries(['PurchaseRequestIds'])
-
-            Swal.fire({
-                title: 'Sukses!',
-                text: `Permintaan Pembelian (${variable.formNumber}) telah berhasil dikirim!`,
-                icon: 'success',
-                confirmButtonText: 'OK',
-            })
+            qc.invalidateQueries({ queryKey: ['PurchaseRequestIds'] })
+            
+            
+            router.push('/submission').then(() => {
+                Swal.fire({
+                    title: 'Sukses!',
+                    text: `Permintaan Pembelian (${variable.formNumber}) telah berhasil dikirim!`,
+                    icon: 'success',
+                    confirmButtonText: 'OK',
+                    timer: 1500,
+                    // after runing  router push
+                })
+                
+            });
         },
         onError: (error) => {
             console.error('Error submitting Purchase Request:', error)
@@ -129,22 +136,27 @@ export const useSubmitPurchaseRequest = () => {
 
 export const useSubmitPurchaseOrder = () => {
     const qc = useQueryClient()
+    const router = useRouter()
     return useMutation({
         mutationFn: async (formData: SubmitPurchaseOrderPayload) =>
             await submitPurchaseOrder(formData),
         onSuccess: (data, variable) => {
             console.log('Purchase Order submitted successfully:', data)
-            qc.invalidateQueries(['PurchaseOrderIds'])
+            qc.invalidateQueries({ queryKey: ['submissions', 'purchase-order'] })
 
-            Swal.fire({
-                title: 'Sukses!',
-                text: `Pesanan Pembelian (${variable.po_number}) telah berhasil dikirim!`,
-                icon: 'success',
-                confirmButtonText: 'OK',
-            })
+            router.push('/submission').then(() => {
+                Swal.fire({
+                    title: 'Sukses!',
+                    text: `Pesanan Pembelian (${variable.po_number}) telah berhasil dikirim!`,
+                    icon: 'success',
+                    confirmButtonText: 'OK',
+                    timer: 1500,
+                })
+                
+            });
         },
         onError: (error) => {
-            console.error('Error submitting Purchase Order:', error)
+            console.error('Error submitting Purchase Order:', error.response.data.message)
         },
         onSettled: () => {
             console.log('Submit Purchase Order mutation settled')
@@ -154,19 +166,23 @@ export const useSubmitPurchaseOrder = () => {
 
 export const useSubmitRegistrationAsset = () => {
     const qc = useQueryClient()
+    const router = useRouter()
     return useMutation({
         mutationFn: async (formData: SubmitRegisterAssetPayload) =>
             await submitRegistrationAsset(formData),
         onSuccess: (data, variable) => {
             console.log('Registration Asset submitted successfully:', data)
-            qc.invalidateQueries(['RegistrationAssetIds'])
+            qc.invalidateQueries({ queryKey: ['RegistrationAssetIds'] })
 
-            Swal.fire({
-                title: 'Sukses!',
-                text: `Pendaftaran Aset (${variable.ra_number}) telah berhasil dikirim!`,
-                icon: 'success',
-                confirmButtonText: 'OK',
-            })
+            router.push('/submission').then(() => {
+                Swal.fire({
+                    title: 'Sukses!',
+                    text: `Pendaftaran Aset (${variable.ra_number}) telah berhasil dikirim!`,
+                    icon: 'success',
+                    confirmButtonText: 'OK',
+                    timer: 1500,
+                })
+            });
         },
         onError: (error) => {
             console.error('Error submitting Registration Asset:', error)
@@ -197,12 +213,14 @@ export const useSaveDraftPurchaseRequest = () => {
 
 export const useSetApprovalStatus = () => {
     const qc = useQueryClient()
+    const router = useRouter()
     return useMutation({
         mutationFn: async (formData: {
             formNumber: number
             layer: number
             status: 'approved' | 'rejected'
             type: string
+            usernameApprover?: string
         }) => {
             const response = await axiosInstance.post<any>(
                 `/set-approval`,
@@ -210,9 +228,21 @@ export const useSetApprovalStatus = () => {
             )
             return response.data
         },
-        onSuccess: (data) => {
-            console.log('Approval status set successfully:', data)
-            qc.invalidateQueries(['submissions'])
+        onSuccess: (
+            data: any,
+            formData: { formNumber: number; layer: number; status: 'approved' | 'rejected'; type: string, usernameApprover?: string }
+        ) => {
+
+            qc.invalidateQueries({ queryKey: ['approvalList', formData.type] })
+            let approvalPath = '';
+            if (formData.type === 'purchase-request') {
+                approvalPath = 'pr-approval';
+            } else if (formData.type === 'purchase-order') {
+                approvalPath = 'po-approval';
+            } else if (formData.type === 'registration-asset') {
+                approvalPath = 'ra-approval';
+            }
+            router.push(`/approval/${approvalPath}`);
         },
         onError: (error) => {
             console.error('Error setting approval status:', error)
@@ -246,4 +276,12 @@ export const useSendNote = () => {
             console.log('Send note mutation settled')
         },
     })
+}
+
+export const useLogout = () => {
+    return useMutation({
+        mutationFn: async () => {
+            await logout();
+        },
+    });
 }

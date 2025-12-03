@@ -99,7 +99,7 @@ class PurchaseRequestController extends Controller
         
          $request->validate([
             'pr_number' => 'required|exists:purchase_requests,pr_number',
-            'justification' => 'nullable|string|max:1000',
+            'jenis_permintaan' => 'required|string|max:255',
             'items' => 'required|array|min:1',
             'items.*.item_name' => 'required|string|max:255',
             'items.*.quantity' => 'required|integer|min:1',
@@ -115,7 +115,6 @@ class PurchaseRequestController extends Controller
          * */
 
         $requestModel = PurchaseRequest::where('pr_number', $request->pr_number)->first();
-        $requestModel->justification = $request->justification;
         // Handle file upload
         $requestModel->save();
         // Save items
@@ -150,12 +149,21 @@ class PurchaseRequestController extends Controller
     {
       try {
         // dd($request->all());
-        $request->validate([
+        $payload = JWTAuth::parseToken()->getPayload();
+        $user = (object) $payload->get('user');
+        if($user == $request->created_by){
+            return response()->json([
+              'success' => false,
+              'message' => 'You cannot submit your own request.'
+            ], 403);
+        }        
+        $validated = $request->validate([
             'pr_number' => 'required|exists:purchase_requests,pr_number',
-            'justification' => 'required|string|max:1000',
+            'jenis_permintaan' => 'required|string|max:255',
             'items' => 'required|array|min:1',
             'items.*.item_id' => 'required|numeric|min:1',
             'items.*.quantity' => 'required|integer|min:1',
+            'items.*.pengajuan' => 'required|string|max:255',
             'items.*.unit_price' => 'nullable|numeric|min:0', // opsional
             'items.*.total_price' => 'required|numeric|min:0',
         ]);
@@ -168,11 +176,10 @@ class PurchaseRequestController extends Controller
          * */
 
         $requestModel = PurchaseRequest::where('pr_number', $request->pr_number)->first();
-        $requestModel->justification = $request->justification;
         // $requestModel->status = 'waiting approval';
 
         // Handle file upload
-        $requestModel->save();
+        $requestModel->update($validated);
         // Save items
         if(PurchaseRequestItem::where('purchase_request_number', $requestModel->pr_number)->exists()) {
             PurchaseRequestItem::where('purchase_request_number', $requestModel->pr_number)->delete();

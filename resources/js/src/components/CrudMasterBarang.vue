@@ -1,56 +1,49 @@
 <template>
   <div>
-    <table class="table table-sm">
-      <thead>
-        <tr>
-          <th>Nama</th>
-          <th>Kode</th>
-          <th>Keterangan</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="barang in list" :key="barang.id">
-          <td>{{ barang.nama }}</td>
-          <td>{{ barang.kode }}</td>
-          <td>{{ barang.keterangan }}</td>
-        </tr>
-        <tr v-if="list.length === 0">
-          <td colspan="3" class="text-center">Belum ada data</td>
-        </tr>
-      </tbody>
-    </table>
+    <div v-if="isLoading">Loading...</div>
+    <div v-else-if="error">Error: {{ error.message }}</div>
+    <div v-else>
+      <table class="table table-sm">
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>Kode Item</th>
+            <th>Nama Item</th>
+            <th>Kategori</th>
+            <th>Tipe</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(item, index) in barangListData" :key="item.id">
+            <td>{{ index + 1 }}</td>
+            <td>{{ item.brand?.nama_merkbrg || '-' }}</td>
+            <td>{{ item.nama_brg }}</td>
+            <td>{{ item.category?.nama_katbrg || '-' }}</td>
+            <td>{{ item.type?.nama_tipebrg || '-' }}</td>
+            <td class='flex gap-3'>
+              <button class="btn btn-xs btn-info">Detail</button>
+            </td>
+          </tr>
+          <tr v-if="barangListData.length === 0">
+            <td colspan="6" class="text-center">Belum ada data</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
+
 <script lang="ts" setup>
-import { ref } from 'vue';
-interface Barang { id: number; nama: string; kode: string; keterangan: string; }
-const list = ref<Barang[]>([
-  { id: 1, nama: 'Laptop Lenovo ThinkPad', kode: 'BRG001', keterangan: 'Laptop untuk staff IT' },
-  { id: 2, nama: 'Monitor Samsung 24"', kode: 'BRG002', keterangan: 'Monitor untuk ruang meeting' },
-  { id: 3, nama: 'Printer Epson L3110', kode: 'BRG003', keterangan: 'Printer untuk administrasi' },
-]);
-const form = ref<Barang>({ id: 0, nama: '', kode: '', keterangan: '' });
-const editId = ref<number | null>(null);
-function handleSubmit() {
-  if (editId.value) {
-    const idx = list.value.findIndex(b => b.id === editId.value);
-    if (idx !== -1) list.value[idx] = { ...form.value };
-  } else {
-    form.value.id = Date.now();
-    list.value.push({ ...form.value });
-  }
-  resetForm();
-}
-function edit(barang: Barang) {
-  form.value = { ...barang };
-  editId.value = barang.id;
-}
-function hapus(id: number) {
-  list.value = list.value.filter(b => b.id !== id);
-  if (editId.value === id) resetForm();
-}
-function resetForm() {
-  form.value = { id: 0, nama: '', kode: '', keterangan: '' };
-  editId.value = null;
-}
+import { computed } from 'vue';
+import { useGetMasterBrg } from '@/services/queries';
+
+const { data: barangList, isLoading, error } = useGetMasterBrg();
+
+const barangListData = computed(() => {
+  if (!barangList.value) return [];
+  if (Array.isArray(barangList.value)) return barangList.value;
+  if (barangList.value.data) return barangList.value.data;
+  return [];
+});
 </script>

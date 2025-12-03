@@ -67,3 +67,84 @@ export const getVendorList = async () => {
     throw error;
   }
 }
+
+export const getCabangList = async () => {
+  try {
+    const response = await axiosInstance.get('/master/cabang');
+    console.log('Cabang list response:', response);
+    return response.data;
+    } catch (error) {
+    console.error('Error fetching cabang list:', error);
+    throw error;
+    }
+}
+
+export const getAreaList = async () => {
+  try {
+    const response = await axiosInstance.get('/master/area');
+    console.log('Area list response:', response);
+    return response.data;
+    } catch (error) {
+    console.error('Error fetching area list:', error);
+    throw error;
+    }
+}
+
+// mst barang, kategori, tipe, merk
+export const getItemMasterList = async () => {
+    try {
+        const response = await axiosInstance.get('/master/item-master');
+        console.log('Item Master list response:', response);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching Item Master list:', error);
+        throw error;
+    }
+}
+export const getKategoriList = async () => {
+    try {
+        const response = await axiosInstance.get('/master/kategori');
+        console.log('Kategori list response:', response);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching Kategori list:', error);
+        throw error;
+    }
+}
+export const getTipeBarangList = async () => {
+    try {
+        const response = await axiosInstance.get('/master/tipe-barang');
+        console.log('Tipe Barang list response:', response);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching Tipe Barang list:', error);
+        throw error;
+    }
+}
+
+export const getMerkList = async () => {
+    try {
+        const response = await axiosInstance.get('/master/merk');
+        console.log('Merk list response:', response);
+        return response.data;
+    }
+    catch (error) {
+        console.error('Error fetching Merk list:', error);
+        throw error;
+    }
+}
+
+export const createMerk = async (data: { nama_merkbrg: string }) => {
+  const response = await axiosInstance.post('/master/merk', data);
+  return response.data;
+};
+
+export const updateMerk = async (id: number, data: { nama_merkbrg: string }) => {
+  const response = await axiosInstance.put(`/master/merk/${id}`, data);
+  return response.data;
+};
+
+export const deleteMerk = async (id: number) => {
+  const response = await axiosInstance.delete(`/master/merk/${id}`);
+  return response.data;
+};

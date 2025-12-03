@@ -18,39 +18,42 @@
 //   supplier: ""
 // }
 export interface PurchaseRequest {
-  [key: string]: any;
+    [key: string]: any
 }
 
-export interface SubmitPurchaseRequestPayload{
-  cabang: string;
-  justification: string;
-    phone: string;
-  poReference: string;
-  requestDate: string;
-  requestedBy: string;
-  formNumber: string;
-  status: string;
-  items?: Omit<PurchaseRequestItem, 'id' | 'purchase_request_id'>[];
+export interface SubmitPurchaseRequestPayload {
+    cabang: string
+    justification: string
+    pr_number: string
+    jenis_permintaan: string
+    jenisPermintaan: string
+    phone: string
+    poReference: string
+    requestDate: string
+    requestedBy: string
+    formNumber: string
+    status: string
+    items?: Omit<PurchaseRequestItem, 'id' | 'purchase_request_id'>[]
 }
 
-export interface saveAsDraftPurchaseRequestPayload{
-  justification: string;
-  items? : Omit<PurchaseRequestItem, 'id' | 'purchase_request_id'>[];
+export interface saveAsDraftPurchaseRequestPayload {
+    justification: string
+    items?: Omit<PurchaseRequestItem, 'id' | 'purchase_request_id'>[]
 }
 
 export interface PurchaseRequestItem {
-  id: number;
-  formNumber: number;
-  item_name: string;
-  qty: number;
-  total_price: number;
-  unit_price: number;
+    id: number
+    formNumber: number
+    item_name: string
+    qty: number
+    total_price: number
+    unit_price: number
 }
 
 export interface purchaseRequestNotes {
-  id: number;
-  purchase_request_id: number;
-  note: string;
-  created_at: string;
-  created_by: string;
+    id: number
+    purchase_request_id: number
+    note: string
+    created_at: string
+    created_by: string
 }

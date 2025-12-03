@@ -38,7 +38,7 @@ export function useSubmissionForm({
             formData.value.cabang = data.cabang || ''
             formData.value.requestedBy = data.created_by || ''
             formData.value.department = data.department || ''
-            formData.value.justification = data.justification || ''
+            formData.value.jenisPermintaan = data.jenis_permintaan || 'GA'
             formData.value.status = data.status || 'Draft'
             formData.value.notes = data.notes || []
             approvalLayers.value = data.approvals
@@ -49,6 +49,7 @@ export function useSubmissionForm({
                 formData.value.items = data.purchase_request_items.map(
                     (item: any) => ({
                         item_id: item.item_master.id || '',
+                        pengajuan: item.pengajuan || '',
                         quantity: item.quantity || 1,
                         category: item.item_master.category.nama_katbrg || '',
                         additional_information: item.item_master.ket_brg || '',
@@ -83,8 +84,8 @@ export function useSubmissionForm({
                 formData.value.formNumber = data.po_number
                 formData.value.cabang = data.purchase_request.cabang
                 formData.value.requestedBy = data.purchase_request.created_by
-                formData.value.justification =
-                    data.purchase_request.justification
+                formData.value.jenisPermintaan = data.purchase_request.jenis_permintaan
+                formData.value.formDate = data.po_date
                 formData.value.department = data.purchase_request.department
                 formData.value.status = data.status
                 formData.value.requestDate = data.po_date
@@ -95,6 +96,7 @@ export function useSubmissionForm({
                     (item: any) => ({
                         item_id: item.item_master.id || '',
                         quantity: item.quantity || 1,
+                        pengajuan: item.pengajuan || '',
                         category: item.item_master.category.nama_katbrg || '',
                         additional_information: item.item_master.ket_brg || '',
                         unit_price: item.unit_price,
@@ -120,6 +122,7 @@ export function useSubmissionForm({
                         (item: any) => ({
                             item_id: item.item_master.id || '',
                             quantity: item.quantity || 1,
+                            pengajuan: item.pengajuan || '',
                             category:
                                 item.item_master.category.nama_katbrg || '',
                             additional_information:
@@ -148,6 +151,8 @@ export function useSubmissionForm({
                 selectedPO.value = data.purchase_order_number
                 console.log('Selected PO from RA:', selectedPO.value)
                 formData.value.formNumber = data.ra_number || ''
+                formData.value.jenisPermintaan =
+                    data.purchase_order.purchase_request.jenis_permintaan || ''
                 formData.value.cabang =
                     data.purchase_order.purchase_request.cabang || ''
                 formData.value.requestedBy =
@@ -177,6 +182,7 @@ export function useSubmissionForm({
                         (item: any) => ({
                             item_id: item.item_master.id || '',
                             quantity: item.quantity || 1,
+                            pengajuan: item.pengajuan || '',
                             category:
                                 item.item_master.category.nama_katbrg || '',
                             additional_information:

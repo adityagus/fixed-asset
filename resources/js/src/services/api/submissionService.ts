@@ -15,7 +15,7 @@ export const login = async (formdata: { user: string; pass: string }) => {
 
 
 export const getPurchaseRequestIds = async () => {
-  return (await axiosInstance.get<PurchaseRequest[]>('/purchase-requests')).data.map(pr => pr.id);
+  return (await axiosInstance.get<PurchaseRequest[]>('/purchase-requests')).data.map(pr => pr.id) || [];
 }
 
 // export const getSubmission = async (type: string, requestBy: string) => {
@@ -23,11 +23,11 @@ export const getPurchaseRequestIds = async () => {
 // }
 
 export const getSubmission = async (
-  type: string
+    type: string,
 ): Promise<SubmissionListResponse> => {
   const response = await axiosInstance.get<any>(`/submission/${type}`);
   console.log('API getSubmission response:', response.data);
-  return response.data;
+  return response?.data;
 };
 
 export const postSubmission = async (formType) => {
@@ -67,11 +67,12 @@ export const getSubmissionDetail = async (formType, requestNumber) => {
   }
 }
 
-export const getListApproval = async (type, username) => {
+export const getListApproval = async (type) => {
   try {
-    const response = await axiosInstance.post<Array<any>>(`/approvals/${type}`, username)
+    console.log('Fetching approval list for', type);
+    const response = await axiosInstance.post<Array<any>>(`/approvals/${type}`)
     console.log('listApproval');
-    return response.data;
+    return response.data ?? [];
   } catch (error) {
     console.error('Api approval list error', error);
     throw error;
@@ -94,7 +95,7 @@ export const setApprovalStatus = async (payload: { formNumber: number; layer: nu
 export const getListApproved = async (formType) => {
   try {
     const response = await axiosInstance.get(`/${formType}/list-approved`);
-    return response.data.data;
+    return response?.data?.data ?? [];
   } catch (error) {
     console.error('API getListApproved error:', error);
     throw error;

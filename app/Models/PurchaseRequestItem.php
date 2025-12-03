@@ -13,6 +13,8 @@ class PurchaseRequestItem extends Model
         'item_id',
         'purchase_request_number',
         'quantity',
+        'pengajuan',
+        'pengajuan',
         'unit_price',
         'total_price',
     ];

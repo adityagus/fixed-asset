@@ -13,6 +13,11 @@ export default {
         val = localStorage.getItem('menu'); // vertical, collapsible-vertical, horizontal
         val = val || $themeConfig.menu;
         store.toggleMenu(val);
+        
+        
+        val = localStorage.getItem('submissionTab'); // true, false
+        val = val || $themeConfig.activeTab;
+        store.activeTab = val;
 
         val = localStorage.getItem('layout'); // full, boxed-layout
         val = val || $themeConfig.layout;
