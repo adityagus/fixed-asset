@@ -6,6 +6,7 @@ use App\Models\Login;
 use App\Models\JWTUser;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use PDOException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Auth;
 use Tymon\JWTAuth\Exceptions\JWTException;
@@ -15,101 +16,117 @@ class LoginController extends Controller
 {
     public function login(Request $request)
     {
-      
-        // Pastikan variabel di-assign sebelum digunakan
-        $username = $request->input('user');
-        $password = $request->input('pass');
-        
-        // dd($username, $password);
-        // Validasi input
-        if (!$username || !$password) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Username and password are required'
-            ], 400);
-        }
-
-        // Cek user login menggunakan model Login (db2)
-        $res = Login::cekLogin($username);
-
-        // Ambil user dari Auth langsung sebagai object
-        $user = Auth()->user();
-
-        // Jika Auth tidak mengembalikan user, gunakan hasil query manual
-        if (!$user && $res && count($res) > 0) {
-            $user = (object) $res[0];
-        }
-
-        if ($user) {
-            // Cek password
-            $isPasswordValid = false;
-            if (isset($user->password)) {
-              $isPasswordValid = crypt($password, $user->password) == $user->password;
-                // dd($password, $user->password);
-                // $isPasswordValid = $password === $user->password;
+        try{
+            
+            // Pastikan variabel di-assign sebelum digunakan
+            $username = $request->input('user');
+            $password = $request->input('pass');
+            
+            // dd($username, $password);
+            // Validasi input
+            if (!$username || !$password) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Username and password are required'
+                ], 400);
             }
-
-            if ($isPasswordValid) {
-                $nama = $user->nm_depan ?? ($user->nama ?? '');
-                if (!empty($user->nm_belakang)) {
-                    $nama .= ' ' . $user->nm_belakang;
+    
+            // Cek user login menggunakan model Login (db2)
+            $res = Login::cekLogin($username);
+            if(isset($res['success']) && $res['success'] === false){
+                // Jika ada error koneksi database
+                return response()->json([
+                    'success' => false,
+                    'message' => $res['message'],
+                    'detail' => $res['detail']
+                ], 500);
+            }
+    
+            // Ambil user dari Auth langsung sebagai object
+            $user = Auth()->user();
+    
+            // Jika Auth tidak mengembalikan user, gunakan hasil query manual
+            if (!$user && $res && count($res) > 0) {
+                $user = (object) $res[0];
+            }
+    
+            if ($user) {
+                // Cek password
+                $isPasswordValid = false;
+                if (isset($user->password)) {
+                  $isPasswordValid = crypt($password, $user->password) == $user->password;
+                    // dd($password, $user->password);
+                    // $isPasswordValid = $password === $user->password;
                 }
-
-                $userData = [
-                    'id' => $user->id ?? null,
-                    'username' => $user->username,
-                    'nama' => Str::title($nama),
-                    'cabang' => $user->fk_cabang_user ?? null,
-                    'jabatan' => $user->nm_jabatan ?? null,
-                    'idgrup' => $user->kd_jabatan ?? ($user->id_jabatan ?? null),
-                ];
-
-                $userModel = new JWTUser($userData);
-                Auth::setUser($userModel);
-
-                // Buat JWT token manual jika bukan model User Laravel
-                $token = null;
-                try {
-                    $payload = [
-                        'iss' => config('app.url'),
-                        'iat' => time(),
-                        'exp' => time() + (config('jwt.ttl') * 60),
-                        'sub' => $userData['id'], // tambahkan claim 'sub'
-                        'user' => $userData
+    
+                if ($isPasswordValid) {
+                    $nama = $user->nm_depan ?? ($user->nama ?? '');
+                    if (!empty($user->nm_belakang)) {
+                        $nama .= ' ' . $user->nm_belakang;
+                    }
+    
+                    $userData = [
+                        'id' => $user->id ?? null,
+                        'username' => $user->username,
+                        'nama' => Str::title($nama),
+                        'cabang' => $user->fk_cabang_user ?? null,
+                        'kd_cabang' => $user->kd_cabang ?? '9999',
+                        'jabatan' => $user->nm_jabatan ?? null,
+                        'idgrup' => $user->kd_jabatan ?? ($user->id_jabatan ?? null),
                     ];
-                    $jwtSecret = env('JWT_SECRET');
-                    $token = JWT::encode($payload, $jwtSecret, 'HS256');
-                } catch (\Exception $e) {
+    
+                    $userModel = new JWTUser($userData);
+                    Auth::setUser($userModel);
+    
+                    // Buat JWT token manual jika bukan model User Laravel
+                    $token = null;
+                    try {
+                        $payload = [
+                            'iss' => config('app.url'),
+                            'iat' => time(),
+                            'exp' => time() + (config('jwt.ttl') * 60),
+                            'sub' => $userData['id'], // tambahkan claim 'sub'
+                            'user' => $userData
+                        ];
+                        $jwtSecret = env('JWT_SECRET');
+                        $token = JWT::encode($payload, $jwtSecret, 'HS256');
+                    } catch (\Exception $e) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Could not create token: ' . $e->getMessage()
+                        ], 500);
+                    }
+    
+                    $datasession = array_merge($userData, ['status' => 'login']);
+                    session()->put('auth', $datasession);
+    
+    
+                    return response()->json([
+                        'success' => true,
+                        'user' => $userData,
+                        'token' => $token,
+                        'token_type' => 'bearer',
+                        'expires_in' => config('jwt.ttl') * 60,
+                    ]);
+                } else {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Could not create token: ' . $e->getMessage()
+                        'message' => 'Username/Password Salah!'
                     ], 500);
                 }
-
-                $datasession = array_merge($userData, ['status' => 'login']);
-                session()->put('auth', $datasession);
-
-                $redirectUrl = ($userData['idgrup'] === 'JBT-032') ? '/lms' : '/lms';
-
-                return response()->json([
-                    'success' => true,
-                    'user' => $userData,
-                    'token' => $token,
-                    'token_type' => 'bearer',
-                    'expires_in' => config('jwt.ttl') * 60,
-                    'redirect' => $redirectUrl
-                ]);
             } else {
                 return response()->json([
                     'success' => false,
                     'message' => 'Username/Password Salah!'
-                ], 401);
+                ], 500);
             }
-        } else {
+            
+        } catch (\Exception $e) {
+            dd($e);
             return response()->json([
                 'success' => false,
-                'message' => 'Username/Password Salah!'
-            ], 401);
+                'message' => 'Internal Server Error: ' . $e->getMessage()
+            ], 500);
         }
 
         // Jika ingin menggunakan Auth Laravel (jika model User sudah terdaftar di config/auth.php)

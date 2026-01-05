@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PurchaseOrderItem;
 use App\Models\PurchaseRequest;
+use Exception;
 use Tymon\JWTAuth\JWTAuth;
 use Illuminate\Http\Request;
 use App\Models\PurchaseOrder;
@@ -113,14 +114,14 @@ class PurchaseOrderController extends Controller
   {
     try {
         
-        $getUser = (object) $this->jwtAuth->parseToken()->getPayload()->get('user');
-        // $user = (object) $payload->get('user');
-        if($getUser->username != $request->get('requestedBy')){
-            return response()->json([
-              'success' => false,
-              'message' => 'You cannot submit your own request.'
-            ], 403);
-        }
+        // $getUser = (object) $this->jwtAuth->parseToken()->getPayload()->get('user');
+        // // $user = (object) $payload->get('user');
+        // if($getUser->username != $request->get('requestedBy')){
+        //     return response()->json([
+        //       'success' => false,
+        //       'message' => 'You cannot submit your own request.'
+        //     ], 403);
+        // }
         
       // jalankan fungsion saveDraftItem dulu untuk menyimpan data item dan total_amount
       $po_number = $request->input('formNumber');
@@ -153,7 +154,9 @@ class PurchaseOrderController extends Controller
         'items.*.total_price' => 'required|numeric|min:0',
       ]);
 
-      $purchaseOrder = PurchaseOrder::where('po_number', $po_number)->first();
+      $purchaseOrder = PurchaseOrder::where('po_number', $po_number)->firstOrFail();
+      $purchaseOrder->po_date = now();
+      
       if (!$purchaseOrder) {
         return response()->json([
           'success' => false,
@@ -172,22 +175,22 @@ class PurchaseOrderController extends Controller
         PurchaseOrderItem::create($itemData);
       }
 
-      $purchaseOrder = PurchaseOrder::where('po_number', $po_number)->first();
-      
-      if (!$purchaseOrder) {
-        return response()->json([
-          'success' => false,
-          'message' => 'Purchase Order not found'
-        ], 404);
-      }
-
       // create approval layers
-      SubmissionController::CreateLayerApproval(new Request([
+      $approvalResponse = SubmissionController::CreateLayerApproval(new Request([
         'type' => 'purchase-order',
         'request_number' => $po_number,
-        'need_it_approval' => 'true', // sesuaikan dengan kebutuhan
+        'cabang'=> null,
+        'need_it_approval' => $purchaseOrder->purchaseRequest->jenis_permintaan == 'IT' ? 'true' : 'false',
       ]));
 
+      // Kalau gagal, return error response dari CreateLayerApproval
+        if ($approvalResponse instanceof JsonResponse) {
+            $approvalData = $approvalResponse->getData(true); // as array
+            if (isset($approvalData['success']) && !$approvalData['success']) {
+                return $approvalResponse;
+        }
+    }
+      
 
       self::updateStatusPO(new Request(['status' => 'waiting approval']), $po_number);
 
@@ -200,12 +203,18 @@ class PurchaseOrderController extends Controller
       // self::updateStatusPO(new Request(['status' => 'waiting approval']), $po_number);
 
 
-    } catch (\Illuminate\Validation\ValidationException $e) {
-      return response()->json([
-        'success' => false,
-        'message' => 'Validation failed',
-        'errors' => $e->validator->errors()
-      ], 422);
+    } catch (ValidationException $e) {
+        // validasi gagal
+        return response()->json([
+            'success' => false,
+            'errors' => $e->errors()
+        ], 422);
+    } catch (Exception $e) {
+        // error umum
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], 500);
     }
   }
 

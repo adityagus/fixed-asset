@@ -205,7 +205,7 @@ export const useAppStore = defineStore('app', {
         },
 
         // bila mau: helper untuk restore manual (opsional)
-        hydrateFromStorage() {
+        async hydrateFromStorage() {
             const token =
                 localStorage.getItem('authToken') ||
                 sessionStorage.getItem('authToken') ||

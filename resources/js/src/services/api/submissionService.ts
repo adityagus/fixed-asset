@@ -7,6 +7,7 @@ import type {
   SubmissionDetailResponse,
   CreateSubmissionPayload,
   UpdateSubmissionPayload,
+  editSubmissionPayload,
 } from '@/types/submission';
 
 export const login = async (formdata: { user: string; pass: string }) => {
@@ -54,6 +55,18 @@ export const deleteSubmission = async (type: string, requestNumber: string) => {
   }
 }
 
+
+export const editSubmission = async (payload: editSubmissionPayload) => {
+  try {
+    console.log('Editing submission:', payload.type, payload.number);
+    const response = await axiosInstance.put<any>(`/submission/edit/${payload.type}/${payload.number}`);
+    console.log('API editSubmission response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('API editSubmission error:', error);
+    throw error;
+  }
+}
 
 export const getSubmissionDetail = async (formType, requestNumber) => {
   console.log('Fetching submission detail for', formType, requestNumber);
@@ -135,3 +148,14 @@ export const getNotes = async (formType, formNumber) => {
     }
 }
 
+
+export const getCountApproval = async (username) => {
+    try {
+        const response = await axiosInstance.get<any>(`/count-approval/${username}`);
+        console.log('API getCountApproval response:', response.data);
+        return response.data;
+    } catch (error) {
+        console.error('API getCountApproval error:', error);
+        throw error;
+    }
+}

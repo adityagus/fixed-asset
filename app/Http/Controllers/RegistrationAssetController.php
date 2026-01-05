@@ -25,7 +25,7 @@ class RegistrationAssetController extends Controller
 
     public function detail($ra_number)
     {
-        $assetRegistration = RegistrationAsset::with('registrationAssetItems.itemMaster.category', 'registrationAssetItems.itemMaster.brand', 'registrationAssetItems.itemMaster.type', 'approvals', 'purchaseOrder', 'purchaseOrder.purchaseRequest')->where('ra_number', $ra_number)->first();
+        $assetRegistration = RegistrationAsset::with('registrationAssetItems.itemMaster.category', 'registrationAssetItems.itemMaster.brand', 'registrationAssetItems.itemMaster.type', 'approvals', 'purchaseOrder', 'purchaseOrder.purchaseRequest', 'purchaseOrder.purchaseOrderItems.itemMaster.category', 'purchaseOrder.purchaseOrderItems.itemMaster.brand', 'purchaseOrder.purchaseOrderItems.itemMaster.type')->where('ra_number', $ra_number)->first();
 
         return response()->json([
             'success' => true,
@@ -36,11 +36,12 @@ class RegistrationAssetController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(): JsonResponse
+    public function create(Request $request): JsonResponse
     {
         // get name by jwt token
         $payload = JWTAuth::parseToken()->getPayload();
-
+        $poNumber = $request->get('purchase_order_number');
+        
         // Ambil semua data dalam bentuk array
         $user = (object) $payload->get('user');
         $latestAR = LogRequestNumber::createRequest('RA');
@@ -147,6 +148,11 @@ class RegistrationAssetController extends Controller
     public function submit(Request $request): JsonResponse
     {
         try {
+            $payload = JWTAuth::parseToken()->getPayload();
+            $user = (object) $payload->get('user');
+            $username = $user->username ?? 'Unknown';
+            
+            
             $ra_number = $request->input('ra_number');
 
             if (!$ra_number) {
@@ -179,7 +185,8 @@ class RegistrationAssetController extends Controller
             ]);
 
             // Cari data RegistrationAsset berdasarkan nomor RA
-            $registrationAsset = RegistrationAsset::where('ra_number', $ra_number)->first();
+            $registrationAsset = RegistrationAsset::with('purchaseOrder', 'purchaseOrder.purchaseRequest')->where('ra_number', $ra_number)->firstOrFail();
+            // dd($registrationAsset->purchaseOrder->purchaseRequest->jenis_permintaan);
 
             if (!$registrationAsset) {
                 return response()->json([
@@ -203,6 +210,7 @@ class RegistrationAssetController extends Controller
                     'unit_price' => $item['unit_price'] ?? 0,
                     'total_price' => $item['total_price'] ?? 0,
                     'quantity' => $item['quantity'],
+                    'is_asset' => $item['is_asset'],
                     'pengajuan' => $item['pengajuan'],
                     // tambahkan field lain jika ada di tabel
                 ]);
@@ -215,6 +223,7 @@ class RegistrationAssetController extends Controller
                     'purchase_date' => $item['purchase_date'] ?? now(),
                     'purchase_price' => $item['unit_price'] ?? 0,
                     'location' => $request->cabang,
+                    'is_asset' => $item['is_asset'] ?? 0,
                     'status' => 'inactive',
                     'assigned_to' => $request->requestedBy,
                     'department' => $request->department ?? null,
@@ -244,11 +253,20 @@ class RegistrationAssetController extends Controller
             }
 
             // Proses approval
-            SubmissionController::CreateLayerApproval(new Request([
+            $approvalResponse = SubmissionController::CreateLayerApproval(new Request([
                 'type' => 'registration-asset',
                 'request_number' => $ra_number,
-                'need_it_approval' => 'true',
+                'cabang' => null,
+                'need_it_approval' => $registrationAsset->purchaseOrder->purchaseRequest->jenis_permintaan == 'IT' ? 'true' : 'false',
             ]));
+
+            // Kalau gagal, return error response dari CreateLayerApproval
+            if ($approvalResponse instanceof JsonResponse) {
+                $approvalData = $approvalResponse->getData(true); // as array
+                if (isset($approvalData['success']) && !$approvalData['success']) {
+                    return $approvalResponse;
+                }
+            }
 
             // Update status RA menjadi "waiting approval"
             self::updateStatusRA(new Request(['status' => 'waiting approval']), $ra_number);

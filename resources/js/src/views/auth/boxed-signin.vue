@@ -108,7 +108,8 @@ const handleLogin = async () => {
       title: 'Login Failed',
       customClass: 'sweet-alerts',
       text: errmessage,
-      timer: 2000
+      timerProgressBar: true,   
+      timer: 1500   
     });
   }
 };

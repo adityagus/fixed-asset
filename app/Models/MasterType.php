@@ -10,4 +10,10 @@ class MasterType extends Model
     use HasFactory;
     
     public $table = 'mst_tipebrg';
+    
+    protected $fillable = [
+        'nama_tipebrg',
+        'kode',
+        'status',
+    ];
 }

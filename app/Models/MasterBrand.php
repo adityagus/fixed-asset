@@ -11,4 +11,8 @@ class MasterBrand extends Model
     
     public $table = 'mst_merkbrg';
     
+    protected $fillable = [
+        'nama_merkbrg',
+        'status',
+    ];
 }

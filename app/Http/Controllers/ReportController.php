@@ -13,19 +13,25 @@ class ReportController extends Controller
     {
         // Ambil filter dari request
         $filters = $request->all();
+        $assetNew = Assets::with('item.category:id,nama_katbrg,umur',
+            'item.type:id,nama_tipebrg',
+            'item.brand:id,nama_merkbrg', 'registrationAsset', 'susut')->get();
 
         // Query asset beserta relasi item
         $assets = Assets::with([
             'item.category:id,nama_katbrg,umur',
             'item.type:id,nama_tipebrg',
             'item.brand:id,nama_merkbrg',
-            'registrationAsset:id,ra_number,ra_date,status',
+            // 'registrationAsset:id,ra_number,ra_date,status',
             'susut:id,asset_id,nom_susut,total_umur,sisa_umur'
         ])
-        ->select('id', 'registration_asset_number', 'asset_number', 'location', 'item_id', 'assigned_to')
-        ->whereHas('registrationAsset', function ($q) {
-            $q->where('status', "Full Approved");
-        });
+        ->select('id', 'registration_asset_number', 'asset_number', 'ra_date', 'location', 'item_id', 'assigned_to', 'is_asset');
+        // ->select('id', 'registration_asset_number', 'asset_number', 'location', 'item_id', 'assigned_to');
+        // ->whereHas('registrationAsset', function ($q) {
+        //     $q->where('status', "Full Approved");
+        // });
+        
+        // dd('testtt');
 
         // merge tanggal akhir
         // tanggal akhir usia 
@@ -60,6 +66,96 @@ class ReportController extends Controller
             'data' => $assetsCollection,
         ]);
     }
+    /**
+     * Get paginated asset report with limit and offset.
+     */
+    public function assetReportPaginated(Request $request): JsonResponse
+    { 
+        $limit = (int) $request->input('limit', 10);
+        $offset = (int) $request->input('offset', 0);
+
+        $filters = $request->all();
+
+        $assetsQuery = Assets::with([
+            'item.category:id,nama_katbrg,umur',
+            'item.type:id,nama_tipebrg',
+            'item.brand:id,nama_merkbrg',
+            'susut:id,asset_id,nom_susut,total_umur,sisa_umur'
+        ])
+        ->select('id', 'registration_asset_number', 'asset_number', 'ra_date', 'location', 'item_id', 'assigned_to', 'is_asset');
+
+        if (isset($filters['status'])) {
+            $assetsQuery->where('status', $filters['status']);
+        }
+
+        if (isset($filters['location'])) {
+            $assetsQuery->where('location', $filters['location']);
+        }
+
+        $total = $assetsQuery->count();
+
+        $assets = $assetsQuery
+            ->skip($offset)
+            ->take($limit)
+            ->get()
+            ->map(function ($asset) {
+                if ($asset->susut?->sisa_umur && $asset->registrationAsset?->ra_date) {
+                    $remainingMonths = $asset->susut->sisa_umur;
+                    $asset->tgl_akhir = date('Y-m-d', strtotime("+$remainingMonths months", strtotime($asset->registrationAsset->ra_date)));
+                } else {
+                    $asset->tgl_akhir = null;
+                }
+                return $asset;
+            });
+
+        return response()->json([
+            'success' => true,
+            'data' => $assets,
+            'total' => $total,
+            'limit' => $limit,
+            'offset' => $offset,
+        ]);
+    }
+    
+    public function getCabangAssetReportPaginated(Request $request)
+    {
+        $limit = (int) $request->input('limit', 10);
+        $offset = (int) $request->input('offset', 0);
+        $cabangId = $request->input('cabang_id');
+        $kapitalis = $request->input('tipe_aset');
+
+        $query = Assets::with('item.category', 'item.brand', 'item.type');
+
+        // Jika dua-duanya kosong, ambil semua data
+        if (empty($cabangId) && empty($kapitalis)) {
+            $assets = $query->get();
+        }
+        // Jika hanya cabang yang diisi
+        elseif (!empty($cabangId) && empty($kapitalis)) {
+            $assets = $query->where('location', $cabangId)->get();
+        }
+        // Jika hanya kapitalis yang diisi
+        elseif (empty($cabangId) && !empty($kapitalis)) {
+            $assets = $query->where('is_asset', $kapitalis)->get();
+        }
+        // Jika dua-duanya diisi
+        else {
+            $assets = $query->where('location', $cabangId)
+                           ->where('is_asset', $kapitalis)
+                           ->get();
+        }
+        
+        $assets = $assets->skip($offset)->take($limit);
+
+        return response()->json([
+            'success' => true,
+            'data' => $assets,
+            'total' => $assets->count(),
+            'limit' => $limit,
+            'offset' => $offset,
+        ]);
+    }
+    
 
     public function assetDepreciationReport(Request $request)
     {
@@ -196,5 +292,160 @@ class ReportController extends Controller
                 'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
             ], 500);
         }
+    }
+    
+    public function headerAssetStatistik()
+    {
+        $totalAssets = Assets::count();
+        $activeAssets = Assets::where('status', 'Active')->count();
+        $inActiveAssets = Assets::where('status', 'Inactive')->count();
+        $depreciatedAssets = Assets::where('status', 'Depreciated')->count();
+        $totalDepreciated = Assets::where('status', 'Depreciated')->sum('purchase_price');
+        
+        $totalValue = Assets::sum('purchase_price');
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'active_assets' => $activeAssets,
+                'inactive_assets' => $inActiveAssets,
+                'depreciated_assets' => $depreciatedAssets,
+                'total_assets' => $totalAssets,
+                'total_value' => $totalValue,
+                'depreciation_value' => $totalDepreciated,
+            ],
+        ]);
+    }
+    
+    public function bodyAssetStatistik()
+    {
+        // Definisikan tipe aset yang diinginkan
+        // Definisikan tipe aset sebagai object
+        $asset_type = (object)[
+            'kendaraan' => 0,
+            'mesin_kantor' => 0,
+            'peralatan_kayu' => 0,
+            'other' => 0,
+        ];
+
+        // Mapping kategori ke tipe
+        $type_map = [
+            'kendaraan' => [1, 2],
+            'mesin_kantor' => [3, 4],
+            'peralatan_kayu' => [5],
+        ];
+
+        $assets = Assets::with('item.category')->get();
+
+        foreach ($assets as $asset) {
+            $categoryId = $asset->item->category->id ?? null;
+            if (in_array($categoryId, $type_map['kendaraan'], true)) {
+            $asset_type->kendaraan++;
+            } elseif (in_array($categoryId, $type_map['mesin_kantor'], true)) {
+            $asset_type->mesin_kantor++;
+            } elseif (in_array($categoryId, $type_map['peralatan_kayu'], true)) {
+            $asset_type->peralatan_kayu++;
+            } else {
+            $asset_type->other++;
+            }
+        }
+
+        $assetsByType = $asset_type;
+            
+            // Menghitung asset berdasarkan usia: 0-5 tahun, 6-10 tahun, >10 tahun
+            $assets = Assets::with('item.category')->get();
+
+            $assets_0_5 = $assets->filter(function ($asset) {
+                if (!$asset->ra_date) {
+                    return false;
+                }
+                $acquisitionDate = new \DateTime($asset->ra_date);
+                $now = new \DateTime();
+                $interval = $acquisitionDate->diff($now);
+                $years = $interval->y;
+                return $years >= 0 && $years <= 5;
+            });
+
+            $assets_6_10 = $assets->filter(function ($asset) {
+                if (!$asset->ra_date) {
+                    return false;
+                }
+                $acquisitionDate = new \DateTime($asset->ra_date);
+                $now = new \DateTime();
+                $interval = $acquisitionDate->diff($now);
+                $years = $interval->y;
+                return $years >= 6 && $years <= 10;
+            });
+
+            $assets_10_plus = $assets->filter(function ($asset) {
+                if (!$asset->ra_date) {
+                    return false;
+                }
+                $acquisitionDate = new \DateTime($asset->ra_date);
+                $now = new \DateTime();
+                $interval = $acquisitionDate->diff($now);
+                $years = $interval->y;
+                return $years > 10;
+            });
+
+            // Contoh: jika ingin menampilkan jumlah masing-masing kelompok
+            $assetsByAge = array(
+                'age_0_5' => $assets_0_5->count(),
+                'age_6_10' => $assets_6_10->count(),
+                'age_above_10' => $assets_10_plus->count(),
+            );
+            // dd($assetsByAge);
+            // $assets_0_5->count(), $assets_6_10->count(), $assets_10_plus->count()
+            // menghitung diatas 6 tahun, masih operasional , perlu diganti
+            $asset_up_6 = $assets->filter(function ($asset) {
+                if (!$asset->ra_date) {
+                    return false;
+                }
+                $acquisitionDate = new \DateTime($asset->ra_date);
+                $now = new \DateTime();
+                $interval = $acquisitionDate->diff($now);
+                $years = $interval->y;
+                return $years >= 6; // && $asset->status == 'Active'
+            });
+            // dd($assets);
+            $still_operational = $assets->filter(function ($asset) {
+                return $asset->status == 'active' || $asset->status == 'depreciated';
+            });
+            $non_operational = $assets->filter(function ($asset) {
+                return $asset->status == 'inactive';
+            });
+            $change_needed = $assets->filter(function ($asset) use ($asset_up_6, $still_operational) {
+                return $asset_up_6->contains($asset) && $still_operational->contains($asset);
+            });
+            
+            $totalAssetsCount = $assets->count();
+            // Hitung persentase, hindari pembagian nol
+            $percent = function($count) use ($totalAssetsCount) {
+                return $totalAssetsCount > 0 ? round(($count / $totalAssetsCount) * 100, 1) : 0;
+            };
+
+            $assetsByStatus = [
+                'still_operational' => [
+                    'count' => $still_operational->count(),
+                    'percent' => $percent($still_operational->count())
+                ],
+                'non_operational' => [
+                    'count' => $non_operational->count(),
+                    'percent' => $percent($non_operational->count())
+                ],
+                'change_needed' => [
+                    'count' => $change_needed->count(),
+                    'percent' => $percent($change_needed->count())
+                ],
+            ];
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'asset_types' => $assetsByType,
+                'asset_status' => $assetsByStatus,
+                'asset_age' => $assetsByAge,
+            ],
+        ]);
     }
 }

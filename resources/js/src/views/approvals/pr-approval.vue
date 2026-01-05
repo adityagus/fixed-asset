@@ -30,7 +30,12 @@ import ApprovalTabs from '@/components/ApprovalTabs.vue';
 import { useMeta } from '@/composables/use-meta';
 import { useGetApprovalList } from '@/services/queries';
 import { useRouter } from 'vue-router';
+import { useAppStore } from '@/stores/index';
+
 useMeta({ title: 'PR Approval' });
+
+const store = useAppStore();
+const username = computed(() => store.user?.username || '');
 
 const tabs = [
   { label: 'Waiting Approval', value: 'Waiting Approval', indo: 'Menunggu Persetujuan' },
@@ -41,14 +46,15 @@ const tabs = [
 ];
 
 // Data fetching
-const {data: PrApprovalRef, isPending: isPending, isSucces:isSuccess} = useGetApprovalList('purchase-request');
+const {data: PrApprovalRef, isPending: isPending, isSuccess:isSuccess} = 
+useGetApprovalList('purchase-request', username);
 
 console.log("PrApprovalRef", PrApprovalRef);
 
 // Ambil data dari API approvalsList (berbentuk object status)
 // Gabungkan semua array status menjadi satu array
 const prApprovals = computed(() => {
-  const data = PrApprovalRef.value?.data;
+  const data = PrApprovalRef.value.data;
   return data || {};
 });
 

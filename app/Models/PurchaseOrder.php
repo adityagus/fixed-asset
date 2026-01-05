@@ -20,6 +20,16 @@ class PurchaseOrder extends Model
         'updated_by',
     ];
     
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($model) {
+            if (empty($model->po_date)) {
+                $model->po_date = now();
+            }
+        });
+    }
+    
     public $timestamps = true;
     
     public function purchaseOrderItems()
@@ -37,5 +47,9 @@ class PurchaseOrder extends Model
         return $this->belongsTo(PurchaseRequest::class, 'purchase_request_number', 'pr_number');
     }
     
+    public function vendor()
+    {
+        return $this->belongsTo(MasterVendor::class, 'vendor_id', 'id');
+    }
     
 }

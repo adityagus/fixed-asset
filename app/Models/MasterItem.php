@@ -8,6 +8,14 @@ use PhpOffice\PhpSpreadsheet\Calculation\Category;
 
 class MasterItem extends Model
 {
+    protected $fillable = [
+      'nama_brg',
+      'id_katbrg',
+      'id_tipebrg',
+      'id_merkbrg',
+      'ket_brg',
+      'status',
+    ];
     use HasFactory;
     public $table = 'mst_brg';
     

@@ -14,10 +14,82 @@ use Illuminate\Http\Request;
 
 class MasterController extends Controller
 {
+    // CREATE Master Barang
+    public function createMasterBarang(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'nama_brg' => 'required|string|max:255',
+                'id_katbrg' => 'required|exists:mst_katbrg,id',
+                'id_tipebrg' => 'required|exists:mst_tipebrg,id',
+                'id_merkbrg' => 'required|exists:mst_merkbrg,id',
+                'ket_brg' => 'nullable|string',
+                'status' => 'required|in:active,inactive',
+            ]);
+            $barang = MasterItem::create($validated);
+            return response()->json([
+                'success' => true,
+                'message' => 'Barang berhasil ditambahkan',
+                'data' => $barang
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // UPDATE Master Barang
+    public function updateMasterBarang(Request $request, $id)
+    {
+        try {
+            $validated = $request->validate([
+                'nama_brg' => 'required|string|max:255',
+                'id_katbrg' => 'required|exists:mst_katbrg,id',
+                'id_tipebrg' => 'required|exists:mst_tipebrg,id',
+                'id_merkbrg' => 'required|exists:mst_merkbrg,id',
+                'ket_brg' => 'nullable|string',
+                'status' => 'required|in:active,inactive',
+            ]);
+            $barang = MasterItem::findOrFail($id);
+            $barang->update($validated);
+            return response()->json([
+                'success' => true,
+                'message' => 'Barang berhasil diupdate',
+                'data' => $barang
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // DELETE Master Barang
+    public function deleteMasterBarang($id)
+    {
+        try {
+            $barang = MasterItem::findOrFail($id);
+            $barang->update(['status' => 'inactive']);
+            return response()->json([
+                'success' => true,
+                'message' => 'Barang berhasil dihapus'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
     //assets master barang
     public function getMasterBarang()
     {
-        $res = MasterItem::with('category', 'type', 'brand')->get();
+        $res = MasterItem::with('category', 'type', 'brand')
+            ->where('status', 'active')
+            ->get();
         return response()->json($res);
     }
     
@@ -25,7 +97,7 @@ class MasterController extends Controller
     {
         try {
             // Gunakan MasterItem untuk get kategori yang unique
-            $res = MasterCategory::all();
+            $res = MasterCategory::where('status', 1)->get();
             
             return response()->json([
                 'success' => true,
@@ -39,10 +111,85 @@ class MasterController extends Controller
         }
     }
     
+    public function createKategori(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'nama_katbrg' => 'required|string|max:255',
+                'umur' => 'required|integer',
+                'status' => 'required|boolean',
+                'coa1' => 'nullable|integer',
+                'coa2' => 'nullable|integer',
+                'coa3' => 'nullable|integer',
+                'coa4' => 'nullable|integer',
+            ]);
+            
+            $kategori = MasterCategory::create($validated);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Kategori berhasil ditambahkan',
+                'data' => $kategori
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    public function updateKategori(Request $request, $id)
+    {
+        try {
+            $validated = $request->validate([
+                'nama_katbrg' => 'required|string|max:255',
+                'umur' => 'required|integer',
+                'status' => 'required|boolean',
+                'coa1' => 'nullable|integer',
+                'coa2' => 'nullable|integer',
+                'coa3' => 'nullable|integer',
+                'coa4' => 'nullable|integer',
+            ]);
+            
+            $kategori = MasterCategory::findOrFail($id);
+            $kategori->update($validated);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Kategori berhasil diupdate',
+                'data' => $kategori
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    public function deleteKategori($id)
+    {
+        try {
+            $kategori = MasterCategory::findOrFail($id);
+            $kategori->update(['status' => 0]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Kategori berhasil dihapus'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+    
     public function getTipeBarangList()
     {
         try {
-            $res = MasterType::all();
+            $res = MasterType::where('status', 1)->get();
             return response()->json([
                 'success' => true,
                 'data' => $res
@@ -55,10 +202,77 @@ class MasterController extends Controller
         }
     }
     
+    public function createTipeBarang(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'nama_tipebrg' => 'required|string|max:255',
+                'kode' => 'nullable|string|max:50',
+                'status' => 'nullable|boolean',
+            ]);
+            
+            $tipe = MasterType::create($validated);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Tipe barang berhasil ditambahkan',
+                'data' => $tipe
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    public function updateTipeBarang(Request $request, $id)
+    {
+        try {
+            $validated = $request->validate([
+                'nama_tipebrg' => 'required|string|max:255',
+                'kode' => 'nullable|string|max:50',
+                'status' => 'nullable|boolean',
+            ]);
+            
+            $tipe = MasterType::findOrFail($id);
+            $tipe->update($validated);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Tipe barang berhasil diupdate',
+                'data' => $tipe
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    public function deleteTipeBarang($id)
+    {
+        try {
+            $tipe = MasterType::findOrFail($id);
+            $tipe->update(['status' => 0]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Tipe barang berhasil dihapus'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+    
     public function getMerkList()
     {
         try {
-            $res = MasterBrand::all();
+            $res = MasterBrand::where('status', 1)->get();
             
             return response()->json([
                 'success' => true,
@@ -125,7 +339,7 @@ class MasterController extends Controller
     {
         try {
             $merk = MasterBrand::findOrFail($id);
-            $merk->delete();
+            $merk->update(['status' => 0]);
             
             return response()->json([
                 'success' => true,
@@ -152,9 +366,90 @@ class MasterController extends Controller
     
     public function getVendorList()
     {
-        $res = MasterVendor::all();
+        $res = MasterVendor::where('status', 1)->get();
         return response()->json($res);
     }
+    
+    public function createVendor(Request $request)
+{
+    try {
+        $validated = $request->validate([
+            'nama' => 'required|string|max:255',
+            'alamat' => 'nullable|string',
+            'kota' => 'nullable|string|max:100',
+            'telp1' => 'nullable|string|max:20',
+            'telp2' => 'nullable|string|max:20',
+            'pic' => 'nullable|string|max:100',
+            'nm_bank' => 'nullable|string|max:100',
+            'no_rek' => 'nullable|string|max:50',
+            'atas_nm' => 'nullable|string|max:100',
+            'status' => 'required|boolean',
+        ]);
+        
+        $vendor = MasterVendor::create($validated);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Vendor berhasil ditambahkan',
+            'data' => $vendor
+        ], 201);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], 500);
+    }
+}
+
+public function updateVendor(Request $request, $id)
+{
+    try {
+        $validated = $request->validate([
+            'nama' => 'required|string|max:255',
+            'alamat' => 'nullable|string',
+            'kota' => 'nullable|string|max:100',
+            'telp1' => 'nullable|string|max:20',
+            'telp2' => 'nullable|string|max:20',
+            'pic' => 'nullable|string|max:100',
+            'nm_bank' => 'nullable|string|max:100',
+            'no_rek' => 'nullable|string|max:50',
+            'atas_nm' => 'nullable|string|max:100',
+            'status' => 'nullable|boolean',
+        ]);
+        
+        $vendor = MasterVendor::findOrFail($id);
+        $vendor->update($validated);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Vendor berhasil diupdate',
+            'data' => $vendor
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], 500);
+    }
+}
+
+public function deleteVendor($id)
+{
+    try {
+        $vendor = MasterVendor::findOrFail($id);
+        $vendor->update(['status' => 0]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Vendor berhasil dihapus'
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], 500);
+    }
+}
     
     public function masterCabangChildren()
     {

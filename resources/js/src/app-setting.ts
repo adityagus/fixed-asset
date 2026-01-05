@@ -14,6 +14,7 @@ export default {
         val = val || $themeConfig.menu;
         store.toggleMenu(val);
         
+        store.hydrateFromStorage();
         
         val = localStorage.getItem('submissionTab'); // true, false
         val = val || $themeConfig.activeTab;

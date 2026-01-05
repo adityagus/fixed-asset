@@ -1,5 +1,7 @@
 // import { type } from './../../../../node_modules/.vite/deps_temp/chunk-IBZUCRRA';
-export interface Submission {
+expimport { editSubmission } from './../services/api/submissionService';
+ortimport { type } from './master';
+ interface Submission {
   id: number;
   submission_number: string;
   pr_number?: string;
@@ -93,3 +95,9 @@ type UploadedFile = {
   id: string | number; // misal id dari server
   file: File;          // File asli JS
 };
+
+export interface editSubmissionPayload {
+    type: string;
+    number: string;
+    requestedBy: string;
+}

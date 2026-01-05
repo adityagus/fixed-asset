@@ -4,6 +4,57 @@ export const getMasterBrg = async () => {
   return (await axiosInstance.get('/master/barang')).data;
 }
 
+export const createMasterBrg = async (data: any) => {
+  return (await axiosInstance.post('/master/barang', data)).data;
+}
+
+export const updateMasterBrg = async (id: number, data: any) => {
+  return (await axiosInstance.put(`/master/barang/${id}`, data)).data;
+}
+
+export const deleteMasterBrg = async (id: number) => {
+  return (await axiosInstance.delete(`/master/barang/${id}`)).data;
+}
+
+// Kategori CRUD
+export const createKategori = async (data: any) => {
+  return (await axiosInstance.post('/master/kategori', data)).data;
+}
+
+export const updateKategori = async (id: number, data: any) => {
+  return (await axiosInstance.put(`/master/kategori/${id}`, data)).data;
+}
+
+export const deleteKategori = async (id: number) => {
+  return (await axiosInstance.delete(`/master/kategori/${id}`)).data;
+}
+
+// Tipe Barang CRUD
+export const createTipeBarang = async (data: any) => {
+  return (await axiosInstance.post('/master/tipe-barang', data)).data;
+}
+
+export const updateTipeBarang = async (id: number, data: any) => {
+  return (await axiosInstance.put(`/master/tipe-barang/${id}`, data)).data;
+}
+
+export const deleteTipeBarang = async (id: number) => {
+  return (await axiosInstance.delete(`/master/ti    pe-barang/${id}`)).data;
+}
+
+// Vendor CRUD
+export const createVendor = async (data: any) => {
+  return (await axiosInstance.post('/master/vendor', data)).data;
+}
+
+export const updateVendor = async (id: number, data: any) => {
+  return (await axiosInstance.put(`/master/vendor/${id}`, data)).data;
+}
+
+export const deleteVendor = async (id: number) => {
+  return (await axiosInstance.delete(`/master/vendor/${id}`)).data;
+}
+
 interface UploadFileData {
   formNumber: string;
   formType: string;

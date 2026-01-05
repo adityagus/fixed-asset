@@ -74,6 +74,9 @@ module.exports = {
             spacing: {
                 4.5: "18px",
             },
+            rotate: {
+                60: "60deg",
+            },
             boxShadow: {
                 "3xl": "0 2px 2px rgb(224 230 237 / 46%), 1px 6px 7px rgb(224 230 237 / 46%)",
             },

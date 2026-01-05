@@ -551,25 +551,20 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-    const appStore = useAppStore()
+    const appStore = useAppStore();
     // Pastikan hydrateFromStorage sudah dipanggil di main.ts sebelum router digunakan
-    if (to.meta.requiresAuth && !appStore.isLoggedIn) {
-      // redirect ke login jika belum login
-      next({ name: 'login' })
-    } else {
-      next()
+    if (appStore.$state.user === null && to.name !== 'boxed-signin' && to.meta.requiresAuth) {
+        // redirect ke login jika belum login
+        appStore.$dispose();
+        next({ name: 'boxed-signin' });
+        return;
     }
-  })
-
-router.beforeEach((to, from, next) => {
-    const store = useAppStore();
-
-    if (to?.meta?.layout == 'auth') {
-        store.setMainLayout('auth');
+    if (to?.meta?.layout === 'auth') {
+        appStore.setMainLayout('auth');
     } else {
-        store.setMainLayout('app');
+        appStore.setMainLayout('app');
     }
-    next(true);
+    next();
 });
 router.afterEach((to, from, next) => {
     appSetting.changeAnimation();

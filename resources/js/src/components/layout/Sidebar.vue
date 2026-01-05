@@ -37,6 +37,25 @@
                         <li class='mb-4'>
                         </li>
 
+                        <li class="nav-item">
+                            <router-link to="/" class="group" @click="toggleMobileMenu">
+                                <div class="flex items-center">
+                                    <!-- <svg class="group-hover:!text-primary shrink-0 size-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.5V19a1.5 1.5 0 0 0 1.5 1.5h3A1.5 1.5 0 0 0 9 19v-5.5A1.5 1.5 0 0 0 7.5 12h-3A1.5 1.5 0 0 0 3 13.5ZM15 10.5V19a1.5 1.5 0 0 0 1.5 1.5h3A1.5 1.5 0 0 0 21 19v-8.5A1.5 1.5 0 0 0 19.5 9h-3A1.5 1.5 0 0 0 15 10.5ZM9 5.25V19a.75.75 0 0 0 .75.75h3A.75.75 0 0 0 13.5 19V5.25A2.25 2.25 0 0 0 11.25 3h-1.5A.75.75 0 0 0 9 3.75v1.5Z" />
+                                    </svg> -->
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                        stroke="currentColor" class="group-hover:!text-primary shrink-0 size-6">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
+</svg>
+
+
+                                    <span class="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{{
+                                        $t('Dashboard')
+                                    }}</span>
+                                </div>
+                            </router-link>
+                        </li>
+                        
 
                         <li class="nav-item">
                             <router-link to="/submission" class="group" @click="toggleMobileMenu">
@@ -144,7 +163,7 @@
                             </transition>
                         </li>
 
-                        <li class="menu nav-item">
+                        <!-- <li class="menu nav-item">
                             <router-link to="/assets" class="nav-link group" @click="toggleMobileMenu">
                                 <div class="flex items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -156,7 +175,7 @@
                                         class="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">Asset</span>
                                 </div>
                             </router-link>
-                        </li>
+                        </li> -->
 
                         <!-- <li class="menu nav-item">
                             <router-link to="/migrasi" class="nav-link group" @click="toggleMobileMenu">
@@ -190,20 +209,10 @@
                         <li class="menu nav-item">
                             <router-link to="/master/barang" class="nav-link group" @click="toggleMobileMenu">
                                 <div class="flex items-center">
-                                    <svg class="group-hover:!text-primary shrink-0" width="20" height="20" viewBox="0 0 24 24"
-                                        fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path opacity="0.5"
-                                            d="M13 15.4C13 13.3258 13 12.2887 13.659 11.6444C14.318 11 15.3787 11 17.5 11C19.6213 11 20.682 11 21.341 11.6444C22 12.2887 22 13.3258 22 15.4V17.6C22 19.6742 22 20.7113 21.341 21.3556C20.682 22 19.6213 22 17.5 22C15.3787 22 14.318 22 13.659 21.3556C13 20.7113 13 19.6742 13 17.6V15.4Z"
-                                            fill="currentColor" />
-                                        <path
-                                            d="M2 8.6C2 10.6742 2 11.7113 2.65901 12.3556C3.31802 13 4.37868 13 6.5 13C8.62132 13 9.68198 13 10.341 12.3556C11 11.7113 11 10.6742 11 8.6V6.4C11 4.32582 11 3.28873 10.341 2.64437C9.68198 2 8.62132 2 6.5 2C4.37868 2 3.31802 2 2.65901 2.64437C2 3.28873 2 4.32582 2 6.4V8.6Z"
-                                            fill="currentColor" />
-                                        <path
-                                            d="M13 5.5C13 4.4128 13 3.8692 13.1713 3.44041C13.3996 2.86867 13.8376 2.41443 14.389 2.17761C14.8024 2 15.3266 2 16.375 2H18.625C19.6734 2 20.1976 2 20.611 2.17761C21.1624 2.41443 21.6004 2.86867 21.8287 3.44041C22 3.8692 22 4.4128 22 5.5C22 6.5872 22 7.1308 21.8287 7.55959C21.6004 8.13133 21.1624 8.58557 20.611 8.82239C20.1976 9 19.6734 9 18.625 9H16.375C15.3266 9 14.8024 9 14.389 8.82239C13.8376 8.58557 13.3996 8.13133 13.1713 7.55959C13 7.1308 13 6.5872 13 5.5Z"
-                                            fill="currentColor" />
-                                        <path opacity="0.5"
-                                            d="M2 18.5C2 19.5872 2 20.1308 2.17127 20.5596C2.39963 21.1313 2.83765 21.5856 3.38896 21.8224C3.80245 22 4.32663 22 5.375 22H7.625C8.67337 22 9.19755 22 9.61104 21.8224C10.1624 21.5856 10.6004 21.1313 10.8287 20.5596C11 20.1308 11 19.5872 11 18.5C11 17.4128 11 16.8692 10.8287 16.4404C10.6004 15.8687 10.1624 15.4144 9.61104 15.1776C9.19755 15 8.67337 15 7.625 15H5.375C4.32663 15 3.80245 15 3.38896 15.1776C2.83765 15.4144 2.39963 15.8687 2.17127 16.4404C2 16.8692 2 17.4128 2 18.5Z"
-                                            fill="currentColor" />
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                        stroke="currentColor" class="group-hover:!text-primary shrink-0 size-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M6 6.878V6a2.25 2.25 0 0 1 2.25-2.25h7.5A2.25 2.25 0 0 1 18 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 0 0 4.5 9v.878m13.5-3A2.25 2.25 0 0 1 19.5 9v.878m0 0a2.246 2.246 0 0 0-.75-.128H5.25c-.263 0-.515.045-.75.128m15 0A2.25 2.25 0 0 1 21 12v6a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18v-6c0-.98.626-1.813 1.5-2.122" />
                                     </svg>
 
                                     <span class="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{{
@@ -214,7 +223,7 @@
                         </li>
 
 
-                        <li class="menu nav-item">
+                        <!-- <li class="menu nav-item">
                             <router-link to="/users" class="nav-link group" @click="toggleMobileMenu">
                                 <div class="flex items-center">
                                     <svg class="group-hover:!text-primary shrink-0" width="20" height="20" viewBox="0 0 24 24"
@@ -232,7 +241,7 @@
                                         }}</span>
                                 </div>
                             </router-link>
-                        </li>
+                        </li> -->
                     </ul>
                 </perfect-scrollbar>
             </div>
@@ -250,8 +259,8 @@
                     <select v-model="selectedForm" class="w-full border rounded px-3 py-2">
                         <option value="" disabled>Pilih Form</option>
                         <option value="purchase-request">Permintaan Pembelian</option>
-                        <option value="purchase-order">Pesanan Pembelian</option>
-                        <option value="registration-asset">Pendaftaran Asset</option>
+                        <option value="purchase-order" v-if="store.user?.idgrup == 'JBT-018'">Pesanan Pembelian</option>
+                        <!-- <option value="registration-asset" v-if="store.user?.idgrup == 'JBT-018'">Pendaftaran Asset</option> -->
                     </select>
                 </div>
                 <button @click="proceedCreate" :disabled="!selectedForm"

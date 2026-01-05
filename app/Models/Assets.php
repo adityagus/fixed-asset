@@ -14,6 +14,7 @@ class Assets extends Model
       'regist_item_id',
       'item_id',
       'asset_type',
+      'is_asset',
       'purchase_date',
       'purchase_price',
       'purchase_order_number',

@@ -9,4 +9,16 @@ class MasterVendor extends Model
 {
     use HasFactory;
     protected $table = 'mst_vendor';
+    protected $fillable = [
+        'nama',
+        'alamat',
+        'kota',
+        'telp1',
+        'telp2',
+        'pic',
+        'nm_bank',
+        'no_rek',
+        'atas_nm',
+        'status',
+    ];
 }

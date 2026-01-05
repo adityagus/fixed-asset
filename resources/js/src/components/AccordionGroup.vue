@@ -23,7 +23,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 const props = defineProps<{ items: Array<{ id: number, title: string, component: any }> }>();
-const active = ref<number[]>(props.items[0] ? [props.items[0].id] : []);
+const active = ref<number[]>([]);
 
 function toggleAccordion(id: number) {
   if (active.value.includes(id)) {

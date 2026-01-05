@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Attachment;
 use App\Models\PurchaseRequestApproval;
+use Exception;
 use Log;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -68,11 +69,16 @@ class PurchaseRequestController extends Controller
         // 3. siapa yang request by (user yang sedang login)
         $created_by = $user->username ?? 'Unknown';
         $idgrup = $user->idgrup ?? 'Unknown';
-        $cabang = $user->cabang ? $user->cabang : 'HO';
+        $jabatan = $user->jabatan ?? 'Unknown';
+        $cabang = $user->cabang ? $user->cabang : '9999';
+        $clusterManager = SubmissionController::approvalCM($cabang)->first()->username ?? null;
 
         $res = PurchaseRequest::create([
           'pr_number' => $pr_number,
           'status' => $status,
+          'idgrup' => $idgrup,
+          'cluster_manager' => $clusterManager,
+          'jabatan' => $jabatan,
           'created_by' => $created_by,
           'department' => $idgrup,
           'cabang' => $cabang,
@@ -100,6 +106,7 @@ class PurchaseRequestController extends Controller
          $request->validate([
             'pr_number' => 'required|exists:purchase_requests,pr_number',
             'jenis_permintaan' => 'required|string|max:255',
+            'justification' => 'nullable|string',
             'items' => 'required|array|min:1',
             'items.*.item_name' => 'required|string|max:255',
             'items.*.quantity' => 'required|integer|min:1',
@@ -123,6 +130,7 @@ class PurchaseRequestController extends Controller
         }
         foreach ($request->items as $itemData) {
             $itemData['purchase_request_number'] = $requestModel->pr_number; // Set the purchase_request_number
+            $itemData['is_locked'] = false; // Set is_locked to false for draft items
             PurchaseRequestItem::create($itemData);
         }
         
@@ -145,72 +153,84 @@ class PurchaseRequestController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function submit(Request $request): JsonResponse
-    {
-      try {
-        // dd($request->all());
+public function submit(Request $request): JsonResponse
+{
+    try {
         $payload = JWTAuth::parseToken()->getPayload();
         $user = (object) $payload->get('user');
-        if($user == $request->created_by){
+        if ($user == $request->created_by) {
             return response()->json([
-              'success' => false,
-              'message' => 'You cannot submit your own request.'
+                'success' => false,
+                'message' => 'You cannot submit your own request.'
             ], 403);
-        }        
+        }
+
         $validated = $request->validate([
             'pr_number' => 'required|exists:purchase_requests,pr_number',
             'jenis_permintaan' => 'required|string|max:255',
+            'justification' => 'nullable|string',
+            'cabang' => 'required|string|max:255',
             'items' => 'required|array|min:1',
             'items.*.item_id' => 'required|numeric|min:1',
             'items.*.quantity' => 'required|integer|min:1',
             'items.*.pengajuan' => 'required|string|max:255',
-            'items.*.unit_price' => 'nullable|numeric|min:0', // opsional
+            'items.*.unit_price' => 'nullable|numeric|min:0',
             'items.*.total_price' => 'required|numeric|min:0',
         ]);
-        
-        /**
-         *  Get purchase request by pr_number
-         * Update justification
-         * Set status to 'submitted'
-         * Save items (reuse saveDraftItem method)
-         * */
 
-        $requestModel = PurchaseRequest::where('pr_number', $request->pr_number)->first();
-        // $requestModel->status = 'waiting approval';
-
-        // Handle file upload
+        // Ambil purchase request
+        $requestModel = PurchaseRequest::where('pr_number', $request->pr_number)->firstOrFail();
+        $requestModel->pr_date = now();
+        // Update fields
         $requestModel->update($validated);
-        // Save items
-        if(PurchaseRequestItem::where('purchase_request_number', $requestModel->pr_number)->exists()) {
-            PurchaseRequestItem::where('purchase_request_number', $requestModel->pr_number)->delete();
-        }
+
+        // Hapus dan simpan ulang items
+        PurchaseRequestItem::where('purchase_request_number', $requestModel->pr_number)->delete();
         foreach ($request->items as $itemData) {
-            $itemData['purchase_request_number'] = $requestModel->pr_number; // Set the purchase_request_number
+            $itemData['purchase_request_number'] = $requestModel->pr_number;
+            $itemData['is_locked'] = false;
+            
             PurchaseRequestItem::create($itemData);
         }
-        
-        // create approval layers
-        SubmissionController::CreateLayerApproval(new Request([
+
+        // Create approval layers — tangkap response-nya!
+        $approvalResponse = SubmissionController::CreateLayerApproval(new Request([
             'type' => 'purchase-request',
             'request_number' => $requestModel->pr_number,
-            'need_it_approval' => 'true', // sesuaikan dengan kebutuhan
+            'idgrup' => $requestModel->idgrup,
+            // pastikan need_it_approval berupa 'true'/'false' string, sesuai validasi method
+            'cabang' => $requestModel->cabang,
+            'need_it_approval' => $requestModel->jenis_permintaan === 'IT' ? 'true' : 'false',
         ]));
-        
+        // Kalau gagal, return error response dari CreateLayerApproval
+        if ($approvalResponse instanceof \Illuminate\Http\JsonResponse) {
+            $approvalData = $approvalResponse->getData(true); // as array
+            if (isset($approvalData['success']) && !$approvalData['success']) {
+                return $approvalResponse;
+            }
+        }
 
+        // Update status PR kalau perlu
         self::updateStatusPR(new Request(['status' => 'waiting approval']), $requestModel->pr_number);
-                // update status
-        
+
         return response()->json([
             'success' => true,
             'message' => 'Purchase request submitted successfully.'
         ]);
-    }catch(ValidationException $e){
-      return response()->json([
-        'success' => false,
-        'errors' => $e->errors()
-      ], 422);
+    } catch (ValidationException $e) {
+        // validasi gagal
+        return response()->json([
+            'success' => false,
+            'errors' => $e->errors()
+        ], 422);
+    } catch (Exception $e) {
+        // error umum
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], 500);
     }
-  }
+}
 
   /**
    * Display the specified resource.

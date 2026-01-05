@@ -1,5 +1,6 @@
 <?php
 
+use Dom\Attr;
 use Illuminate\Support\Str;
 
 return [

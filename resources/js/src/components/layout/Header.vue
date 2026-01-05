@@ -1,6 +1,3 @@
-
-
-
 <template>
     <header class="z-40" :class="{ dark: store.semidark && store.menu === 'horizontal' }">
         <div class="shadow-sm" >
@@ -469,7 +466,7 @@
                                                     {{ userLocal?.username }}
                                                 </h4>
                                                 <a class="text-black/60 hover:text-primary dark:text-dark-light/60 dark:hover:text-white" href="javascript:;">
-                                                    {{ userLocal?.idgrup || '-' }}
+                                                    {{ userLocal?.jabatan || '-' }}
                                                 </a>
                                             </div>
                                         </div>

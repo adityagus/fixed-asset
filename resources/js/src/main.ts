@@ -72,7 +72,7 @@ app.use(vue3JsonExcel);
 // restore pinia state from storage
 import { useAppStore } from './stores'
 const appStore = useAppStore()
-await appStore.hydrateFromStorage?.() // jika hydrateFromStorage async
+appStore.hydrateFromStorage?.() // jika hydrateFromStorage async
 app.use(router)
 
 app.mount('#app');

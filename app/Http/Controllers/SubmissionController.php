@@ -13,10 +13,12 @@ use App\Models\RegistrationAssetApproval;
 use App\Models\RegistrationAssetItem;
 use App\Models\Susut;
 use Carbon\Carbon;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseRequest;
 use Illuminate\Http\JsonResponse;
+use Maatwebsite\Excel\Concerns\ToArray;
 use Maatwebsite\Excel\Validators\ValidationException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -39,7 +41,8 @@ class SubmissionController extends Controller
                             $query->select('*')
                                 ->whereNotNull('approval_status')
                                 ->orderBy('layer', 'desc');
-                        }
+                        },
+                        'purchaseRequestItems.itemMaster.category'
                     ])
                     ->where('created_by', $username)
                     ->orderBy('created_at', 'desc')->get();
@@ -53,7 +56,9 @@ class SubmissionController extends Controller
                             $query->select('*')
                                 ->whereNotNull('approval_status')
                                 ->orderBy('layer', 'desc');
-                        }
+                        },
+                        'vendor',
+                        'purchaseOrderItems.itemMaster.category',
                     ])
                     ->where('created_by', $username)
                     ->orderBy('created_at', 'desc')->get();
@@ -68,6 +73,7 @@ class SubmissionController extends Controller
                                 ->whereNotNull('approval_status')
                                 ->orderBy('layer', 'desc');
                         },
+                        'RegistrationAssetItems.itemMaster.category',
                         'purchaseOrder:purchase_request_number,po_number',
                         'purchaseOrder.purchaseRequest:id,pr_number,created_by,cabang'
                     ])
@@ -100,17 +106,17 @@ class SubmissionController extends Controller
     {
 
         switch ($type) {
-            case 'pr':
+            case 'purchase-request':
                 $title = 'Purchase Request';
                 $submissionId = PurchaseRequest::where('pr_number', $requestNumber)->where('status', 'Draft')->firstOrFail()->id;
                 $model = PurchaseRequest::findOrFail($submissionId);
                 break;
-            case 'po':
+            case 'purchase-order':
                 $title = 'Purchase Order';
                 $submissionId = PurchaseOrder::where('po_number', $requestNumber)->where('status', 'Draft')->firstOrFail()->id;
                 $model = PurchaseOrder::findOrFail($submissionId);
                 break;
-            case 'ra':
+            case 'registration-asset':
                 $title = 'Registration Asset';
                 $submissionId = RegistrationAsset::where('ra_number', $requestNumber)->where('status', 'Draft')->firstOrFail()->id;
                 $model = RegistrationAsset::findOrFail($submissionId);
@@ -118,10 +124,43 @@ class SubmissionController extends Controller
             default:
                 abort(404);
         }
-        $model->delete();
+        $model->update([
+            'status' => 'Canceled'
+        ]);
         return response()->json([
             'success' => true,
             'message' => 'Deleted ' . $title . ' with Request Number ' . $requestNumber
+        ]);
+    }
+    
+    
+    public function edit ($type, $requestNumber){
+        
+        switch ($type) {
+            case 'purchase-request':
+                $title = 'Purchase Request';
+                $submissionId = PurchaseRequest::where('pr_number', $requestNumber)->where('status', 'Waiting Approval')->firstOrFail()->id;
+                $model = PurchaseRequest::findOrFail($submissionId);
+                break;
+            case 'purchase-order':
+                $title = 'Purchase Order';
+                $submissionId = PurchaseOrder::where('po_number', $requestNumber)->where('status', 'Waiting Approval')->firstOrFail()->id;
+                $model = PurchaseOrder::findOrFail($submissionId);
+                break;
+            case 'registration-asset':
+                $title = 'Registration Asset';
+                $submissionId = RegistrationAsset::where('ra_number', $requestNumber)->where('status', 'Waiting Approval')->firstOrFail()->id;
+                $model = RegistrationAsset::findOrFail($submissionId);
+                break;
+            default:
+                abort(404);
+        }
+        $model->update([
+            'status' => 'Draft'
+        ]);
+        return response()->json([
+            'success' => true,
+            'message' => 'Edited ' . $title . ' with Request Number ' . $requestNumber
         ]);
     }
 
@@ -138,13 +177,13 @@ class SubmissionController extends Controller
                 case 'purchase-request':
                     $model = PurchaseRequest::with('approvals')
                         ->whereIn('status', ['Waiting Approval', 'Revised', 'Rejected', 'Full Approved'])
-                        ->orderBy('created_at', 'desc')
+                        ->orderByRaw('GREATEST(UNIX_TIMESTAMP(created_at), UNIX_TIMESTAMP(updated_at)) DESC')
                         ->get();
                     break;
                 case 'purchase-order':
                     $model = PurchaseOrder::with('approvals', 'purchaseRequest')
                         ->whereIn('status', ['Waiting Approval', 'Revised', 'Rejected', 'Full Approved'])
-                        ->orderBy('created_at', 'desc')
+                        ->orderByRaw('GREATEST(UNIX_TIMESTAMP(created_at), UNIX_TIMESTAMP(updated_at)) DESC')
                         ->get();
                         
                     break;
@@ -155,7 +194,7 @@ class SubmissionController extends Controller
                         'purchaseOrder.purchaseRequest:id,pr_number,created_by,cabang'
                     )
                         ->whereIn('status', ['Waiting Approval', 'Revised', 'Rejected', 'Full Approved'])
-                        ->orderBy('created_at', 'desc')
+                        ->orderByRaw('GREATEST(UNIX_TIMESTAMP(created_at), UNIX_TIMESTAMP(updated_at)) DESC')
                         ->get();
                     break;
                 default:
@@ -178,7 +217,7 @@ class SubmissionController extends Controller
                 $allApproved = true;
 
                 
-                $item->request_time = Carbon::parse($item->created_at)->format('d-m-Y H:i');
+                $item->request_time = Carbon::parse($item->updated_at ?? $item->created_at)->format('d-m-Y H:i');
                 foreach ($item->approvals as $approval) {
                     $statusLower = strtolower($approval->approval_status);
 
@@ -248,10 +287,14 @@ class SubmissionController extends Controller
             // Validasi input
             $data = $request->validate([
                 'type' => 'required|string|in:purchase-request,purchase-order,registration-asset',
+                'cabang' => 'nullable|string',
+                'idgrup' => 'nullable|string',
+                'jabatan' => 'nullable|string',
                 'request_number' => 'required|string',
                 'need_it_approval' => 'required|string|in:true,false',
             ]);
-
+            
+            // dd($data);
 
             // Pilih model approval sesuai type
             $typeMap = [
@@ -268,46 +311,71 @@ class SubmissionController extends Controller
             $now = Carbon::now()->format('Y-m-d H:i:s');
 
             // Ambil approver dari master approval
-            if ($data['need_it_approval'] === 'true') {
-                $approvers = \DB::table('mst_approval')
+            // Jika tipe bukan 'purchase-request' maka ambil yang type IS NULL
+            // buat jika termasuk 2 array dengan idgrup JBT-001 atau JBT-002
+            if ($data['type'] !== 'purchase-request') {
+                $approvers = \DB::table(table: 'mst_approval')
                     ->select('layer', 'email', 'jabatan', 'type', 'username')
-                    ->whereIn('type', ['IT', 'null'])->get();
-
-                foreach ($approvers as $approvalLayer) {
-                    $layers[] = [
-                        'type' => $data['type'],
-                        'request_number' => $data['request_number'],
-                        'layer' => $approvalLayer->layer,
-                        'approver_by' => $approvalLayer->username,
-                        'email' => $approvalLayer->email,
-                        'jabatan' => $approvalLayer->jabatan,
-                        'approval_status' => $approvalLayer->layer == 1 ? 'In Progress' : null,
-                        'created_at' => $now,
-                        'updated_at' => $now,
-                    ];
-                }
+                    ->where('type', 'GA Head')
+                    ->orderBy('layer', 'asc')
+                    ->get();
             } else {
-                $approvers = \DB::table('mst_approval')
-                    ->select('layer', 'email', 'jabatan', 'type', 'username')
-                    ->whereIn('type', ['GA', 'null'])->get();
-
-                foreach ($approvers as $approvalLayer) {
-                    $layers[] = [
-                        'type' => $data['type'],
-                        'request_number' => $data['request_number'],
-                        'layer' => $approvalLayer->layer,
-                        'approver_by' => $approvalLayer->username,
-                        'email' => $approvalLayer->email,
-                        'jabatan' => $approvalLayer->jabatan,
-                        'approval_status' => $approvalLayer->layer == 1 ? 'In Progress' : null,
-                        'created_at' => $now,
-                        'updated_at' => $now,
-                    ];
+                // Untuk purchase-request, gunakan need_it_approval untuk memilih IT atau GA (plus NULL)
+                $cmApprovers = [];
+                $group = ['JBT-021', 'JBT-005'];
+                if (!empty($data['cabang']) && ($data['idgrup'] === $group[0] || $data['idgrup'] === $group[1])) {
+                    $cmApprovers = self::approvalCM($data['cabang'])->toArray();
                 }
+
+                if ($data['need_it_approval'] === 'true') {
+                    $mainApprovers = \DB::table('mst_approval')
+                        ->select('layer', 'email', 'jabatan', 'type', 'username')
+                        ->whereIn('type', ['IT'])
+                        ->orderByRaw("CASE WHEN type = 'IT' THEN 0 ELSE 1 END, layer ASC")
+                        ->get()
+                        ->toArray();
+                } else {
+                    $mainApprovers = \DB::table('mst_approval')
+                        ->select('layer', 'email', 'jabatan', 'type', 'username')
+                        ->whereIn('type', ['GA Head'])
+                        ->orderByRaw("CASE WHEN type = 'GA' THEN 0 ELSE 1 END, layer ASC")
+                        ->get()
+                        ->toArray();
+                }
+                
+
+                // Gabungkan CM dan mainApprovers
+                $approvers = array_merge($cmApprovers, $mainApprovers);
+                if($approvers === null){
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'No approvers found for the given criteria.'
+                    ], 404);
+                }
+                
             }
 
+            
+            $index = 1;
+            foreach ($approvers as $approvalLayer) {
+                $layers[] = [
+                    'type' => $data['type'] ?? '',
+                    'request_number' => $data['request_number'],
+                    'approval_status' => $index == 1 ? 'In Progress' : null,
+                    'layer' => $index++,
+                    'note' => '',
+                    'approver_by' => $approvalLayer->username,
+                    'email' => $approvalLayer->email,
+                    'jabatan' => $approvalLayer->jabatan,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ];
+            }
             // Insert layer baru ke tabel approval
-            $approvalModel::insert($layers);
+            if (!empty($layers)) {
+                $approvalModel::insert($layers);
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Layer approval created successfully.',
@@ -362,6 +430,25 @@ class SubmissionController extends Controller
                     ]);
                 }
 
+                if($nextApproval === null && $data['type'] === 'purchase-order') {
+                    // buat registration asset
+                    $purchaseOrder = PurchaseOrder::where('po_number', $data['formNumber'])->first();
+
+                    // semua layer sudah approved
+                    // buat registration asset dengan status draft
+                    $registrationAsset = RegistrationAsset::create([
+                        'ra_number' => LogRequestNumber::createRequest('RA')->request_number,
+                        'purchase_order_number' => $purchaseOrder->po_number,
+                        'created_by' => $purchaseOrder->created_by,
+                        'ra_date' => null,
+                        'invoice_date' => null,
+                        'status' => 'draft',
+                    ]);
+                    
+                    
+
+                }
+                
                 if ($nextApproval === null && $data['type'] === 'registration-asset') {
                     // register asset 
                     $registerAsset = RegistrationAsset::where('ra_number', $data['formNumber'])->first();
@@ -415,7 +502,10 @@ class SubmissionController extends Controller
 
                     // Bulk update Assets
                     foreach ($assetUpdates as $update) {
-                        Assets::where('regist_item_id', $update['id'])->update(['asset_number' => $update['asset_number']]);
+                        Assets::where('regist_item_id', $update['id'])->update(
+                            [
+                                'asset_number' => $update['asset_number']
+                            ]);
                     }
 
                     foreach ($susutUpdates as $update) {
@@ -483,13 +573,16 @@ class SubmissionController extends Controller
     {
         try {
             $formType = $request->route('formType');
-
             switch ($formType) {
                 case 'purchase-order':
                     // Ambil semua PR yang statusnya Full Approved
                     $purchaseRequests = PurchaseRequest::with('purchaseRequestItems.itemMaster.category', 'purchaseRequestItems.itemMaster.brand', 'purchaseRequestItems.itemMaster.type', 'approvals')
                         ->where('status', 'Full Approved')
+                        ->whereHas('purchaseRequestItems', function ($query) {
+                            $query->where('is_locked', false);
+                        })
                         ->orderBy('created_at', 'desc')
+                        ->distinct()
                         ->get();
 
                     // Ambil semua nomor PR yang sudah ada di PO dengan status bukan draft
@@ -568,13 +661,26 @@ class SubmissionController extends Controller
             
 
             // Simpan note ke tabel notes (buat model Notes jika belum ada)
-            $note = Notes::create([
-                'form_type' => $data['form_type'],
-                'form_number' => $data['form_number'],
-                'text' => $data['text'],
-                'sender' => $data['sender'],
-                'time' => $now,
-            ]);
+            switch ($data['form_type']) {
+                case 'purchase-request':
+                    $notes = PurchaseRequestApproval::where('request_number', $data['form_number'])->where('approver_by', $data['sender'])->firstOrFail();
+                    
+                    break;
+                case 'purchase-order':
+                    $notes = PurchaseOrderApproval::where('request_number', $data['form_number'])->where('approver_by', $data['sender'])->firstOrFail();
+                    break;
+                case 'registration-asset':
+                    $notes = RegistrationAssetApproval::where('request_number', $data['form_number'])->where('approver_by', $data['sender'])->firstOrFail();
+                    break;
+                    
+                default:
+                    abort(404);
+                    break;
+            }
+            
+            $note = $notes;
+            $note->note = $data['text'];
+            $note->save();
 
             return response()->json([
                 'success' => true,
@@ -612,6 +718,69 @@ class SubmissionController extends Controller
         }
     }
 
+    public function getCountApproval($username){
+        try{
+            $countPR = PurchaseRequestApproval::where('approver_by', $username)
+                ->whereIn('approval_status', ['In Progress', 'Waiting Approval'])
+                ->count();
+            $countPO = PurchaseOrderApproval::where('approver_by', $username)
+                ->whereIn('approval_status', ['In Progress', 'Waiting Approval'])
+                ->count();
+            $countRA = RegistrationAssetApproval::where('approver_by', $username)
+                ->whereIn('approval_status', ['In Progress', 'Waiting Approval'])
+                ->count();
+
+            $res = [
+                'pr' => $countPR,
+                'po' => $countPO,
+                'ra' => $countRA,
+            ];
+                
+            return response()->json([
+                'success' => true,
+                'data' => $res,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    
     // Notes
 
+    public static function approvalCM($cabang)
+    {
+        // pengecekan orang cabang atau dengan jabatan
+         try {
+            $result = \DB::connection('db2')
+                ->table('tbluser as t')
+                ->select(
+                    't.username',
+                    't.active',
+                    't2.nm_depan',
+                    't2.nm_belakang',
+                    't2.email',
+                    't3.kd_jabatan',
+                    't3.nm_jabatan as jabatan',
+                    't.fk_cabang_user',
+                )
+                ->join('tblkaryawan as t2', 't.fk_karyawan', '=', 't2.npk')
+                ->join('tbljabatan as t3', 't2.fk_jabatan', '=', 't3.kd_jabatan')
+                ->where('t3.nm_jabatan', 'Ka Area')
+                ->where('t.fk_cabang_user', $cabang)
+                ->where('t.active', true)
+                ->limit(1)
+                ->get();
+                
+
+            return $result;
+        } catch (QueryException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Internal Server Error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

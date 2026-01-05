@@ -11,5 +11,15 @@ class MasterCategory extends Model
     
     public $table = 'mst_katbrg';
     
+    protected $fillable = [
+        'nama_katbrg',
+        'type_katbrg',
+        'umur',
+        'status',
+        'coa1',
+        'coa2',
+        'coa3',
+        'coa4',
+    ];
     
 }

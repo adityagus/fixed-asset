@@ -2,13 +2,14 @@ import { useMutation, useQueryClient } from '@tanstack/vue-query'
 // import { createSubmission } from './api';
 import {
     deleteSubmission,
+    editSubmission,
     getSubmission,
     postSendNote,
     postSubmission,
 } from './api/submissionService'
 import { useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
-import { postUploadFile } from './api/masterService'
+import { postUploadFile, createMasterBrg, updateMasterBrg, deleteMasterBrg, createKategori, updateKategori, deleteKategori, createTipeBarang, updateTipeBarang, deleteTipeBarang, createVendor, updateVendor, deleteVendor, createMerk, updateMerk, deleteMerk } from './api/masterService'
 import {
     saveDraftPurchaseRequest,
     submitPurchaseRequest,
@@ -23,6 +24,7 @@ import { submitPurchaseOrder } from './api/purchaseOrderService'
 import { SubmitRegisterAssetPayload } from '@/types/registerAsset'
 import { submitRegistrationAsset } from './api/registerAssetService'
 import { logout } from './api/loginService'
+import { editSubmissionPayload } from '@/types/submission'
 
 // const queryClient = useQueryClient();
 // export const useCreateSubmission = () => {
@@ -95,6 +97,34 @@ export const useDeleteSubmission = () => {
     })
 }
 
+export const useEditSubmission = () => {
+    const queryClient = useQueryClient()
+    return useMutation({
+        mutationFn: (payload: editSubmissionPayload) => editSubmission(payload),
+        onSuccess: async (data, variable) => {
+            console.log('Submission edited successfully:', data)
+            console.log('Invalidating queries for:', variable)
+            queryClient.invalidateQueries({
+                queryKey: [
+                    'submissionDetail',
+                    variable.type,
+                    variable.number,
+                ],
+            })
+            queryClient.invalidateQueries({
+                queryKey: ['submissions', variable.type, variable.requestedBy],
+            })
+            Swal.fire('Edited!', `Submission has been edited.`, 'success')
+        },
+        onError: (error) => {
+            console.error('Error deleting submission:', error)
+        },
+        onSettled: () => {
+            console.log('Delete submission mutation settled')
+        },
+    })
+}
+
 export const useUploadFileSubmission = (type: string) => {
     return useMutation({
         mutationFn: (formData: FormData) => postUploadFile(type, formData),
@@ -109,8 +139,21 @@ export const useSubmitPurchaseRequest = () => {
         mutationFn: async (formData: SubmitPurchaseRequestPayload) =>
             await submitPurchaseRequest(formData),
         onSuccess: (data, variable) => {
-            console.log('Purchase Request submitted successfully:', data)
-            qc.invalidateQueries({ queryKey: ['PurchaseRequestIds'] })
+            console.log('Purchase Request submitted successfully:', data, 'variable', variable)
+            qc.invalidateQueries({
+                queryKey: [
+                    'submissionDetail',
+                    'purchase-request',
+                    variable.formNumber,
+                ],
+            })
+            qc.invalidateQueries({
+                queryKey: [
+                    'submissions',
+                    'purchase-request',
+                    variable.requestedBy,
+                ],
+            })
             
             
             router.push('/submission').then(() => {
@@ -127,6 +170,12 @@ export const useSubmitPurchaseRequest = () => {
         },
         onError: (error) => {
             console.error('Error submitting Purchase Request:', error)
+            Swal.fire({
+                title: 'Error!',
+                text: `Gagal mengirim Permintaan Pembelian: ${error.response.data.message}`,
+                icon: 'error',
+                confirmButtonText: 'OK',
+            })
         },
         onSettled: () => {
             console.log('Submit Purchase Request mutation settled')
@@ -142,7 +191,20 @@ export const useSubmitPurchaseOrder = () => {
             await submitPurchaseOrder(formData),
         onSuccess: (data, variable) => {
             console.log('Purchase Order submitted successfully:', data)
-            qc.invalidateQueries({ queryKey: ['submissions', 'purchase-order'] })
+            qc.invalidateQueries({
+                queryKey: [
+                    'submissionDetail',
+                    'purchase-request',
+                    variable.formNumber,
+                ],
+            })
+            qc.invalidateQueries({
+                queryKey: [
+                    'submissions',
+                    'purchase-request',
+                    variable.requestedBy,
+                ],
+            })
 
             router.push('/submission').then(() => {
                 Swal.fire({
@@ -157,6 +219,12 @@ export const useSubmitPurchaseOrder = () => {
         },
         onError: (error) => {
             console.error('Error submitting Purchase Order:', error.response.data.message)
+            Swal.fire({
+                title: 'Error!',
+                text: `Gagal mengirim Pesanan Pembelian: ${error.response.data.message}`,
+                icon: 'error',
+                confirmButtonText: 'OK',
+            })
         },
         onSettled: () => {
             console.log('Submit Purchase Order mutation settled')
@@ -172,7 +240,20 @@ export const useSubmitRegistrationAsset = () => {
             await submitRegistrationAsset(formData),
         onSuccess: (data, variable) => {
             console.log('Registration Asset submitted successfully:', data)
-            qc.invalidateQueries({ queryKey: ['RegistrationAssetIds'] })
+            qc.invalidateQueries({
+                queryKey: [
+                    'submissionDetail',
+                    'purchase-request',
+                    variable.formNumber,
+                ],
+            })
+            qc.invalidateQueries({
+                queryKey: [
+                    'submissions',
+                    'purchase-request',
+                    variable.requestedBy,
+                ],
+            })
 
             router.push('/submission').then(() => {
                 Swal.fire({
@@ -186,6 +267,13 @@ export const useSubmitRegistrationAsset = () => {
         },
         onError: (error) => {
             console.error('Error submitting Registration Asset:', error)
+            Swal.fire({
+                title: 'Error!',
+                text: `Gagal mengirim Pendaftaran Aset: ${error.response.data.message}`,
+                icon: 'error',
+                confirmButtonText: 'OK',
+                
+            })
         },
         onSettled: () => {
             console.log('Submit Registration Asset mutation settled')
@@ -285,3 +373,217 @@ export const useLogout = () => {
         },
     });
 }
+
+// Master Barang CUD Mutations
+export const useCreateMasterBarang = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (data: any) => createMasterBrg(data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['masterBrg'] });
+            Swal.fire('Berhasil!', 'Barang berhasil ditambahkan.', 'success');
+        },
+        onError: (error: any) => {
+            Swal.fire('Error!', error?.response?.data?.message || 'Gagal menambah barang.', 'error');
+        },
+    });
+};
+
+export const useUpdateMasterBarang = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({ id, data }: { id: number; data: any }) => updateMasterBrg(id, data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['masterBrg'] });
+            Swal.fire('Berhasil!', 'Barang berhasil diupdate.', 'success');
+        },
+        onError: (error: any) => {
+            Swal.fire('Error!', error?.response?.data?.message || 'Gagal update barang.', 'error');
+        },
+    });
+};
+
+export const useDeleteMasterBarang = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (id: number) => deleteMasterBrg(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['masterBrg'] });
+            Swal.fire('Berhasil!', 'Barang berhasil dihapus.', 'success');
+        },
+        onError: (error: any) => {
+            Swal.fire('Error!', error?.response?.data?.message || 'Gagal hapus barang.', 'error');
+        },
+    });
+};
+
+// Master Kategori CUD Mutations
+export const useCreateKategori = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (data: any) => createKategori(data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['kategoriList'] });
+            Swal.fire('Berhasil!', 'Kategori berhasil ditambahkan.', 'success');
+        },
+        onError: (error: any) => {
+            Swal.fire('Error!', error?.response?.data?.message || 'Gagal menambah kategori.', 'error');
+        },
+    });
+};
+
+export const useUpdateKategori = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({ id, data }: { id: number; data: any }) => updateKategori(id, data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['kategoriList'] });
+            Swal.fire('Berhasil!', 'Kategori berhasil diupdate.', 'success');
+        },
+        onError: (error: any) => {
+            Swal.fire('Error!', error?.response?.data?.message || 'Gagal update kategori.', 'error');
+        },
+    });
+};
+
+export const useDeleteKategori = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (id: number) => deleteKategori(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['kategoriList'] });
+            Swal.fire('Berhasil!', 'Kategori berhasil dihapus.', 'success');
+        },
+        onError: (error: any) => {
+            Swal.fire('Error!', error?.response?.data?.message || 'Gagal hapus kategori.', 'error');
+        },
+    });
+};
+
+// Master Tipe Barang CUD Mutations
+export const useCreateTipeBarang = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (data: any) => createTipeBarang(data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['tipeBarangList'] });
+            Swal.fire('Berhasil!', 'Tipe barang berhasil ditambahkan.', 'success');
+        },
+        onError: (error: any) => {
+            Swal.fire('Error!', error?.response?.data?.message || 'Gagal menambah tipe barang.', 'error');
+        },
+    });
+};
+
+export const useUpdateTipeBarang = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({ id, data }: { id: number; data: any }) => updateTipeBarang(id, data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['tipeBarangList'] });
+            Swal.fire('Berhasil!', 'Tipe barang berhasil diupdate.', 'success');
+        },
+        onError: (error: any) => {
+            Swal.fire('Error!', error?.response?.data?.message || 'Gagal update tipe barang.', 'error');
+        },
+    });
+};
+
+export const useDeleteTipeBarang = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (id: number) => deleteTipeBarang(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['tipeBarangList'] });
+            Swal.fire('Berhasil!', 'Tipe barang berhasil dihapus.', 'success');
+        },
+        onError: (error: any) => {
+            Swal.fire('Error!', error?.response?.data?.message || 'Gagal hapus tipe barang.', 'error');
+        },
+    });
+};
+
+// Master Vendor CUD Mutations
+export const useCreateVendor = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (data: any) => createVendor(data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['vendorList'] });
+            Swal.fire('Berhasil!', 'Vendor berhasil ditambahkan.', 'success');
+        },
+        onError: (error: any) => {
+            Swal.fire('Error!', error?.response?.data?.message || 'Gagal menambah vendor.', 'error');
+        },
+    });
+};
+
+export const useUpdateVendor = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({ id, data }: { id: number; data: any }) => updateVendor(id, data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['vendorList'] });
+            Swal.fire('Berhasil!', 'Vendor berhasil diupdate.', 'success');
+        },
+        onError: (error: any) => {
+            Swal.fire('Error!', error?.response?.data?.message || 'Gagal update vendor.', 'error');
+        },
+    });
+};
+
+export const useDeleteVendor = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (id: number) => deleteVendor(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['vendorList'] });
+            Swal.fire('Berhasil!', 'Vendor berhasil dihapus.', 'success');
+        },
+        onError: (error: any) => {
+            Swal.fire('Error!', error?.response?.data?.message || 'Gagal hapus vendor.', 'error');
+        },
+    });
+};
+// Master Merk CUD Mutations
+export const useCreateMerk = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (data: { nama_merkbrg: string }) => createMerk(data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['merkList'] });
+            Swal.fire('Berhasil!', 'Merek berhasil ditambahkan', 'success');
+        },
+        onError: (error: any) => {
+            Swal.fire('Error!', error.message || 'Gagal menambahkan merek', 'error');
+        },
+    });
+};
+
+export const useUpdateMerk = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({ id, data }: { id: number; data: { nama_merkbrg: string } }) => updateMerk(id, data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['merkList'] });
+            Swal.fire('Berhasil!', 'Merek berhasil diupdate', 'success');
+        },
+        onError: (error: any) => {
+            Swal.fire('Error!', error.message || 'Gagal mengupdate merek', 'error');
+        },
+    });
+};
+
+export const useDeleteMerk = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (id: number) => deleteMerk(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['merkList'] });
+            Swal.fire('Berhasil!', 'Merek berhasil dihapus', 'success');
+        },
+        onError: (error: any) => {
+            Swal.fire('Error!', error.message || 'Gagal menghapus merek', 'error');
+        },
+    });
+};

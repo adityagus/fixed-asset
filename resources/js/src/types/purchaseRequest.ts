@@ -27,13 +27,22 @@ export interface SubmitPurchaseRequestPayload {
     pr_number: string
     jenis_permintaan: string
     jenisPermintaan: string
-    phone: string
     poReference: string
     requestDate: string
     requestedBy: string
     formNumber: string
     status: string
-    items?: Omit<PurchaseRequestItem, 'id' | 'purchase_request_id'>[]
+    items?: PurchaseRequestItemPayload[]
+}
+
+export interface PurchaseRequestItemPayload {
+    id: number
+    formNumber: number
+    item_name: string
+    qty: number
+    total_price: number
+    unit_price: number
+    // You may add more fields here if needed
 }
 
 export interface saveAsDraftPurchaseRequestPayload {
