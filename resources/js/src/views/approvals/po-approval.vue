@@ -5,14 +5,12 @@
     :tabs="tabs"
     :isSuccess="isSuccess"
     :isPending="isPending"
+    :type="'purchase-order'"
     initialTab="Waiting Approval"
     @row-click="goToDetail"
   >
   <template #created_by="{ item }">
   {{ item.purchase_request?.created_by || '-' }}
-</template>
-<template #cabang="{ item }">
-  {{ item.purchase_request?.cabang || '-' }}
 </template>
     <template #status="{ item }">
       <span
@@ -66,7 +64,7 @@ const approvalColumns = [
   { key: 'request_time', title: 'Tanggal' },
   { key: 'po_number', title: 'Nomor PO' },
   { key: 'created_by', title: 'Pemohon' },
-  { key: 'cabang', title: 'Cabang' },
+  { key: 'nameLocation', title: 'Cabang' },
   { key: 'status', title: 'Status' },
 ];
 

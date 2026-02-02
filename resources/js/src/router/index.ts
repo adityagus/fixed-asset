@@ -50,11 +50,6 @@ const routes: RouteRecordRaw[] = [
         component: () => import(/* webpackChunkName: "apps-ra-approval" */ '../views/approvals/ra-approval.vue'),
     },
     {
-        path: '/master/calendar',
-        name: 'calendar',
-        component: () => import(/* webpackChunkName: "apps-calendar" */ '../views/apps/calendar.vue'),
-    },
-    {
         path: '/master/barang',
         name: 'MasterBarang',
         component: () => import('@/views/barang/master-barang.vue'),
@@ -67,7 +62,7 @@ const routes: RouteRecordRaw[] = [
         component: () => import(/* webpackChunkName: "report-assets" */ '../views/report/report-asset.vue'),
     },
      {
-        path: '/asset/detail/:assetId',
+        path: '/asset/detail/:assetNumber',
         name: 'report-asset-detail',
         component: () => import(/* webpackChunkName: "report-assets" */ '../views/asset/asset-detail.vue'),
     },
@@ -553,11 +548,11 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
     const appStore = useAppStore();
     // Pastikan hydrateFromStorage sudah dipanggil di main.ts sebelum router digunakan
-    if (appStore.$state.user === null && to.name !== 'boxed-signin' && to.meta.requiresAuth) {
+    if (appStore.$state.user === null) {
         // redirect ke login jika belum login
-        appStore.$dispose();
-        next({ name: 'boxed-signin' });
-        return;
+        // appStore.$dispose();
+        // next({ name: 'boxed-signin' });
+        // return;
     }
     if (to?.meta?.layout === 'auth') {
         appStore.setMainLayout('auth');

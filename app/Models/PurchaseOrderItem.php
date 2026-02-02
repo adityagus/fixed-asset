@@ -16,6 +16,7 @@ class PurchaseOrderItem extends Model
         'quantity',
         'unit_price',
         'total_price',
+        'is_locked',
     ];
     
     public $timestamps = true;

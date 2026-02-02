@@ -151,9 +151,9 @@ export const getNotes = async (formType, formNumber) => {
 
 export const getCountApproval = async (username) => {
     try {
-        const response = await axiosInstance.get<any>(`/count-approval/${username}`);
+        const response = await axiosInstance.get<any>(`submission/count-approval/${username}`);
         console.log('API getCountApproval response:', response.data);
-        return response.data;
+        return response.data.data;
     } catch (error) {
         console.error('API getCountApproval error:', error);
         throw error;

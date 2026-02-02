@@ -27,7 +27,6 @@ export const submitPurchaseOrder = async (
 ): Promise<PurchaseOrder> => {
   console.log('isi form', form);
   form.po_number = form.formNumber;
-  form.po_date = form.requestDate;
   form.purchase_request_number = form.prReference;
   return (await axiosInstance.post<PurchaseOrder>('/purchase-order/submit', form)).data;
 };

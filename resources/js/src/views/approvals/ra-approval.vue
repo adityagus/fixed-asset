@@ -1,10 +1,8 @@
 <template>
-    <ApprovalTabs :items="raApprovals" :columns="approvalColumns" :tabs="tabs" :isSuccess="isSuccess" :isPending="isPending" @row-click="goToDetail" initialTab="Waiting Approval">
+    <ApprovalTabs :items="raApprovals" :columns="approvalColumns" :tabs="tabs" :type="'registration-asset'" :isSuccess="isSuccess" :isPending="isPending" 
+        @row-click="goToDetail" initialTab="Waiting Approval">
         <template #created_by="{ item }">
             {{ item.purchase_order?.purchase_request?.created_by || '-' }}
-        </template>
-        <template #cabang="{ item }">
-            {{ item.purchase_order?.purchase_request?.cabang || '-' }}
         </template>
         <template #status="{ item }">
             <span :class="{
@@ -37,10 +35,10 @@ const tabs = [
 
 const router = useRouter();
 function goToDetail(item: any) {
-  router.push({
-    path: `/apps/form/registration-asset/${item.ra_number}`,
-    query: { from: 'approval' }
-  });
+    router.push({
+        path: `/apps/form/registration-asset/${item.ra_number}`,
+        query: { from: 'approval' }
+    });
 }
 
 // Data fetching
@@ -55,7 +53,7 @@ const approvalColumns = [
     { key: 'request_time', title: 'Tanggal' },
     { key: 'ra_number', title: 'Nomor RA' },
     { key: 'created_by', title: 'Pemohon' },
-    { key: 'cabang', title: 'Cabang' },
+    { key: 'nameLocation', title: 'Cabang' },
     { key: 'status', title: 'Status' },
 ];
 

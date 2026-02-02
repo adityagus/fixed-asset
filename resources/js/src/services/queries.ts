@@ -1,12 +1,13 @@
 import { useQueries, useQuery, useQueryClient, useMutation } from '@tanstack/vue-query';
 import { ref, watchEffect, computed, type MaybeRef, unref } from 'vue';
-import { getListApproval, getNotes, getPurchaseRequestIds, getSubmission, getSubmissionDetail, postSubmission } from './api/submissionService';
+import { getCountApproval, getListApproval, getNotes, getPurchaseRequestIds, getSubmission, getSubmissionDetail, postSubmission } from './api/submissionService';
 import type { SubmissionListParams, SubmissionListResponse } from '@/types/submission';
+import type { AssetDetail } from '@/types/report';
 import { getCheckUser } from './api/loginService';
 import { getPurchaseRequestDetail } from './api/purchaseRequestService';
 import { getCabangList, getFileList, getMasterBrg, getVendorList, getKategoriList, getTipeBarangList, getMerkList, createMerk, updateMerk, deleteMerk } from './api/masterService';
 import { getListApproved } from './api/submissionService';
-import { getAssetByCabangPaginated, getAssetReport, getAssetReportPaginated, getBodyStatistik, getHeaderStatistik, getReportBarcode, getReportByCabang } from './api/reportService';
+import { getAssetByCabangPaginated, getAssetDetail, getAssetReport, getAssetReportPaginated, getBodyStatistik, getHeaderStatistik, getReportBarcode, getReportByCabang } from './api/reportService';
 
 export const usePurchaseRequestIds = () => {
     return useQuery({
@@ -152,6 +153,14 @@ export const useGetAssetReport = () => {
     });
 };
 
+export const useGetAssetDetail = (asset_number: string) => {
+    return useQuery<AssetDetail>({
+        queryKey: ['assetDetail', asset_number],
+        queryFn: () => getAssetDetail(asset_number),
+    });
+}
+
+
 export const useGetAssetReportPaginated = (limitRef, offsetRef) => {
   const params = ref({ limit: limitRef.value, offset: offsetRef.value });
 
@@ -264,7 +273,6 @@ export const useDeleteMerk = () => {
 };
 
 export const useCountApproval = (username: string) => {
-    const queryClient = useQueryClient();
     return useQuery({
         queryKey: ['countApproval', username],
         queryFn: () => getCountApproval(username),

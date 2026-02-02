@@ -86,40 +86,46 @@ Route::middleware('jwt')->group(function () {
 
     // prefix master
     Route::prefix('master/')->group(function () {
+        Route::get('cabang', [MasterController::class, 'masterCabangChildren']);
+        Route::get('area', [MasterController::class, 'masterAreaParents']);
+        
         Route::get('barang', [MasterController::class, 'getMasterBarang']);
         Route::post('barang', [MasterController::class, 'createMasterBarang']);
         Route::put('barang/{id}', [MasterController::class, 'updateMasterBarang']);
         Route::delete('barang/{id}', [MasterController::class, 'deleteMasterBarang']);
+        
         Route::get('vendor', [MasterController::class, 'getVendorList']);
-        Route::get('cabang', [MasterController::class, 'masterCabangChildren']);
-        Route::get('area', [MasterController::class, 'masterAreaParents']);
+        Route::post('vendor', [MasterController::class, 'createVendor']);
+        Route::put('vendor/{id}', [MasterController::class, 'updateVendor']);
+        Route::delete('vendor/{id}', [MasterController::class, 'deleteVendor']);
+        
         Route::get('merk', [MasterController::class, 'getMerkList']);
         Route::post('merk', [MasterController::class, 'createMerk']);
         Route::put('merk/{id}', [MasterController::class, 'updateMerk']);
         Route::delete('merk/{id}', [MasterController::class, 'deleteMerk']);
+        
         Route::get('tipe-barang', [MasterController::class, 'getTipeBarangList']);
         Route::post('tipe-barang', [MasterController::class, 'createTipeBarang']);
         Route::put('tipe-barang/{id}', [MasterController::class, 'updateTipeBarang']);
         Route::delete('tipe-barang/{id}', [MasterController::class, 'deleteTipeBarang']);
+        
         Route::get('kategori', [MasterController::class, 'getKategoriList']);
         Route::post('kategori', [MasterController::class, 'createKategori']);
         Route::put('kategori/{id}', [MasterController::class, 'updateKategori']);
         Route::delete('kategori/{id}', [MasterController::class, 'deleteKategori']);
-        Route::post('vendor', [MasterController::class, 'createVendor']);
-        Route::put('vendor/{id}', [MasterController::class, 'updateVendor']);
-        Route::delete('vendor/{id}', [MasterController::class, 'deleteVendor']);
     });
 
 
     // prefix report
     Route::prefix('report/')->group(function () {
         Route::get('/asset', [ReportController::class, 'assetReport']);
-        Route::get('/asset-depreciation', [ReportController::class, 'assetDepreciationReport']);
-        Route::get('/barcode', action: [ReportController::class, 'reportBarcode']);
-        Route::post('/asset/cabang', [ReportController::class, 'getCabangAssetReport']);
-        // limit offset
-        Route::post('/asset/paginated', [ReportController::class, 'assetReportPaginated']);
+        Route::get('/asset-detail/{asset_number}', [ReportController::class, 'getDetailAsset']);
         
+        Route::post('/asset/paginated', [ReportController::class, 'assetReportPaginated']);
+        Route::get('/asset-depreciation', [ReportController::class, 'assetDepreciationReport']);
+        Route::get('/barcode', [ReportController::class, 'reportBarcode']);
+        
+        Route::post('/asset/cabang', [ReportController::class, 'getCabangAssetReport']);
         Route::post('/asset/cabang/paginated', [ReportController::class, 'getCabangAssetReportPaginated']);
     });
     

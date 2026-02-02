@@ -14,10 +14,12 @@ class PurchaseOrderApproval extends Model
     
     
     public $timestamps = true;
+    
+    
     // created_at and updated_at are managed by Eloquent automatically
     
-    // public function purchaseOrder()
-    // {
-    //     return $this->belongsTo(PurchaseOrder::class, 'request_number', 'po_number');
-    // }
+    public function purchaseOrder()
+    {
+        return $this->belongsTo(PurchaseOrder::class, 'request_number', 'po_number');
+    }
 }

@@ -38,10 +38,4 @@ class RegistrationAsset extends Model
     return $this->belongsTo(PurchaseOrder::class, 'purchase_order_number', 'po_number');
   }
   
-      // accessor untuk mempermudah pemanggilan
-    public function purchaseRequest()
-    {
-        return $this->purchaseOrder ? $this->purchaseOrder->purchaseRequest : null;
-    }
-  
 }

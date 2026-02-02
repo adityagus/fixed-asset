@@ -14,9 +14,8 @@ class RegistrationAssetApproval extends Model
     
     public $timestamps = true;
     
-    
-    public function RegistrationAsset()
+    public function registrationAsset()
     {
-        return $this->belongsTo(RegistrationAsset::class, 'asset_registration_number');
-    } 
+        return $this->belongsTo(RegistrationAsset::class, 'request_number', 'ra_number');
+    }
 }

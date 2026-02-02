@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Assets;
+use Carbon\Carbon;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -80,9 +81,14 @@ class ReportController extends Controller
             'item.category:id,nama_katbrg,umur',
             'item.type:id,nama_tipebrg',
             'item.brand:id,nama_merkbrg',
-            'susut:id,asset_id,nom_susut,total_umur,sisa_umur'
+            'susut:id,asset_id,nom_susut,total_umur,sisa_umur,tgl_akhir',
         ])
-        ->select('id', 'registration_asset_number', 'asset_number', 'ra_date', 'location', 'item_id', 'assigned_to', 'is_asset');
+        ->select('id', 'registration_asset_number', 'asset_number', 'ra_date', 'location', 'item_id', 'assigned_to', 'is_asset', 'status');
+
+        // Setelah get(), ubah format tgl_akhir jika ada
+        // (letakkan setelah $assets = $assetsQuery->skip($offset)->take($limit)->get();)
+        // Contoh:
+
 
         if (isset($filters['status'])) {
             $assetsQuery->where('status', $filters['status']);
@@ -97,16 +103,18 @@ class ReportController extends Controller
         $assets = $assetsQuery
             ->skip($offset)
             ->take($limit)
-            ->get()
-            ->map(function ($asset) {
-                if ($asset->susut?->sisa_umur && $asset->registrationAsset?->ra_date) {
-                    $remainingMonths = $asset->susut->sisa_umur;
-                    $asset->tgl_akhir = date('Y-m-d', strtotime("+$remainingMonths months", strtotime($asset->registrationAsset->ra_date)));
-                } else {
-                    $asset->tgl_akhir = null;
-                }
-                return $asset;
-            });
+            ->get();
+
+        $assets = $assets->map(function ($asset) {
+            if($asset->ra_date) {
+                $asset->ra_date = Carbon::parse($asset->ra_date)->isoFormat('D MMMM Y');
+            }
+            
+            if ($asset->susut && $asset->susut->tgl_akhir) {
+                $asset->susut->tgl_akhir = Carbon::parse($asset->susut->tgl_akhir)->isoFormat('D MMMM Y') ?? null;
+            }
+            return $asset;
+        });
 
         return response()->json([
             'success' => true,
@@ -154,6 +162,26 @@ class ReportController extends Controller
             'limit' => $limit,
             'offset' => $offset,
         ]);
+    }
+    
+    public function getDetailAsset(Request $request, $assetNumber)
+    {
+        $asset = Assets::with('item.category', 'item.brand', 'item.type', 'registrationAsset', 'susut')
+            ->where('asset_number', $assetNumber)
+            ->first();
+
+        if (!$asset) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Asset not found',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $asset,
+        ]);
+        
     }
     
 
@@ -297,12 +325,12 @@ class ReportController extends Controller
     public function headerAssetStatistik()
     {
         $totalAssets = Assets::count();
-        $activeAssets = Assets::where('status', 'Active')->count();
-        $inActiveAssets = Assets::where('status', 'Inactive')->count();
-        $depreciatedAssets = Assets::where('status', 'Depreciated')->count();
-        $totalDepreciated = Assets::where('status', 'Depreciated')->sum('purchase_price');
+        $activeAssets = Assets::where('status', 'Active')->where('is_asset', 'Kapitalis')->count();
+        $inActiveAssets = Assets::where('status', 'Inactive')->where('is_asset', 'Kapitalis')->count();
+        $depreciatedAssets = Assets::where('status', 'Depreciated')->where('is_asset', 'Kapitalis')->count();
+        $totalDepreciated = Assets::where('status', 'Depreciated')->where('is_asset', 'Kapitalis')->sum('purchase_price');
         
-        $totalValue = Assets::sum('purchase_price');
+        $totalValue = Assets::where('is_asset', 'Kapitalis')->sum('purchase_price');
 
         return response()->json([
             'success' => true,
@@ -335,7 +363,7 @@ class ReportController extends Controller
             'peralatan_kayu' => [5],
         ];
 
-        $assets = Assets::with('item.category')->get();
+        $assets = Assets::with('item.category')->where('is_asset', 'Kapitalis')->get();
 
         foreach ($assets as $asset) {
             $categoryId = $asset->item->category->id ?? null;
@@ -350,11 +378,7 @@ class ReportController extends Controller
             }
         }
 
-        $assetsByType = $asset_type;
-            
-            // Menghitung asset berdasarkan usia: 0-5 tahun, 6-10 tahun, >10 tahun
-            $assets = Assets::with('item.category')->get();
-
+        $assetsByType = $asset_type;            
             $assets_0_5 = $assets->filter(function ($asset) {
                 if (!$asset->ra_date) {
                     return false;

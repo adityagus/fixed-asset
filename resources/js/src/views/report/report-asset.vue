@@ -4,54 +4,54 @@
         <!-- Navigasi Tab -->
         <div class="mt-3 flex flex-wrap border-b border-white-light dark:border-[#191e3a] mb-6">
             <button :class="[
-            'flex items-center border-transparent p-5 py-3 gap-2 hover:border-b hover:!border-primary hover:text-primary -mb-[1px]',
-            activeTab === 'asset' ? 'border-b !border-primary text-primary !outline-none' : ''
+                'flex items-center border-transparent p-5 py-3 gap-2 hover:border-b hover:!border-primary hover:text-primary -mb-[1px]',
+                activeTab === 'asset' ? 'border-b !border-primary text-primary !outline-none' : ''
             ]" @click="activeTab = 'asset'">
-            <!-- Icon: Asset/Box -->
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="h-5 w-5 ltr:mr-2 rtl:ml-2">
-                <rect x="3" y="7" width="18" height="13" rx="2" stroke="currentColor" stroke-width="1.5"/>
-                <path d="M3 10h18" stroke="currentColor" stroke-width="1.5"/>
-                <rect x="8" y="3" width="8" height="4" rx="1" stroke="currentColor" stroke-width="1.5"/>
-            </svg>
-            <span>Asset</span>
+                <!-- Icon: Asset/Box -->
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="h-5 w-5 ltr:mr-2 rtl:ml-2">
+                    <rect x="3" y="7" width="18" height="13" rx="2" stroke="currentColor" stroke-width="1.5" />
+                    <path d="M3 10h18" stroke="currentColor" stroke-width="1.5" />
+                    <rect x="8" y="3" width="8" height="4" rx="1" stroke="currentColor" stroke-width="1.5" />
+                </svg>
+                <span>Asset</span>
             </button>
             <button :class="[
-            'flex items-center border-transparent p-5 py-3 gap-2 hover:border-b hover:!border-primary hover:text-primary -mb-[1px]',
-            activeTab === 'branch' ? 'border-b !border-primary text-primary !outline-none' : ''
+                'flex items-center border-transparent p-5 py-3 gap-2 hover:border-b hover:!border-primary hover:text-primary -mb-[1px]',
+                activeTab === 'branch' ? 'border-b !border-primary text-primary !outline-none' : ''
             ]" @click="activeTab = 'branch'">
-            <!-- Icon: Branch/Network -->
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="h-5 w-5 ltr:mr-2 rtl:ml-2">
-                <circle cx="12" cy="5" r="2.5" stroke="currentColor" stroke-width="1.5"/>
-                <circle cx="5" cy="19" r="2.5" stroke="currentColor" stroke-width="1.5"/>
-                <circle cx="19" cy="19" r="2.5" stroke="currentColor" stroke-width="1.5"/>
-                <path d="M12 7.5V16M12 16L5 16M12 16L19 16" stroke="currentColor" stroke-width="1.5"/>
-            </svg>
-            <span>Berdasarkan<br />Cabang</span>
+                <!-- Icon: Branch/Network -->
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="h-5 w-5 ltr:mr-2 rtl:ml-2">
+                    <circle cx="12" cy="5" r="2.5" stroke="currentColor" stroke-width="1.5" />
+                    <circle cx="5" cy="19" r="2.5" stroke="currentColor" stroke-width="1.5" />
+                    <circle cx="19" cy="19" r="2.5" stroke="currentColor" stroke-width="1.5" />
+                    <path d="M12 7.5V16M12 16L5 16M12 16L19 16" stroke="currentColor" stroke-width="1.5" />
+                </svg>
+                <span>Berdasarkan<br />Cabang</span>
             </button>
             <button :class="[
-            'flex items-center border-transparent p-5 py-3 gap-2 hover:border-b hover:!border-primary hover:text-primary -mb-[1px]',
-            activeTab === 'warehouse' ? 'border-b !border-primary text-primary !outline-none' : ''
+                'flex items-center border-transparent p-5 py-3 gap-2 hover:border-b hover:!border-primary hover:text-primary -mb-[1px]',
+                activeTab === 'warehouse' ? 'border-b !border-primary text-primary !outline-none' : ''
             ]" @click="activeTab = 'warehouse'">
-            <!-- Icon: Warehouse/Building -->
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="h-5 w-5 ltr:mr-2 rtl:ml-2">
-                <rect x="3" y="10" width="18" height="8" rx="2" stroke="currentColor" stroke-width="1.5"/>
-                <path d="M3 10L12 4L21 10" stroke="currentColor" stroke-width="1.5"/>
-                <rect x="8" y="14" width="2" height="4" stroke="currentColor" stroke-width="1.5"/>
-                <rect x="14" y="14" width="2" height="4" stroke="currentColor" stroke-width="1.5"/>
-            </svg>
-            <span>Gudang</span>
+                <!-- Icon: Warehouse/Building -->
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="h-5 w-5 ltr:mr-2 rtl:ml-2">
+                    <rect x="3" y="10" width="18" height="8" rx="2" stroke="currentColor" stroke-width="1.5" />
+                    <path d="M3 10L12 4L21 10" stroke="currentColor" stroke-width="1.5" />
+                    <rect x="8" y="14" width="2" height="4" stroke="currentColor" stroke-width="1.5" />
+                    <rect x="14" y="14" width="2" height="4" stroke="currentColor" stroke-width="1.5" />
+                </svg>
+                <span>Gudang</span>
             </button>
             <button :class="[
-            'flex items-center border-transparent p-5 py-3 gap-2 hover:border-b hover:!border-primary hover:text-primary -mb-[1px]',
-            activeTab === 'susut' ? 'border-b !border-primary text-primary !outline-none' : ''
+                'flex items-center border-transparent p-5 py-3 gap-2 hover:border-b hover:!border-primary hover:text-primary -mb-[1px]',
+                activeTab === 'susut' ? 'border-b !border-primary text-primary !outline-none' : ''
             ]" @click="activeTab = 'susut'">
-            <!-- Icon: Depreciation/Chart -->
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="h-5 w-5 ltr:mr-2 rtl:ml-2">
-                <rect x="4" y="14" width="3" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
-                <rect x="10.5" y="10" width="3" height="10" rx="1" stroke="currentColor" stroke-width="1.5"/>
-                <rect x="17" y="6" width="3" height="14" rx="1" stroke="currentColor" stroke-width="1.5"/>
-            </svg>
-            <span>Susut</span>
+                <!-- Icon: Depreciation/Chart -->
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="h-5 w-5 ltr:mr-2 rtl:ml-2">
+                    <rect x="4" y="14" width="3" height="6" rx="1" stroke="currentColor" stroke-width="1.5" />
+                    <rect x="10.5" y="10" width="3" height="10" rx="1" stroke="currentColor" stroke-width="1.5" />
+                    <rect x="17" y="6" width="3" height="14" rx="1" stroke="currentColor" stroke-width="1.5" />
+                </svg>
+                <span>Susut</span>
             </button>
         </div>
         <div class="flex items-center justify-between md:flex-row flex-col mb-4.5 gap-5">
@@ -115,8 +115,10 @@
             </div>
             <div class="flex gap-3">
                 <button class="btn btn-outline-primary flex items-center gap-2" @click="showBarcodeScanner = true">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:1;">
-                        <path fill="none" d="M10 12V6h1m-1 6h1V6m-1 12v-3h1m0 0v3h-1M7 6v6m0 3v3m7-12v6m0 3v3m3-12v6m0 3v3M6 3H3v3m-1 6h20m-4-9h3v3M6 21H3v-3m15 3h3v-3"/>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:1;">
+                        <path fill="none"
+                            d="M10 12V6h1m-1 6h1V6m-1 12v-3h1m0 0v3h-1M7 6v6m0 3v3m7-12v6m0 3v3m3-12v6m0 3v3M6 3H3v3m-1 6h20m-4-9h3v3M6 21H3v-3m15 3h3v-3" />
                     </svg>
                     Scan Barcode Aset
                 </button>
@@ -132,9 +134,11 @@
         </div>
         <div v-if="activeTab === 'asset'">
             <h3 class="text-lg font-semibold mb-2">Daftar Asset</h3>
-            <vue3-datatable :rows="assetRows" :columns="assetSimpleCols" :search="searchAsset" :totalRows="total" :pageSize="limit" :page='currentPage' @page-change="onPageChange" @page-size-change="onPageSizeChange" skin="whitespace-nowrap bh-table-hover">
-                <template #detail="{ row }">
-                    <span style="display:flex;justify-content:center;">
+            <vue3-datatable :rows="assetRows" :columns="assetSimpleCols" :search="searchAsset" :totalRows="total" :pageSize="limit"
+                :page="currentPage" @page-change="onPageChange" @page-size-change="onPageSizeChange"
+                skin="whitespace-nowrap bh-table-hover">
+                <template #id="slotProps">
+                    <span style="display:flex;justify-content:center; cursor:pointer;" @click="detailAsset(slotProps)">
                         <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24">
                             <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" stroke="currentColor" fill="none" />
                             <circle cx="12" cy="12" r="3.5" stroke="currentColor" fill="none" />
@@ -146,27 +150,52 @@
         <div v-if="activeTab === 'branch' && isCabangListSuccess">
             <h3 class="text-lg font-semibold mb-2">Aset Berdasarkan Cabang</h3>
             <div class="flex gap-4 mb-4">
-              <select v-model="selectedBranch" class="form-select w-64">
-                <option value="">Pilih Cabang</option>
-                <option v-for="branch in cabangList" :key="branch.id_area" :value="branch.id_area">{{ branch.nm_area }}</option>
-              </select>
-              <select v-model="selectedKapitalis" class="form-select w-64">
-                <option value="">Pilih Kapitalis</option>
-                <option value="Kapitalis">Kapitalis</option>
-                <option value="Non Kapitalis">Non Kapitalis</option>
-              </select>
+                <select v-model="selectedBranch" class="form-select w-64">
+                    <option value="">Pilih Cabang</option>
+                    <option v-for="branch in cabangList" :key="branch.id_area" :value="branch.id_area">{{ branch.nm_area }}</option>
+                </select>
+                <select v-model="selectedKapitalis" class="form-select w-64">
+                    <option value="">Pilih Kapitalis</option>
+                    <option value="Kapitalis">Kapitalis</option>
+                    <option value="Non Kapitalis">Non Kapitalis</option>
+                </select>
             </div>
-            <vue3-datatable :rows="branchAssets" :columns="assetSimpleCols" :search="searchBranch"
-              skin="whitespace-nowrap bh-table-hover" />
+            <vue3-datatable :rows="cabangAsset" :columns="assetSimpleCols" :search="searchBranch"
+                skin="whitespace-nowrap bh-table-hover">
+                <template #id="slotProps">
+                    <span style="display:flex;justify-content:center; cursor:pointer;" @click="detailAsset(slotProps)">
+                        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24">
+                            <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" stroke="currentColor" fill="none" />
+                            <circle cx="12" cy="12" r="3.5" stroke="currentColor" fill="none" />
+                        </svg>
+                    </span>
+                </template>
+            </vue3-datatable>
         </div>
         <div v-if="activeTab === 'warehouse'">
             <h3 class="text-lg font-semibold mb-2">Aset di Gudang</h3>
             <vue3-datatable :rows="warehouseAssets" :columns="assetSimpleCols" :search="searchWarehouse"
-                skin="whitespace-nowrap bh-table-hover" />
+                skin="whitespace-nowrap bh-table-hover">
+                <template #id="slotProps">
+                    <span style="display:flex;justify-content:center; cursor:pointer;" @click="detailAsset(slotProps)">
+                        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24">
+                            <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" stroke="currentColor" fill="none" />
+                            <circle cx="12" cy="12" r="3.5" stroke="currentColor" fill="none" />
+                        </svg>
+                    </span>
+                </template>
+            </vue3-datatable>
         </div>
         <div v-if="activeTab === 'susut'">
             <h3 class="text-lg font-semibold mb-2">Laporan Susut Aset</h3>
-            <vue3-datatable :rows="susutRows" :columns="susutCols" :search="searchSusut" skin="whitespace-nowrap bh-table-hover" />
+            <vue3-datatable :rows="susutRows" :columns="susutCols" :search="searchSusut" skin="whitespace-nowrap bh-table-hover">
+                <template #ra_date="slotProps">
+                    <span class="text-center w-full block">{{ slotProps.value?.ra_date }}</span>
+                </template>
+                <template #susut.tgl_akhir="slotProps">
+                    <span class="text-center w-full block">{{ slotProps.value?.susut?.tgl_akhir }}</span>
+                </template>
+            </vue3-datatable>
         </div>
         <!-- Modal Kamera -->
         <div v-if="showCamera" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
@@ -217,12 +246,12 @@ const offset = ref(0);
 const total = ref(0);
 const currentPage = computed(() => Math.floor(offset.value / limit.value) + 1);
 function onPageChange(page) {
-  offset.value = (page - 1) * limit.value;
+    offset.value = (page - 1) * limit.value;
 }
 
 function onPageSizeChange(newLimit) {
-  limit.value = newLimit;
-  offset.value = 0; // reset ke halaman pertama
+    limit.value = newLimit;
+    offset.value = 0; // reset ke halaman pertama
 }
 const assetRows = computed(() => allAssets.value); // Untuk tab asset
 const selectedKapitalis = ref('');
@@ -252,184 +281,209 @@ const showCamera = ref(false);
 const showBarcodeScanner = ref(false);
 const videoRef = ref<HTMLVideoElement | null>(null);
 const capturedImage = ref<string | null>(null);
-    
+
 let stream: MediaStream | null = null;
 let barcodeScanner: Html5Qrcode | null = null;
 // const branches = ['Jakarta', 'Bandung', 'Surabaya', 'Medan', 'Bali'];
+
+const detailAsset = (row) => {
+    console.log('Navigating to asset detail for:', row.value.asset_number);
+    router.push({ name: 'report-asset-detail', params: { assetNumber: row.value.asset_number } });
+};
 
 // queries
 const { data: cabangList, isSuccess: isCabangListSuccess } = useGetCabangList();
 // const { data: assetReport } = useGetAssetReport();
 const { data: assetReport } = useGetAssetReportPaginated(limit, offset);
 const { data: branchAssets } = useGetAssetByCabangPaginated(selectedBranch, selectedKapitalis, limit, offset);
+
 console.log('branchAssets:', branchAssets);
 // Kolom untuk tab Asset (seperti gambar)
 const assetSimpleCols = [
-  { title: 'Kode Aset', field: 'asset_number', sortable: true },
-  { title: 'Nama Barang', field: 'item.nama_brg', sortable: true },
-  { title: 'Cabang', field: 'nameLocation', sortable: true },
-{
-    title: 'Detail',
-    field: 'detail',
-    sortable: false,
-}
+    { title: 'Kode Aset', field: 'asset_number', sortable: true },
+    { title: 'Nama Barang', field: 'item.nama_brg', sortable: true },
+    { title: 'Cabang', field: 'nameLocation', sortable: true },
+    {
+        title: 'Detail',
+        field: 'id',
+        headerClass: 'justify-center',
+        sortable: false,
+    }
 ];
 
 // Kolom untuk tab Susut (seperti sebelumnya)
 const susutCols = [
-  { title: 'No Transaksi', field: 'registration_asset_number', sortable: true },
-  { title: 'Kategori', field: 'item.category.nama_katbrg', sortable: true },
-  { title: 'Kode Aset', field: 'asset_number', sortable: true },
-  { title: 'Nama Aset', field: 'item.nama_brg', sortable: true },
-  { title: 'Lokasi', field: 'nameLocation', sortable: true },
-  { title: 'Tgl Perolehan', field: 'ra_date', sortable: true },
-  { title: 'Usia Ekonomis (Bulan)', field: 'item.category.umur', sortable: true },
-  { title: 'Nilai Perolehan', field: 'nilai_perolehan', sortable: true },
-  { title: 'Akm Peny per Bulan', field: 'nom_susut', sortable: true },
-  { title: 'Total Akm Penyusutan', field: 'total_akm_penyusutan', sortable: true },
-  { title: 'Nilai Buku', field: 'nilai_buku', sortable: true },
-  { title: 'Tanggal Akhir Usia Aset', field: 'tgl_akhir', sortable: true },
-  { title: 'Keterangan/PIC', field: 'assigned_to', sortable: true },
+    { title: 'No Transaksi', field: 'registration_asset_number', sortable: true },
+    { title: 'Kategori', field: 'item.category.nama_katbrg', sortable: true },
+    { title: 'Kode Aset', field: 'asset_number', sortable: true },
+    { title: 'Nama Aset', field: 'item.nama_brg', sortable: true },
+    { title: 'Lokasi', field: 'nameLocation', sortable: true },
+    { title: 'Tgl Perolehan', field: 'ra_date', sortable: true },
+    { title: 'Usia Ekonomis (Bulan)', field: 'item.category.umur', sortable: true },
+    { title: 'Nilai Perolehan', field: 'nilai_perolehan', sortable: true },
+    { title: 'Akm Peny per Bulan', field: 'nom_susut', sortable: true },
+    { title: 'Total Akm Penyusutan', field: 'total_akm_penyusutan', sortable: true },
+    { title: 'Nilai Buku', field: 'nilai_buku', sortable: true },
+    { title: 'Tanggal Akhir Usia Aset', field: 'susut.tgl_akhir', sortable: true, customClass: 'text-center' },
+    { title: 'Keterangan/PIC', field: 'assigned_to', sortable: true },
 ];
+
+
 
 const allAssets = computed(() => {
     // Pastikan assetReport dan cabangList sudah ada
     // Map setiap aset, tambahkan nameLocation dari cabangList
-    return assetReport.value.data.map((asset: any) => {
+    return Array.isArray(assetReport.value?.data) ? assetReport.value.data.map((asset: any) => {
         // Cari cabang yang sesuai dengan asset.location
         const cabang = cabangList.value.find((c: { id_area: any }) => c.id_area === asset.location);
         return {
             ...asset,
-            nameLocation: cabang ? cabang.nm_area : asset.location
+            nameLocation: cabang ? cabang.nm_area : asset.location === '9999' ? 'HO' : 'Lokasi Tidak Dikenal',
         };
-    });
+    }) : [];
+});
+
+const cabangAsset = computed(() => {
+    let filtered = allAssets.value;
+    if (selectedBranch.value) {
+        filtered = filtered.filter(a => a.location === selectedBranch.value);
+    }
+    if (selectedKapitalis.value) {
+        // Asumsi field kapitalis di data asset: a.kapitalis
+        if (selectedKapitalis.value === 'Kapitalis') {
+            filtered = filtered.filter(a => a.is_asset == 'Kapitalis');
+        } else if (selectedKapitalis.value === 'Non Kapitalis') {
+            filtered = filtered.filter(a => a.is_asset == 'Non Kapitalis');
+        }
+    }
+    return filtered;
 });
 
 
-const warehouseAssets = computed(() => allAssets.value.filter(a => a.status === 'Gudang'));
+const warehouseAssets = computed(() => allAssets.value.filter(a => a.status === 'inactive'));
 const susutRows = computed(() => allAssets.value); // Untuk tab susut
 
 // Watch effect untuk menambahkan data custom di assetReport
 watchEffect(() => {
-  if (assetReport.value && Array.isArray(assetReport.value.data)) {
-    assetReport.value.data.forEach((item: any) => {
-      if (!item.custom_field) {
-        item.custom_field = 'Custom Value';
-      }
-      // Contoh: hitung nilai buku jika belum ada
-      if (item.susut && typeof item.susut.total_umur === 'number' && typeof item.susut.nom_susut === 'number') {
-        
-        // Contoh: tambahkan properti custom 'custom_field'
-      item.nilai_perolehan = formatRupiah(item.susut.total_umur * item.susut.nom_susut);
-      item.total_akm_penyusutan = formatRupiah((item.susut.total_umur - item.susut.sisa_umur) * item.susut.nom_susut);
-      item.nilai_buku = formatRupiah(item.susut.sisa_umur * item.susut.nom_susut);
-      item.nom_susut = formatRupiah(item.susut.nom_susut);  
-      
-      
-      
-      // Konversi kode PHP ke JavaScript:
-      // $fd = explode('-',$a->tglref);
-      // $tglreg = $fd[2].'-'.$fd[1].'-'.$fd[0];
-      // $tglakhir = date('d-m-Y',mktime(0,0,0,($a->total_umur + (int)$fd[1]),(int)$fd[2],(int)$fd[0]));
+    if (assetReport.value && Array.isArray(assetReport.value.data)) {
+        assetReport.value.data.forEach((item: any) => {
+            if (!item.custom_field) {
+                item.custom_field = 'Custom Value';
+            }
+            // Contoh: hitung nilai buku jika belum ada
+            if (item.susut && typeof item.susut.total_umur === 'number' && typeof item.susut.nom_susut === 'number') {
 
-      // ?>
-      
-      }
-    });
-  }
-  
-  console.log('assetReport updated:', assetReport.value);
+                // Contoh: tambahkan properti custom 'custom_field'
+                item.nilai_perolehan = formatRupiah(item.susut.total_umur * item.susut.nom_susut);
+                item.total_akm_penyusutan = formatRupiah((item.susut.total_umur - item.susut.sisa_umur) * item.susut.nom_susut);
+                item.nilai_buku = formatRupiah(item.susut.sisa_umur * item.susut.nom_susut);
+                item.nom_susut = formatRupiah(item.susut.nom_susut);
+
+
+
+                // Konversi kode PHP ke JavaScript:
+                // $fd = explode('-',$a->tglref);
+                // $tglreg = $fd[2].'-'.$fd[1].'-'.$fd[0];
+                // $tglakhir = date('d-m-Y',mktime(0,0,0,($a->total_umur + (int)$fd[1]),(int)$fd[2],(int)$fd[0]));
+
+                // ?>
+
+            }
+        });
+    }
+
+    console.log('assetReport updated:', assetReport.value);
 });
 
 function formatRupiah(val) {
-  const num = Number(val);
-  if (val === null || val === undefined || val === '' || isNaN(num)) return '-';
-  return num.toLocaleString('id-ID');
+    const num = Number(val);
+    if (val === null || val === undefined || val === '' || isNaN(num)) return '-';
+    return num.toLocaleString('id-ID');
 }
 
 // Fungsi ekspor/print table
 const exportTable = (type: string) => {
-  let columns = susutCols.map((d) => d.field);
-  let records: any[] = [];
-  if (activeTab.value === 'asset') records = assetRows.value;
-  else if (activeTab.value === 'susut') records = susutRows.value;
-  let filename = 'assets';
-  let newVariable: any = window.navigator;
-  // Util capitalize
-  const capitalize = (text: string) => text.replace('_', ' ').replace('-', ' ').toLowerCase()
-    .split(' ').map(s => s.charAt(0).toUpperCase() + s.substring(1)).join(' ');
+    let columns = susutCols.map((d) => d.field);
+    let records: any[] = [];
+    if (activeTab.value === 'asset') records = assetRows.value;
+    else if (activeTab.value === 'susut') records = susutRows.value;
+    let filename = 'Report Asset Susust';
+    let newVariable: any = window.navigator;
+    // Util capitalize
+    const capitalize = (text: string) => text.replace('_', ' ').replace('-', ' ').toLowerCase()
+        .split(' ').map(s => s.charAt(0).toUpperCase() + s.substring(1)).join(' ');
 
-  if (type == 'csv' || type == 'txt') {
-    let coldelimiter = type == 'csv' ? ';' : ',';
-    let linedelimiter = '\n';
-    let result = columns.map((d) => capitalize(d)).join(coldelimiter);
-    result += linedelimiter;
-    records.forEach((item) => {
-      columns.forEach((d: any, index) => {
-        if (index > 0) result += coldelimiter;
-        let val = getNested(item, d);
-        result += val;
-      });
-      result += linedelimiter;
-    });
-    if (result == null) return;
-    let mime = type == 'csv' ? 'application/csv' : 'application/txt';
-    if (!result.match(/^data:text\/(csv|txt)/i) && !newVariable.msSaveOrOpenBlob) {
-      var data = `data:${mime};charset=utf-8,` + encodeURIComponent(result);
-      var link = document.createElement('a');
-      link.setAttribute('href', data);
-      link.setAttribute('download', filename + (type == 'csv' ? '.csv' : '.txt'));
-      link.click();
-    } else {
-      var blob = new Blob([result]);
-      if (newVariable.msSaveOrOpenBlob) newVariable.msSaveBlob(blob, filename + (type == 'csv' ? '.csv' : '.txt'));
+    if (type == 'csv' || type == 'txt') {
+        let coldelimiter = type == 'csv' ? ';' : ',';
+        let linedelimiter = '\n';
+        let result = columns.map((d) => capitalize(d)).join(coldelimiter);
+        result += linedelimiter;
+        records.forEach((item) => {
+            columns.forEach((d: any, index) => {
+                if (index > 0) result += coldelimiter;
+                let val = getNested(item, d);
+                result += val;
+            });
+            result += linedelimiter;
+        });
+        if (result == null) return;
+        let mime = type == 'csv' ? 'application/csv' : 'application/txt';
+        if (!result.match(/^data:text\/(csv|txt)/i) && !newVariable.msSaveOrOpenBlob) {
+            var data = `data:${mime};charset=utf-8,` + encodeURIComponent(result);
+            var link = document.createElement('a');
+            link.setAttribute('href', data);
+            link.setAttribute('download', filename + (type == 'csv' ? '.csv' : '.txt'));
+            link.click();
+        } else {
+            var blob = new Blob([result]);
+            if (newVariable.msSaveOrOpenBlob) newVariable.msSaveBlob(blob, filename + (type == 'csv' ? '.csv' : '.txt'));
+        }
+    } else if (type == 'print') {
+        var rowhtml = '<p>' + filename + '</p>';
+        rowhtml += '<table style="width: 100%; " cellpadding="0" cellcpasing="0"><thead><tr style="color: #515365; background: #eff5ff; -webkit-print-color-adjust: exact; print-color-adjust: exact; "> ';
+        columns.forEach((d) => { rowhtml += '<th>' + capitalize(d) + '</th>'; });
+        rowhtml += '</tr></thead><tbody>';
+        records.forEach((item) => {
+            rowhtml += '<tr>';
+            columns.forEach((d: any) => {
+                let val = getNested(item, d);
+                rowhtml += '<td>' + val + '</td>';
+            });
+            rowhtml += '</tr>';
+        });
+        rowhtml += '<style>body {font-family:Arial; color:#495057;}p{text-align:center;font-size:18px;font-weight:bold;margin:15px;}table{ border-collapse: collapse; border-spacing: 0; }th,td{font-size:12px;text-align:left;padding: 4px;}th{padding:8px 4px;}tr:nth-child(2n-1){background:#f7f7f7; }</style>';
+        rowhtml += '</tbody></table>';
+        var winPrint: any = window.open('', '', 'left=0,top=0,width=1000,height=600,toolbar=0,scrollbars=0,status=0');
+        winPrint.document.write('<title>Print</title>' + rowhtml);
+        winPrint.document.close();
+        winPrint.focus();
+        winPrint.print();
     }
-  } else if (type == 'print') {
-    var rowhtml = '<p>' + filename + '</p>';
-    rowhtml += '<table style="width: 100%; " cellpadding="0" cellcpasing="0"><thead><tr style="color: #515365; background: #eff5ff; -webkit-print-color-adjust: exact; print-color-adjust: exact; "> ';
-    columns.forEach((d) => { rowhtml += '<th>' + capitalize(d) + '</th>'; });
-    rowhtml += '</tr></thead><tbody>';
-    records.forEach((item) => {
-      rowhtml += '<tr>';
-      columns.forEach((d: any) => {
-        let val = getNested(item, d);
-        rowhtml += '<td>' + val + '</td>';
-      });
-      rowhtml += '</tr>';
-    });
-    rowhtml += '<style>body {font-family:Arial; color:#495057;}p{text-align:center;font-size:18px;font-weight:bold;margin:15px;}table{ border-collapse: collapse; border-spacing: 0; }th,td{font-size:12px;text-align:left;padding: 4px;}th{padding:8px 4px;}tr:nth-child(2n-1){background:#f7f7f7; }</style>';
-    rowhtml += '</tbody></table>';
-    var winPrint: any = window.open('', '', 'left=0,top=0,width=1000,height=600,toolbar=0,scrollbars=0,status=0');
-    winPrint.document.write('<title>Print</title>' + rowhtml);
-    winPrint.document.close();
-    winPrint.focus();
-    winPrint.print();
-  }
 };
 
 // Kolom untuk ekspor Excel
 const excelColumns = () => {
-  return {
-    'No Transaksi': 'register_asset_number',
-    'Kategori': 'item.category.nama_katbrg',
-    'Kode Aset': 'asset_number',
-    'Nama Aset': 'item.nama_brg',
-    'Lokasi': 'location',
-    'Tgl Perolehan': 'registrationAsset.ra_date',
-    'Usia Ekonomis (Bulan)': 'item.category.umur',
-    'Nilai Perolehan': 'nilai_perolehan',
-    'Akm Peny per Bulan': 'susut.nom_susut',
-    'Total Akm Penyusutan': 'total_depreciation',
-    'Nilai Buku': 'book_value',
-    'Tanggal Akhir Usia Aset': 'end_of_life_date',
-    'Keterangan/PIC': 'pic',
-  };
+    return {
+        'No Transaksi': 'register_asset_number',
+        'Kategori': 'item.category.nama_katbrg',
+        'Kode Aset': 'asset_number',
+        'Nama Aset': 'item.nama_brg',
+        'Lokasi': 'location',
+        'Tgl Perolehan': 'registrationAsset.ra_date',
+        'Usia Ekonomis (Bulan)': 'item.category.umur',
+        'Nilai Perolehan': 'nilai_perolehan',
+        'Akm Peny per Bulan': 'susut.nom_susut',
+        'Total Akm Penyusutan': 'total_depreciation',
+        'Nilai Buku': 'book_value',
+        'Tanggal Akhir Usia Aset': 'end_of_life_date',
+        'Keterangan/PIC': 'pic',
+    };
 };
 // Data untuk ekspor Excel
 const excelItems = () => {
-  if (activeTab.value === 'asset') return assetRows.value;
-  else if (activeTab.value === 'susut') return susutRows.value;
-  return [];
+    if (activeTab.value === 'asset') return assetRows.value;
+    else if (activeTab.value === 'susut') return susutRows.value;
+    return [];
 };
 
 // const { data:cabang } = useGetCabangList();
@@ -438,106 +492,106 @@ const excelItems = () => {
 
 // Fungsi getNested: untuk export/print, tanpa pemisah ribuan
 function getNested(obj: any, path: string) {
-  if (path === 'nilai_perolehan') {
-    if (typeof obj.nilai_perolehan === 'number') {
-      return obj.nilai_perolehan; // tanpa .toLocaleString
+    if (path === 'nilai_perolehan') {
+        if (typeof obj.nilai_perolehan === 'number') {
+            return obj.nilai_perolehan; // tanpa .toLocaleString
+        }
+        const susut = obj.susut;
+        if (susut && typeof susut.total_umur === 'number' && typeof susut.nom_susut === 'number') {
+            return susut.total_umur * susut.nom_susut;
+        }
+        return '-';
     }
-    const susut = obj.susut;
-    if (susut && typeof susut.total_umur === 'number' && typeof susut.nom_susut === 'number') {
-      return susut.total_umur * susut.nom_susut;
+    if (path === 'total_akm_penyusutan') {
+        if (typeof obj.total_akm_penyusutan === 'number') {
+            return obj.total_akm_penyusutan;
+        }
+        return '-';
     }
-    return '-';
-  }
-  if (path === 'total_akm_penyusutan') {
-    if (typeof obj.total_akm_penyusutan === 'number') {
-      return obj.total_akm_penyusutan;
+    if (path === 'nilai_buku') {
+        if (typeof obj.nilai_buku === 'number') {
+            return obj.nilai_buku;
+        }
+        return '-';
     }
-    return '-';
-  }
-  if (path === 'nilai_buku') {
-    if (typeof obj.nilai_buku === 'number') {
-      return obj.nilai_buku;
-    }
-    return '-';
-  }
-  // Nested biasa (dot notation)
-  return path.split('.').reduce((o, k) => (o && o[k] !== undefined ? o[k] : ''), obj);
+    // Nested biasa (dot notation)
+    return path.split('.').reduce((o, k) => (o && o[k] !== undefined ? o[k] : ''), obj);
 }
 
 // Kamera, Barcode, dsb (boleh diabaikan jika fokus laporan)
 const openCamera = async () => {
-  if (videoRef.value) {
-    try {
-      stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      videoRef.value.srcObject = stream;
-    } catch (err) {
-      alert('Tidak dapat mengakses kamera');
-      showCamera.value = false;
+    if (videoRef.value) {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            videoRef.value.srcObject = stream;
+        } catch (err) {
+            alert('Tidak dapat mengakses kamera');
+            showCamera.value = false;
+        }
     }
-  }
 };
 const closeCamera = () => {
-  showCamera.value = false;
-  capturedImage.value = null;
-  if (stream) { stream.getTracks().forEach(track => track.stop()); stream = null; }
+    showCamera.value = false;
+    capturedImage.value = null;
+    if (stream) { stream.getTracks().forEach(track => track.stop()); stream = null; }
 };
 const capturePhoto = () => {
-  if (!videoRef.value) return;
-  const canvas = document.createElement('canvas');
-  canvas.width = videoRef.value.videoWidth;
-  canvas.height = videoRef.value.videoHeight;
-  const ctx = canvas.getContext('2d');
-  if (ctx) {
-    ctx.drawImage(videoRef.value, 0, 0, canvas.width, canvas.height);
-    capturedImage.value = canvas.toDataURL('image/png');
-  }
+    if (!videoRef.value) return;
+    const canvas = document.createElement('canvas');
+    canvas.width = videoRef.value.videoWidth;
+    canvas.height = videoRef.value.videoHeight;
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+        ctx.drawImage(videoRef.value, 0, 0, canvas.width, canvas.height);
+        capturedImage.value = canvas.toDataURL('image/png');
+    }
 };
 const retakePhoto = () => { capturedImage.value = null; };
 const closeBarcodeScanner = async () => {
-  showBarcodeScanner.value = false;
-  const videoElems = document.querySelectorAll('#barcode-scanner video') as NodeListOf<HTMLVideoElement>;
-  videoElems.forEach((video) => { if (video.srcObject) { const tracks = (video.srcObject as MediaStream).getTracks(); tracks.forEach((track) => track.stop()); video.srcObject = null; } });
-  const allVideos = document.querySelectorAll('video') as NodeListOf<HTMLVideoElement>;
-  allVideos.forEach((video) => { if (video.srcObject) { const tracks = (video.srcObject as MediaStream).getTracks(); tracks.forEach((track) => track.stop()); video.srcObject = null; } });
-  if (barcodeScanner) { if (barcodeScanner.isScanning) { try { await barcodeScanner.stop(); } catch (e) {} } barcodeScanner.clear(); barcodeScanner = null; }
+    showBarcodeScanner.value = false;
+    const videoElems = document.querySelectorAll('#barcode-scanner video') as NodeListOf<HTMLVideoElement>;
+    videoElems.forEach((video) => { if (video.srcObject) { const tracks = (video.srcObject as MediaStream).getTracks(); tracks.forEach((track) => track.stop()); video.srcObject = null; } });
+    const allVideos = document.querySelectorAll('video') as NodeListOf<HTMLVideoElement>;
+    allVideos.forEach((video) => { if (video.srcObject) { const tracks = (video.srcObject as MediaStream).getTracks(); tracks.forEach((track) => track.stop()); video.srcObject = null; } });
+    if (barcodeScanner) { if (barcodeScanner.isScanning) { try { await barcodeScanner.stop(); } catch (e) { } } barcodeScanner.clear(); barcodeScanner = null; }
 };
 
 watch(showCamera, (val) => { if (val) { setTimeout(openCamera, 300); } else { closeCamera(); } });
 watch(showBarcodeScanner, (val) => {
-  if (val) {
-    nextTick(() => {
-      if (!barcodeScanner) {
-        barcodeScanner = new Html5Qrcode("barcode-scanner");
-        barcodeScanner.start(
-          { facingMode: "environment" },
-          { fps: 10, qrbox: 250 },
-          (decodedText: string) => {
-            closeBarcodeScanner();
-            router.push(`/asset/detail/${decodedText}`);
-          },
-          () => {}
-        ).catch((err) => {
-          if (String(err).includes('already under transition')) {
-            barcodeScanner!.stop().then(() => {
-              barcodeScanner!.start(
-                { facingMode: "environment" },
-                { fps: 10, qrbox: 250 },
-                (decodedText: string) => {
-                  closeBarcodeScanner();
-                  router.push(`/asset/detail/${decodedText}`);
-                },
-                () => {}
-              );
-            });
-          } else {
-            alert('Tidak dapat mengakses kamera untuk pemindaian barcode');
-            closeBarcodeScanner();
-          }
+    if (val) {
+        nextTick(() => {
+            if (!barcodeScanner) {
+                barcodeScanner = new Html5Qrcode("barcode-scanner");
+                barcodeScanner.start(
+                    { facingMode: "environment" },
+                    { fps: 10, qrbox: 250 },
+                    (decodedText: string) => {
+                        closeBarcodeScanner();
+                        router.push(`/asset/detail/${decodedText}`);
+                    },
+                    () => { }
+                ).catch((err) => {
+                    if (String(err).includes('already under transition')) {
+                        barcodeScanner!.stop().then(() => {
+                            barcodeScanner!.start(
+                                { facingMode: "environment" },
+                                { fps: 10, qrbox: 250 },
+                                (decodedText: string) => {
+                                    closeBarcodeScanner();
+                                    router.push(`/asset/detail/${decodedText}`);
+                                },
+                                () => { }
+                            );
+                        });
+                    } else {
+                        alert('Tidak dapat mengakses kamera untuk pemindaian barcode');
+                        closeBarcodeScanner();
+                    }
+                });
+            }
         });
-      }
-    });
-  } else {
-    closeBarcodeScanner();
-  }
+    } else {
+        closeBarcodeScanner();
+    }
 });
 </script>

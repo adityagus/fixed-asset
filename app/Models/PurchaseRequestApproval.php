@@ -15,4 +15,8 @@ class PurchaseRequestApproval extends Model
 
     public $timestamps = true;
 
+    public function purchaseRequest()
+    {
+        return $this->belongsTo(PurchaseRequest::class, 'request_number', 'pr_number');
+    }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PurchaseOrderItem;
 use App\Models\PurchaseRequest;
+use App\Models\PurchaseRequestItem;
 use Exception;
 use Tymon\JWTAuth\JWTAuth;
 use Illuminate\Http\Request;
@@ -125,6 +126,7 @@ class PurchaseOrderController extends Controller
         
       // jalankan fungsion saveDraftItem dulu untuk menyimpan data item dan total_amount
       $po_number = $request->input('formNumber');
+      $pr_number = $request->input('purchase_request_number');
       if (!$po_number) {
         return response()->json([
           'success' => false,
@@ -155,7 +157,7 @@ class PurchaseOrderController extends Controller
       ]);
 
       $purchaseOrder = PurchaseOrder::where('po_number', $po_number)->firstOrFail();
-      $purchaseOrder->po_date = now();
+      $purchaseOrder->po_date = now();      
       
       if (!$purchaseOrder) {
         return response()->json([
@@ -173,6 +175,17 @@ class PurchaseOrderController extends Controller
       foreach ($request->items as $itemData) {
         $itemData['purchase_order_number'] = $purchaseOrder->po_number; // Set the purchase_order_number
         PurchaseOrderItem::create($itemData);
+      }
+      
+      // assign purchase request number item to is_locker = true
+       $purchaseRequestItem = PurchaseRequestItem::where('purchase_request_number', $pr_number)->get();
+       $purchaseOrderItems = PurchaseOrderItem::where('purchase_order_number', $po_number)->get();
+      
+      foreach($purchaseRequestItem as $pri) {
+        if($purchaseOrderItems->contains('item_id', $pri->item_id)) {
+            $pri->is_locked = true;
+            $pri->save();
+        }
       }
 
       // create approval layers

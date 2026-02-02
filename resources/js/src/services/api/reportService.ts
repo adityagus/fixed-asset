@@ -11,6 +11,16 @@ export const getAssetReport = async () => {
   }
 };
 
+export const getAssetDetail = async (asset_number: string) => {
+    try {
+        const response = await axiosInstance.get(`/report/asset-detail/${asset_number}`);
+        return response.data.data;
+    } catch (error) {
+        console.error('API getAssetDetail error:', error);
+        throw error;
+    }
+}
+
 export const getAssetReportPaginated = async (data: { limit: number; offset: number }) => {
     try {
         const response = await axiosInstance.post('/report/asset/paginated', data);       

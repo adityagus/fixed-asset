@@ -7,19 +7,22 @@ use Illuminate\Database\Eloquent\Model;
 
 class Susut extends Model
 {
-    use HasFactory;
-    
-    public $table = 'tb_susut';
-    protected $fillable = [
-        'asset_id',
-        'cbg_id',
-        'nom_susut',
-        'sisa_umur',
-        'sts_tmt',
-        'sts_jual',
-        'tgl_reg',
-        'total_umur',
-    ];
-    
-    public $timestamps = false;
+  use HasFactory;
+
+  public $table = 'tb_susut';
+  protected $fillable = [
+    'asset_id',
+    'cbg_id',
+    'nom_susut',
+    'total_akm_penyusutan',
+    'nilai_buku',
+    'sisa_umur',
+    'sts_tmt',
+    'sts_jual',
+    'tgl_reg',
+    'tgl_akhir',
+    'total_umur',
+  ];
+
+  public $timestamps = false;
 }
