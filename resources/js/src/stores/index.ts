@@ -8,9 +8,14 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 
 export const useAppStore = defineStore("app", {
-    state: () => ({
-        token: (localStorage.getItem("authToken") || sessionStorage.getItem("authToken") || null) as string | null,
-        user: localStorage.getItem("authUser") || sessionStorage.getItem("authUser") || null ? (JSON.parse(localStorage.getItem("authUser") || sessionStorage.getItem("authUser") || "null") as UserData | null) : null,
+    state: () => {
+        const authToken = localStorage.getItem("authToken") || sessionStorage.getItem("authToken");
+        const authUserStr = localStorage.getItem("authUser") || sessionStorage.getItem("authUser");
+        const authUser = authUserStr ? JSON.parse(authUserStr) : null;
+        
+        return {
+        token: authToken as string | null,
+        user: authUser as UserData | null,
         loading: false as boolean,
         isDarkMode: false,
         mainLayout: "app",
@@ -43,7 +48,8 @@ export const useAppStore = defineStore("app", {
         ],
         isShowMainLoader: true,
         semidark: false,
-    }),
+        };
+    },
 
     actions: {
         setMainLayout(payload: any = null) {

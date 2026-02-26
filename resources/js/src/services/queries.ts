@@ -70,7 +70,6 @@ export const useCheckUser = () => {
         queryFn: getCheckUser,
         // select: (response) => response,
         staleTime: 1000 * 60 * 5,
-        retry: 1,
         refetchOnWindowFocus: false,
     });
 };
@@ -119,10 +118,26 @@ export const useGetApprovalList = (type: string, username?: MaybeRef<string>) =>
 
 // START: PURCHASE ORDER
 export const useGetListApproved = (formType: string) => {
+  
     console.log('Fetching approved list for formType:', formType);
     return useQuery({
         queryKey: ['listApprovedPR', formType],
-        queryFn: () => getListApproved(formType),
+        queryFn: async () => {
+          const listApproved = await getListApproved(formType);
+          const cabang = await getCabangList();
+          
+          const detailedCabangName = await Promise.all(listApproved.map(async (pr) => {
+            const nameCabang = cabang.find((cabang) => cabang.id_area === pr.cabang) ?? null;
+            console.log(`Matching PR ${pr.pr_number} with Cabang:`, nameCabang);
+            return {
+              ...pr,
+              nama_cabang: pr.cabang === '9999' ? 'HO' : nameCabang ? nameCabang.nm_area : '-- tidak ditemukan --',
+            };
+          }));
+          
+          console.log('Detailed Cabang Name List:', detailedCabangName);
+          return detailedCabangName;
+        }
     });
 };
 // END: PURCHASE ORDER

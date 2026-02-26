@@ -23,12 +23,23 @@ axiosInstance.interceptors.request.use(
 );
 
 // Tambahkan interceptor response untuk handle error 401
+import { storeToRefs } from 'pinia';
 axiosInstance.interceptors.response.use(
   response => response,
   err => {
     console.log('errror auth', err);
     if (err.response && err.response.status === 401) {
-      localStorage.removeItem('authToken');
+      // Hapus token/user di localStorage, sessionStorage, dan Pinia
+      try { 
+        const appStore = useAppStore();
+        appStore.logout && appStore.logout();
+      } catch (e) {
+        // fallback manual jika store belum siap
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('authUser');
+        sessionStorage.removeItem('authToken');
+        sessionStorage.removeItem('authUser');
+      }
       window.location.href = '/login';
     }
     return Promise.reject(err);
