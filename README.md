@@ -12,13 +12,13 @@ Sistem manajemen aset tetap (Fixed Asset) berbasis web yang dibangun dengan Lara
 - 📱 Responsive Design
 - 🔐 Autentikasi JWT dan Otorisasi
 
-## ����️ Tech Stack
+## Tech Stack
 
 ### Backend
 - **Framework**: Laravel 10
 - **PHP Version**: ^8.1
 - **Database**: MySQL/PostgreSQL (configured via .env)
-- **Authentication**: Laravel Sanctum
+- **Authentication**: JWT Authentication
 
 ### Frontend
 - **Framework**: Vue 3 (Composition API)
@@ -239,24 +239,3 @@ Mendukung export data ke Excel menggunakan `vue3-json-excel`.
 ### Charts & Visualization
 Visualisasi data menggunakan ApexCharts untuk dashboard analytics.
 
-### Calendar Management
-Fitur calendar untuk tracking maintenance schedule dan asset lifecycle.
-
-## 🤝 Contributing
-
-Contributions, issues, dan feature requests sangat diterima!
-
-1. Fork repository
-2. Create feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to branch (`git push origin feature/AmazingFeature`)
-5. Open Pull Request
-
-## 🙏 Acknowledgments
-
-- Laravel Framework
-- Vue.js
-- TailwindCSS
-- Dan semua open source libraries yang digunakan dalam project ini
-
----
