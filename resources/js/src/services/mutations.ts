@@ -30,6 +30,7 @@ import { SubmitRegisterAssetPayload } from "@/types/registerAsset";
 import { submitRegistrationAsset } from "./api/registerAssetService";
 import { logout } from "./api/loginService";
 import { editSubmissionPayload } from "@/types/submission";
+import { useAppStore } from "@/stores";
 
 // const queryClient = useQueryClient();
 // export const useCreateSubmission = () => {
@@ -133,11 +134,15 @@ export const useUploadFileSubmission = (type: string) => {
 export const useSubmitPurchaseRequest = () => {
     const qc = useQueryClient();
     const router = useRouter();
+    const store = useAppStore();
     // console.log('useSubmitPurchaseRequest called', formData);
     return useMutation({
         mutationFn: async (formData: SubmitPurchaseRequestPayload) => await submitPurchaseRequest(formData),
         onSuccess: (data, variable) => {
             console.log("Purchase Request submitted successfully:", data, "variable", variable);
+            
+            store.activeTab = "purchase-request";
+            
             qc.invalidateQueries({
                 queryKey: ["submissionDetail", "purchase-request", variable.formNumber],
             });
@@ -174,15 +179,18 @@ export const useSubmitPurchaseRequest = () => {
 export const useSubmitPurchaseOrder = () => {
     const qc = useQueryClient();
     const router = useRouter();
+    const store = useAppStore();
     return useMutation({
         mutationFn: async (formData: SubmitPurchaseOrderPayload) => await submitPurchaseOrder(formData),
         onSuccess: (data, variable) => {
             console.log("Purchase Order submitted successfully:", data);
+            store.activeTab = "purchase-order";
+            
             qc.invalidateQueries({
-                queryKey: ["submissionDetail", "purchase-request", variable.formNumber],
+                queryKey: ["submissionDetail", "purchase-order", variable.formNumber],
             });
             qc.invalidateQueries({
-                queryKey: ["submissions", "purchase-request", variable.requestedBy],
+                queryKey: ["submissions", "purchase-order", variable.requestedBy],
             });
 
             router.push("/submission").then(() => {
@@ -213,10 +221,11 @@ export const useSubmitPurchaseOrder = () => {
 export const useSubmitRegistrationAsset = () => {
     const qc = useQueryClient();
     const router = useRouter();
+    const store = useAppStore();
     return useMutation({
         mutationFn: async (formData: SubmitRegisterAssetPayload) => await submitRegistrationAsset(formData),
         onSuccess: (data, variable) => {
-            console.log("Registration Asset submitted successfully:", data);
+            store.activeTab = "register-asset";
             qc.invalidateQueries({
                 queryKey: ["submissionDetail", "register-asset", variable.formNumber],
             });

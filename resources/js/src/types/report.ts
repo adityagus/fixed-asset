@@ -6,7 +6,6 @@ export interface AssetDetail {
     asset_number: string;
     item_id: number;
     item: mstBarang;
-    regist_item_id: number;
     purchase_request_number: string;
     purchase_order_number: string;
     location: string;

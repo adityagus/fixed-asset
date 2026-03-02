@@ -11,7 +11,6 @@ class Assets extends Model
     
     protected $fillable = [
       'asset_number',
-      'regist_item_id',
       'item_id',
       'ra_date',
       'asset_type',

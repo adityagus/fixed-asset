@@ -8,7 +8,7 @@
             <img class="w-40 ml-[5px] flex-none" src="/assets/images/logo-vertical.png" alt="" />
           </router-link>
           <a href="javascript:;"
-            class="collapse-icon w-8 h-8 rounded-full flex items-center hover:bg-gray-500/10 dark:hover:bg-dark-light/10 dark:text-white-light transition duration-300 rtl:rotate-180 hover:text-primary"
+            class="collapse-icon w-8 h-8 rounded-full flex items-center hover:bg-gray-500/10 dark:hover:bg-dark-light/10 dark:text-gray-700 transition duration-300 rtl:rotate-180 hover:text-primary"
             @click="store.toggleSidebar()">
             <svg class="w-5 h-5 m-auto" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M13 19L7 12L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
@@ -22,7 +22,7 @@
           wheelPropagation: false,
         }" class="h-[calc(100vh-80px)] relative">
           <div
-            class="cursor-pointer flex items-center gap-2 border-solid border-gray-200 p-2 px-5 rounded bg-gray-100 dark:hover:bg-dark-light/10"
+            class="cursor-pointer flex items-center gap-2 border-solid border-gray-200 p-2 px-5 rounded bg-dark-light/20 dark:hover:bg-dark-light/10"
             @click="openCreateModal">
             <svg width="40" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
               <circle cx="25" cy="25" r="25" fill="#FBBD0A" />
@@ -268,14 +268,14 @@
 
     <!-- Modal for Create New -->
     <div v-if="showCreateModal" class="fixed inset-0 z-50 flex items-start pt-20 justify-center bg-black bg-opacity-40">
-      <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
+      <div class="bg-white dark:bg-[#0e1726] rounded-lg shadow-lg w-full max-w-md p-6 relative">
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-xl font-bold">Pengajuan Baru</h2>
-          <button @click="closeCreateModal" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+          <h2 class="text-xl font-bold text-black dark:text-white">Pengajuan Baru</h2>
+          <button @click="closeCreateModal" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 text-2xl">&times;</button>
         </div>
         <div class="mb-4">
-          <label class="block mb-2 font-medium">Pilih Form</label>
-          <select v-model="selectedForm" class="w-full border rounded px-3 py-2">
+          <label class="block mb-2 font-medium text-black dark:text-white">Pilih Form</label>
+          <select v-model="selectedForm" class="w-full border rounded px-3 py-2 bg-white dark:bg-[#1a2332] text-black dark:text-white border-gray-300 dark:border-[#3a4a5a] focus:outline-none focus:ring-2 focus:ring-primary">
             <option value="" disabled>Pilih Form</option>
             <option value="purchase-request">Permintaan Pembelian</option>
             <option value="purchase-order" v-if="store.user?.idgrup == 'JBT-018'">Pesanan Pembelian</option>
@@ -283,7 +283,7 @@
           </select>
         </div>
         <button @click="proceedCreate" :disabled="!selectedForm"
-          class="bg-blue-500 text-white px-4 py-2 rounded w-full font-semibold disabled:opacity-50">Proses</button>
+          class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded w-full font-semibold disabled:opacity-50 dark:bg-blue-600 dark:hover:bg-blue-700">Proses</button>
       </div>
     </div>
   </div>

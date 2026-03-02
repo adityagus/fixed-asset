@@ -4,7 +4,7 @@ import appSetting from "@/app-setting";
 
 import HomeView from "../views/index.vue";
 import ReportSusut from "@/views/report/report-susut.vue";
-import MasterApproval from "@/views/approvals/mst-approval.vue";
+// import MasterApproval from "@/views/approvals/mst-approval.vue";
 
 const routes: RouteRecordRaw[] = [
     // dashboard
@@ -55,11 +55,11 @@ const routes: RouteRecordRaw[] = [
         name: "MasterBarang",
         component: () => import("@/views/barang/master-barang.vue"),
     },
-    {
-        path: "/master/approval",
-        name: "MasterApproval",
-        component: () => MasterApproval,
-    },
+    // {
+    //     path: "/master/approval",
+    //     name: "MasterApproval",
+    //     component: () => MasterApproval,
+    // },
 
     // Report
     {

@@ -206,16 +206,19 @@ class RegistrationAssetController extends Controller
 
       // Simpan item baru ke registration_asset_items dan ke tabel aset
       foreach ($request->items as $item) {
-        $regAssetItem = RegistrationAssetItem::create([
-          'registration_asset_number' => $ra_number,
-          'item_id' => $item['item_id'],
-          'unit_price' => $item['unit_price'] ?? 0,
-          'total_price' => $item['total_price'] ?? 0,
-          'quantity' => $item['quantity'],
-          'is_asset' => $item['is_asset'],
-          'pengajuan' => $item['pengajuan'],
-          // tambahkan field lain jika ada di tabel
-        ]);
+        $qty = isset($item['quantity']) ? (int)$item['quantity'] : 1;
+        for ($i = 0; $i < $qty; $i++) {
+          RegistrationAssetItem::create([
+            'registration_asset_number' => $ra_number,
+            'item_id' => $item['item_id'],
+            'unit_price' => $item['unit_price'] ?? 0,
+            'total_price' => $item['unit_price'] ?? 0, // per item
+            'quantity' => 1,
+            'is_asset' => $item['is_asset'],
+            'pengajuan' => $item['pengajuan'],
+            // tambahkan field lain jika ada di tabel
+          ]);
+        }
 
 
         // // Siapkan data asset

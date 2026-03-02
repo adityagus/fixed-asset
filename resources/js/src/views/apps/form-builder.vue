@@ -14,7 +14,7 @@
       <div class="flex items-center justify-between">
         <div>
           <h1 class="text-2xl font-bold text-gray-900 dark:text-white"><span class="text-gray-600">Buat: </span>{{ formTitle
-          }}</h1>
+            }}</h1>
           <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 font-medium">
             {{ formNumberLabel }} :
             {{ formData.formNumber || formNumberPlaceholder }}
@@ -174,8 +174,10 @@
       <!-- Select PR (for PO and ra only) -->
       <div v-if="formType === 'purchase-order'" class="col-span-3">
         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Pilih Permintaan Pembelian (PR)</label>
-        <input type="text" v-model="selectedPR" @input="onPRSelect" class="form-input disabled" :disabled="!isDraft" v-if="!isDraft" />
-        <select v-if="isDraft" v-model="selectedPR" @change="onPRSelect" class="form-select" :disabled="!isDraft">
+        test{{selectedPR}}
+        <input type="text" v-model="selectedPR" @input="onPRSelect" class="form-input disabled" :disabled="true"
+          v-if="submissionRef?.data?.status !== 'Draft'" />
+        <select v-else v-model="selectedPR" @change="onPRSelect" class="form-select" :disabled="!isDraft">
           <option value="">Pilih PR</option>
           // option pr_number - name cabang
           <option v-for="pr in availablePRs" :key="pr.pr_number" :value="pr.pr_number">{{ pr.pr_number }} - {{ pr.nama_cabang }}
@@ -580,7 +582,8 @@ const cancelSubmission = async () => {
     cancelButtonText: 'Batal',
   });
   if (confirm.isConfirmed) {
-    submissionEdit.mutateAsync(data);
+    await submissionEdit.mutateAsync(data);
+    await refetchPRs();
   }
 };
 
@@ -714,7 +717,7 @@ const selectedPO = ref('');
 const { data: submissionRef, isPending, isSuccess } = useDetailSubmission(formType.value, formNumber.value);
 const { data: masterBrgData } = useGetMasterBrg();
 const { data: fileListRef } = useGetFileList(formNumber.value);
-const { data: availablePRs } = useGetListApproved(formType.value);
+const { data: availablePRs, refetch: refetchPRs } = useGetListApproved(formType.value);
 const { data: availablePOs } = useGetListApproved(formType.value);
 const { data: cabangList } = useGetCabangList();
 const { data: vendorList } = useGetVendorList();
@@ -783,8 +786,8 @@ useSubmissionForm({
   notesHistory,
 });
 
-availablePRs.value = availablePRs.value.map((prList) => {
-  const nameCabang = cabangList.value.find((cabang) => cabang.kode_cabang === prList.cabang);
+availablePRs.value = availablePRs.value?.map((prList) => {
+  const nameCabang = cabangList.value?.find((cabang) => cabang.kode_cabang === prList.cabang);
   return {
     ...prList,
     nama_cabang: nameCabang ? nameCabang.nama_cabang : prList.cabang,
@@ -794,7 +797,7 @@ availablePRs.value = availablePRs.value.map((prList) => {
 const onPRSelect = () => {
   // PR sudah lock jika bukan draft
   if (!isDraft.value) return;
-  const pr = availablePRs.value.find((pr) => pr.pr_number === selectedPR.value);
+  const pr = availablePRs.value?.find((pr) => pr.pr_number === selectedPR.value);
   console.log('Selected PR:', pr);
   if (pr) {
     limitTable.value = pr.purchase_request_items.length;
@@ -805,7 +808,6 @@ const onPRSelect = () => {
     formData.value.requestedBy = pr.created_by;
     formData.value.justification = pr.justification;
     formData.value.department = pr.department;
-    formData
     formData.value.prDate = pr.created_at.slice(0, 10);
     formData.value.prReference = selectedPR.value;
     formData.value.items = pr.purchase_request_items.map((item: any) => ({
@@ -823,11 +825,39 @@ const onPRSelect = () => {
   }
 };
 
-// PR selection
+// Ketika isDraft berubah jadi true dan selectedPR sudah ada, jalankan onPRSelect
+watch(isDraft, (newVal) => {
+  if (newVal && selectedPR.value) {
+    onPRSelect();
+  }
+});
+
+// Ketika selectedPR diisi (misal dari useSubmissionForm) dan isDraft true, jalankan onPRSelect
+watch(selectedPR, (newVal) => {
+  if (newVal && isDraft.value) {
+    onPRSelect();
+  }
+});
+
+// Ketika availablePRs selesai load/refetch, re-map nama_cabang lalu jalankan onPRSelect jika perlu
+watch(availablePRs, (newPRs) => {
+  if (!newPRs) return;
+  availablePRs.value = newPRs.map((prList) => {
+    const nameCabang = cabangList.value?.find((cabang) => cabang.kode_cabang === prList.cabang);
+    return {
+      ...prList,
+      nama_cabang: nameCabang ? nameCabang.nama_cabang : prList.cabang,
+    };
+  });
+  if (selectedPR.value && isDraft.value) {
+    onPRSelect();
+  }
+});
+
 const onPOSelect = () => {
   // PR sudah lock jika bukan draft
   if (!isDraft.value) return;
-  const po = availablePOs.value.find((po) => po.po_number === selectedPO.value);
+  const po = availablePOs.value?.find((po) => po.po_number === selectedPO.value);
   console.log('Selected PO:', po);
   if (po) {
     limitTable.value = po.purchase_order_items.length;
@@ -867,7 +897,7 @@ const onPOSelect = () => {
   }
 };
 
-watch(
+;watch(
   () => formData.value.items,
   (newItems) => {
     newItems.some((item) => {

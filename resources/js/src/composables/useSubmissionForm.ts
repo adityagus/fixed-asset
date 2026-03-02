@@ -50,7 +50,7 @@ export function useSubmissionForm({ submissionRef, formType, formData, defaultFo
             }
         } else if (formType.value === "purchase-order") {
             // --- usePurchaseOrder ---
-            isDraft.value = (data.status === "Draft" || data.status === "Revised") && data.created_by == "ronaldo";
+            isDraft.value = (data.status === "Draft" || data.status === "Revised");
 
             if (data.status.toLowerCase() !== "draft") {
                 console.log("purchase order loaded : ", data);
@@ -82,9 +82,12 @@ export function useSubmissionForm({ submissionRef, formType, formData, defaultFo
                     purchase_request_number: item.purchase_request_number,
                 }));
             } else {
+                selectedPR.value = data.purchase_request_number || ""
                 formData.value.formNumber = data.po_number || "";
                 formData.value.cabang = data.cabang || "";
                 formData.value.requestedBy = "";
+                formData.value.vendor_id = data.vendor_id || "";
+                formData.value.po_date = data.po_date || "";
                 formData.value.department = data.department || "";
                 formData.value.jenisPermintaan = "";
                 formData.value.justification = data.justification || "";
@@ -177,17 +180,24 @@ export function useSubmissionForm({ submissionRef, formType, formData, defaultFo
                 formData.value.notes = data.notes || [];
                 approvalLayers.value = data.approvals;
                 if (Array.isArray(data.purchase_order.purchase_order_items) && data.purchase_order.purchase_order_items.length > 0) {
-                    formData.value.items = data.purchase_order.purchase_order_items.map((item: any) => ({
-                        item_id: item.item_id,
-                        category: item.item_master.category.nama_katbrg,
-                        pengajuan: item.pengajuan,
-                        additional_information: item.item_master.ket_brg,
-                        quantity: 1,
-                        unit_price: item.unit_price,
-                        unit_price_display: separateNominal(item.unit_price),
-                        total_price: item.unit_price,
-                        purchase_order_number: item.purchase_request_number,
-                    }));
+                    // Expand items satu per unit berdasarkan quantity (registration-asset)
+                    const expandedItems: any[] = [];
+                    data.purchase_order.purchase_order_items.forEach((item: any) => {
+                        for (let i = 0; i < (item.quantity || 1); i++) {
+                            expandedItems.push({
+                                item_id: item.item_id,
+                                category: item.item_master.category.nama_katbrg,
+                                pengajuan: item.pengajuan,
+                                additional_information: item.item_master.ket_brg,
+                                quantity: 1,
+                                unit_price: item.unit_price,
+                                unit_price_display: separateNominal(item.unit_price),
+                                total_price: item.unit_price, // quantity=1, jadi total = unit_price
+                                purchase_order_number: item.purchase_request_number,
+                            });
+                        }
+                    });
+                    formData.value.items = expandedItems;
                 } else {
                     formData.value.items = defaultFormData().items;
                 }

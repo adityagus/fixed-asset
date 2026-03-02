@@ -9,7 +9,7 @@
     </template>
                 
     <!-- Fixed Asset Statistics Panel -->
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-6 ">
+            <div class="grid grid-cols-1 md:grid-cols-1 xl:grid-cols-3 gap-6 mb-6 ">
                 <div class="panel h-full flex flex-col items-center justify-center p-6 bg-gradient-to-br from-blue-100 to-blue-300 dark:from-gray-800 dark:to-gray-900 shadow-lg rounded-xl">
                     <div class="text-2xl font-bold text-blue-700 dark:text-blue-300 mb-2">
                         <count-up :start-val='0':end-val="assetStats.active_assets + assetStats.inactive_assets + assetStats.depreciated_assets" :duration="2" />
@@ -28,7 +28,7 @@
                     </div>
                     <div class="text-lg text-gray-700 dark:text-gray-300">Aset Habis Disusutkan</div>
                 </div>
-                <div class="panel h-full flex flex-col items-center justify-center p-6 bg-gradient-to-br from-purple-100 to-purple-300 dark:from-purple-900 dark:to-purple-700 shadow-lg rounded-xl">
+                <!-- <div class="panel h-full flex flex-col items-center justify-center p-6 bg-gradient-to-br from-purple-100 to-purple-300 dark:from-purple-900 dark:to-purple-700 shadow-lg rounded-xl">
                     <div class="flex text-2xl font-bold text-purple-700 dark:text-purple-300 mb-2 gap-1">
                         Rp <count-up :start-val='0':end-val="assetStats.total_value" :duration="2" />
                     </div>
@@ -38,7 +38,7 @@
                             Penyusutan: Rp <count-up :start-val='0':end-val="assetStats.depreciation_value" :duration="2" />
                         </span>
                     </div>
-                </div>
+                </div> -->
             </div>
 
                             <!-- Fully Depreciated Assets Dashboard -->

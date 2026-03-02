@@ -18,10 +18,8 @@
     <div class="print-area">
       <div class="grid grid-cols-6 gap-6">
         <div v-for="asset in filteredAssets" :key="asset.asset_number" class="flex flex-col items-center mb-6 col-span-1 barcode-sticker">
-          <span class="text-xs mb-1 w-full text-center block">{{ asset.item.nama_brg }}</span>
           <span class="text-xs mb-1">{{ asset.asset_number }}</span>
           <qrcode-vue :value="asset.asset_number" :size="100" class="mb-1" />
-          <span class="text-xs">{{ asset.location }}</span>
         </div>
       </div>
     </div>

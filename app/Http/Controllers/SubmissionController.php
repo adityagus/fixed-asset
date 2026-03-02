@@ -509,13 +509,13 @@ class SubmissionController extends Controller
             ];
 
             // Cek duplikasi asset_number sebelum insert
-            if (!empty($assetData['asset_number'])) {
-              $exists = Assets::where('asset_number', $assetData['asset_number'])->exists();
-              if ($exists) {
-                // Lewati insert jika asset_number sudah ada
-                continue;
-              }
-            }
+            // if (!empty($assetData['asset_number'])) {
+            //   $exists = Assets::where('asset_number', $assetData['asset_number'])->exists();
+            //   if ($exists) {
+            //     // Lewati insert jika asset_number sudah ada
+            //     continue;
+            //   }
+            // }
 
             // Insert ke tabel Assets
             // dd(Assets::create($assetData));
@@ -654,34 +654,29 @@ class SubmissionController extends Controller
           ]);
 
           break;
-        case 'registration-asset':
-          // Ambil semua PO yang statusnya Full Approved dan punya item dengan is_locked = 0
-          $purchaseOrder = PurchaseOrder::with('purchaseOrderItems.itemMaster.category', 'purchaseOrderItems.itemMaster.brand', 'purchaseOrderItems.itemMaster.type', 'approvals', 'purchaseRequest')
-            ->where('status', 'Full Approved')
-            ->whereHas('purchaseOrderItems', function ($query) {
-              $query->where('is_locked', false);
-            })
-            ->orderBy('created_at', 'desc')
-            ->get();
+          case 'registration-asset':
+            $purchaseOrder = PurchaseOrder::with('purchaseOrderItems.itemMaster.category', 'purchaseOrderItems.itemMaster.brand', 'purchaseOrderItems.itemMaster.type', 'approvals', 'purchaseRequest')
+              ->where('status', 'Full Approved')
+              ->orderBy('created_at', 'desc')
+              ->get();
 
-          // Filter dan hanya tampilkan item yang is_locked = 0
-          $filteredRequests = $purchaseOrder->map(function ($po) {
-            // Filter hanya item yang is_locked = 0
-            $po->purchaseOrderItems = $po->purchaseOrderItems->filter(function ($item) {
-              return $item->is_locked == 0 || $item->is_locked === false;
+            // Ambil semua nomor PR yang sudah ada di PO dengan status bukan draft
+            $usedPrNumbers = RegistrationAsset::where('status', '!=', 'draft')
+              ->whereNotNull('purchase_order_number')
+              ->pluck('purchase_order_number')
+              ->toArray();
+
+            // Filter PR yang belum pernah dipakai di PO non-draft
+            $filteredRequests = $purchaseOrder->filter(function ($po) use ($usedPrNumbers) {
+              return !in_array($po->po_number, $usedPrNumbers);
             })->values();
-            return $po;
-          })->filter(function ($po) {
-            // Hanya tampilkan PO yang masih punya item dengan is_locked = 0
-            return $po->purchaseOrderItems->count() > 0;
-          })->values();
 
-          return response()->json([
-            'success' => true,
-            'data' => $filteredRequests
-          ]);
+            return response()->json([
+              'success' => true,
+              'data' => $filteredRequests
+            ]);
 
-          break;
+            break;
 
         default:
           return response()->json([

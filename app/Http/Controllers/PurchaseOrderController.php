@@ -141,13 +141,13 @@ class PurchaseOrderController extends Controller
           $request->merge(['total_amount' => $request->input('total_amount') + ($item['quantity'] * $item['unit_price'])]);
         }
       }
-    //   dd($request->all());
+      // dd($request->all());
       $validated = $request->validate([
         'purchase_request_number' => 'required|string|max:255',
         'vendor_id' => 'required|exists:mst_vendor,id',
         'po_date' => 'required|date',
         'total_amount' => 'required|numeric|min:0',
-        'status' => 'required|string|in:Draft,Waiting Approval,Approved,Rejected',
+        'status' => 'required|string|in:Draft,Waiting Approval,Revised,Approved,Rejected',
         'items' => 'required|array|min:1',
         // relasi ke master item
         'items.*.item_id' => 'required|numeric|min:1',
